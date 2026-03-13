@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/src/client/java/com/example/mixin/AbstractClientPlayerEntityMixin.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/client/java/com/example/mixin/AbstractClientPlayerEntityMixin.java" />
+              <option name="originalContent" value="package com.example.mixin;&#10;&#10;import com.example.GlowManager;&#10;import net.minecraft.client.network.AbstractClientPlayerEntity;&#10;import net.minecraft.entity.Entity;&#10;import org.spongepowered.asm.mixin.Mixin;&#10;import org.spongepowered.asm.mixin.injection.At;&#10;import org.spongepowered.asm.mixin.injection.Inject;&#10;import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;&#10;&#10;@Mixin(Entity.class)&#10;public class AbstractClientPlayerEntityMixin {&#10;    @Inject(method = &quot;setGlowing&quot;, at = @At(&quot;HEAD&quot;), cancellable = true)&#10;    private void onIsGlowingLocal(CallbackInfoReturnable&lt;Boolean&gt; cir) {&#10;        AbstractClientPlayerEntity self = (AbstractClientPlayerEntity) (Object) this;&#10;        if (GlowManager.has(self.getUuid())) {&#10;            cir.setReturnValue(true);&#10;        }&#10;    }&#10;}&#10;&#10;" />
+              <option name="updatedContent" value="package com.example.mixin;&#10;&#10;import com.example.GlowManager;&#10;import net.minecraft.client.network.AbstractClientPlayerEntity;&#10;import org.spongepowered.asm.mixin.Mixin;&#10;import org.spongepowered.asm.mixin.injection.At;&#10;import org.spongepowered.asm.mixin.injection.Inject;&#10;import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;&#10;&#10;@Mixin(AbstractClientPlayerEntity.class)&#10;public class AbstractClientPlayerEntityMixin {&#10;    @Inject(method = &quot;isGlowing&quot;, at = @At(&quot;HEAD&quot;), cancellable = true)&#10;    private void onIsGlowing(CallbackInfoReturnable&lt;Boolean&gt; cir) {&#10;        AbstractClientPlayerEntity self = (AbstractClientPlayerEntity) (Object) this;&#10;        if (GlowManager.has(self.getUuid())) {&#10;            cir.setReturnValue(true);&#10;        }&#10;    }&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/main/resources/glowplayer.mixins.json">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/main/resources/glowplayer.mixins.json" />
+              <option name="updatedContent" value="{&#10;  &quot;required&quot;: true,&#10;  &quot;minVersion&quot;: &quot;0.8&quot;,&#10;  &quot;package&quot;: &quot;com.example.mixin&quot;,&#10;  &quot;compatibilityLevel&quot;: &quot;JAVA_17&quot;,&#10;  &quot;client&quot;: [&#10;    &quot;AbstractClientPlayerEntityMixin&quot;&#10;  ]&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
