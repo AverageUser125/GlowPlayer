@@ -12,10 +12,10 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.example.Main"
+      "com.glowplayer.Main"
     ],
     "modmenu": [
-      "com.example.GlowPlayerModMenuImpl"
+      "com.glowplayer.GlowPlayerModMenuImpl"
     ]
   },
   "mixins": [
