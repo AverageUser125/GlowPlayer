@@ -239,6 +239,19 @@ public class GlowPlayerModMenuImpl implements ModMenuApi {
                         .build()
         );
 
+        // Break Reset Fix
+        fixesCategory.addEntry(
+                builder.entryBuilder()
+                        .startBooleanToggle(
+                                Text.literal("Break Reset Fix"),
+                                AllConfig.breakResetFix
+                        )
+                        .setDefaultValue(true)
+                        .setSaveConsumer(value -> AllConfig.breakResetFix = value)
+                        .setTooltip(Text.literal("Fix issues with block break state resets"))
+                        .build()
+        );
+
         return builder.build();
     }
 

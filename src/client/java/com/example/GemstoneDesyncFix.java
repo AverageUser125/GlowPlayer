@@ -4,17 +4,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.block.StainedGlassPaneBlock;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
 
+import static com.example.ExampleModClient.mc;
 import static net.minecraft.block.HorizontalConnectingBlock.*;
 
 public class GemstoneDesyncFix {
-
-    public static boolean active() {
-        return AllConfig.gemstoneDsyncFix;
-    }
-
     public static boolean isStainedGlass(BlockState state) {
         Block block = state.getBlock();
         return block instanceof StainedGlassBlock || block instanceof StainedGlassPaneBlock;
@@ -33,10 +28,8 @@ public class GemstoneDesyncFix {
     }
 
     public static void onBlock(BlockPos pos, BlockState oldState, BlockState newState) {
-        if (!active()) return;
+        if (!AllConfig.gemstoneDsyncFix) return;
         if (newState.isAir() && isStainedGlass(oldState)) {
-
-            MinecraftClient mc = MinecraftClient.getInstance();
             newState.updateNeighbors(mc.world, pos, Block.NOTIFY_ALL);
         }
     }

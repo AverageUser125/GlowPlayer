@@ -41,6 +41,7 @@ public class AllConfig {
     public static boolean showRngMeter = true;         // show RNG meter information
     public static boolean debugRngDisplay = false;     // enable debug output for RNG display
     public static boolean gemstoneDsyncFix = true;
+    public static boolean breakResetFix = true;
 
     static {
         load();

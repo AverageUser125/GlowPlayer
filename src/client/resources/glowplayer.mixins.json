@@ -9,7 +9,9 @@
     "MinecraftClientMixin",
     "ConnectionMixin",
     "PaneBlockMixin",
-    "WorldMixin"
+    "WorldMixin",
+    "ClientPlayerInteractionManagerAccessor",
+    "ClientPlayNetworkHandlerMixin"
   ]
 }
 

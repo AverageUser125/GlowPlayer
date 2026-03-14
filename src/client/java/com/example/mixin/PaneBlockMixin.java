@@ -1,5 +1,6 @@
 package com.example.mixin;
 
+import com.example.AllConfig;
 import com.example.GemstoneDesyncFix;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.block.BlockState;
@@ -12,7 +13,7 @@ public abstract class PaneBlockMixin {
 
     @ModifyReturnValue(method = "getStateForNeighborUpdate", at = @At("RETURN"))
     private BlockState onGetUpdateState(BlockState original) {
-        if (GemstoneDesyncFix.active() && GemstoneDesyncFix.isDefaultPane(original)) {
+        if (AllConfig.gemstoneDsyncFix && GemstoneDesyncFix.isDefaultPane(original)) {
             return GemstoneDesyncFix.asFullPane(original);
         }
         return original;
