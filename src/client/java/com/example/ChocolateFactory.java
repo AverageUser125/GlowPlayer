@@ -9,6 +9,8 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 
+import static com.example.Main.mc;
+
 /**
  * Fabric 1.21.10 port of the Kotlin ChocolateFactory module.
  * Automatically claims stray rabbits in the Chocolate Factory menu.
@@ -71,17 +73,16 @@ public class ChocolateFactory {
     }
 
     private void sendClickPacket(ScreenHandler handler, int slotIdx) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.interactionManager == null || client.player == null) {
+        if (mc.interactionManager == null || mc.player == null) {
             return;
         }
 
-        client.interactionManager.clickSlot(
+        mc.interactionManager.clickSlot(
                 handler.syncId,
                 slotIdx,
                 0,
                 SlotActionType.PICKUP,
-                client.player
+                mc.player
         );
     }
 }

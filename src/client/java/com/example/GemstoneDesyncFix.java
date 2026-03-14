@@ -6,9 +6,10 @@ import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.block.StainedGlassPaneBlock;
 import net.minecraft.util.math.BlockPos;
 
-import static com.example.ExampleModClient.mc;
+import static com.example.Main.mc;
 import static net.minecraft.block.HorizontalConnectingBlock.*;
 
+// https://github.com/WhatYouThing/NoFrills/blob/08b2e81e228a4e74bc5afacf9c234ce7a2e569a8/src/main/java/nofrills/features/mining/GemstoneDesyncFix.java#L18
 public class GemstoneDesyncFix {
     public static boolean isStainedGlass(BlockState state) {
         Block block = state.getBlock();

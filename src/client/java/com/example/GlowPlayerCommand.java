@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -19,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
+import static com.example.Main.mc;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
@@ -176,13 +176,12 @@ public class GlowPlayerCommand {
     /* ---------------- Listing ---------------- */
 
     private void listGlows() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
+        if (mc.world == null) return;
 
         StringBuilder sb = new StringBuilder("Forced glows:\n");
         boolean any = false;
 
-        for (AbstractClientPlayerEntity player : client.world.getPlayers()) {
+        for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
             Formatting color = GlowManager.getColor(player.getUuid());
             if (color != null) {
                 sb.append(player.getName().getString())
@@ -203,12 +202,11 @@ public class GlowPlayerCommand {
             CommandContext<FabricClientCommandSource> ctx,
             SuggestionsBuilder builder
     ) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return builder.buildFuture();
+        if (mc.world == null) return builder.buildFuture();
 
         String remaining = builder.getRemaining().toLowerCase();
 
-        for (AbstractClientPlayerEntity player : client.world.getPlayers()) {
+        for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
             if (isRealPlayer(player)) {
                 String name = player.getName().getString();
                 if (name.toLowerCase().startsWith(remaining)) {
@@ -251,16 +249,13 @@ public class GlowPlayerCommand {
 
         if (name.charAt(0) == '§' || name.charAt(0) == '!') return false;
         if (DISPLAY_NPC_COMPRESSED_NAME_PATTERN.matcher(name).matches()) return false;
-        if (EXTRA_DISPLAY_NPC_BY_NAME.contains(name)) return false;
-
-        return true;
+        return !EXTRA_DISPLAY_NPC_BY_NAME.contains(name);
     }
 
     private AbstractClientPlayerEntity findOnlinePlayer(String name) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return null;
+        if (mc.world == null) return null;
 
-        for (AbstractClientPlayerEntity player : client.world.getPlayers()) {
+        for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
             if (isRealPlayer(player)
                     && player.getName().getString().equalsIgnoreCase(name)) {
                 return player;
@@ -270,9 +265,8 @@ public class GlowPlayerCommand {
     }
 
     private void sendMessage(String message) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null) {
-            client.player.sendMessage(Text.literal(message), false);
+        if (mc.player != null) {
+            mc.player.sendMessage(Text.literal(message), false);
         }
     }
 }

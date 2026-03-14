@@ -11,11 +11,8 @@
   "icon": "assets/glowplayer/icon.png",
   "environment": "client",
   "entrypoints": {
-    "main": [
-      "com.example.ExampleMod"
-    ],
     "client": [
-      "com.example.ExampleModClient"
+      "com.example.Main"
     ],
     "modmenu": [
       "com.example.GlowPlayerModMenuImpl"

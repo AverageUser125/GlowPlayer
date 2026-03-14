@@ -3,7 +3,7 @@ package com.example;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
 
-public class ExampleModClient implements ClientModInitializer {
+public class Main implements ClientModInitializer {
 
     public static MinecraftClient mc;
     private GlowPlayerCommand glowPlayerCommand;

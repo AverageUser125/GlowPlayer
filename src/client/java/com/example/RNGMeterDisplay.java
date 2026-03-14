@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.example.Main.mc;
+
 /**
  * Fabric 1.21.10 RNG Meter Display feature.
  * Automatically highlights and displays RNG meter items with enhanced tooltip information.
@@ -265,10 +267,9 @@ public class RNGMeterDisplay {
      */
     private boolean isShiftKeyPressed() {
         try {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.getWindow() == null) return false;
+            if (mc.getWindow() == null) return false;
 
-            long window = client.getWindow().getHandle();
+            long window = mc.getWindow().getHandle();
             int shiftLeft = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_SHIFT);
             int shiftRight = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_SHIFT);
 

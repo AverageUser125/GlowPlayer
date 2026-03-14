@@ -9,6 +9,8 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.Main.mc;
+
 public class GlowTeamManager {
 
     private static final Map<Formatting, Team> TEAMS = new EnumMap<>(Formatting.class);
@@ -38,14 +40,13 @@ public class GlowTeamManager {
     }
 
     public static void assign(String playerName, Formatting color) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
+        if (mc.world == null) return;
 
         Team team = TEAMS.get(color);
         if (team == null) return;
 
         // Save original team if not already saved
-        Scoreboard scoreboard = client.world.getScoreboard();
+        Scoreboard scoreboard = mc.world.getScoreboard();
         if (!ORIGINAL_TEAMS.containsKey(playerName)) {
             Team originalTeam = scoreboard.getScoreHolderTeam(playerName);
             if (originalTeam != null && !TEAMS.containsValue(originalTeam)) {
@@ -57,10 +58,9 @@ public class GlowTeamManager {
     }
 
     public static void remove(String playerName) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
+        if (mc.world == null) return;
 
-        Scoreboard scoreboard = client.world.getScoreboard();
+        Scoreboard scoreboard = mc.world.getScoreboard();
 
         // Remove from glow team if in one
         for (Team team : TEAMS.values()) {
@@ -78,10 +78,9 @@ public class GlowTeamManager {
     }
 
     public static void clear() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) return;
+        if (mc.world == null) return;
 
-        Scoreboard scoreboard = client.world.getScoreboard();
+        Scoreboard scoreboard = mc.world.getScoreboard();
 
         // Remove all players from glow teams and restore their original teams
         for (String playerName : ORIGINAL_TEAMS.keySet()) {

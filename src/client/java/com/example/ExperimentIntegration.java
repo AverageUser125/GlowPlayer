@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.example.Main.mc;
+
 /**
  * Fabric 1.21.10 port of the Kotlin AutoExperiments module.
  * Mirrors the exact behavior: tracks state transitions and only clicks when new items appear.
@@ -81,9 +83,8 @@ public class ExperimentIntegration {
 
         if (slot49IsGlowstone && lastAddedNotEnchanted) {
             if (AllConfig.autoClose && chronomatronOrder.size() > maxChronomatron) {
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                if (player != null) {
-                    player.closeHandledScreen();
+                if (mc.player != null) {
+                    mc.player.closeHandledScreen();
                 }
             }
             hasAdded = false;
@@ -163,9 +164,8 @@ public class ExperimentIntegration {
             clicks = 0;
 
             if (ultrasequencerOrder.size() > maxUltraSequencer && AllConfig.autoClose) {
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                if (player != null) {
-                    player.closeHandledScreen();
+                if (mc.player != null) {
+                    mc.player.closeHandledScreen();
                 }
             }
         }
@@ -183,17 +183,16 @@ public class ExperimentIntegration {
     }
 
     private void sendClickPacket(ScreenHandler handler, int slotIdx) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.interactionManager == null || client.player == null) {
+        if (mc.interactionManager == null || mc.player == null) {
             return;
         }
 
-        client.interactionManager.clickSlot(
+        mc.interactionManager.clickSlot(
                 handler.syncId,
                 slotIdx,
                 0,
                 SlotActionType.PICKUP,
-                client.player
+                mc.player
         );
     }
 
