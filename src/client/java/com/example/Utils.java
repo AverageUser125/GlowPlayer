@@ -70,4 +70,8 @@ public class Utils {
     public static String getSkyblockId(ItemStack stack) {
         return getSkyblockId(getCustomData(stack));
     }
+
+    public static boolean hasRightClickAbility(ItemStack stack) {
+        return !getRightClickAbility(stack).isEmpty();
+    }
 }

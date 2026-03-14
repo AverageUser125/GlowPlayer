@@ -356,6 +356,19 @@ public class GlowPlayerModMenuImpl implements ModMenuApi {
                         .build()
         );
 
+        // No Ability Place
+        tweaksCategory.addEntry(
+                builder.entryBuilder()
+                        .startBooleanToggle(
+                                Text.literal("No Ability Place"),
+                                AllConfig.noAbilityPlace
+                        )
+                        .setDefaultValue(true)
+                        .setSaveConsumer(value -> AllConfig.noAbilityPlace = value)
+                        .setTooltip(Text.literal("Prevents ghost blocks from appearing when using block items with right click abilities."))
+                        .build()
+        );
+
         return builder.build();
     }
 

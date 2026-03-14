@@ -14,7 +14,8 @@
     "ClientPlayNetworkHandlerMixin",
     "ItemStackMixin",
     "HandledScreenMixin",
-    "DataTrackerMixin"
+    "DataTrackerMixin",
+    "BlockItemMixin"
   ]
 }
 

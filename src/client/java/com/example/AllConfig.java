@@ -50,7 +50,7 @@ public class AllConfig {
     public static boolean noLoadingScreen = false;
     public static boolean disconnectFix = true;
     public static boolean animationsFix = true;
-    public static boolean animationsFix = true;
+    public static boolean noAbilityPlace = true;
 
     static {
         load();
