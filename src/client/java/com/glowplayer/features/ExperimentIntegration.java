@@ -1,6 +1,7 @@
 package com.glowplayer.features;
 
 import com.glowplayer.utils.AllConfig;
+import com.glowplayer.utils.Utils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -8,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -128,7 +128,7 @@ public class ExperimentIntegration {
         if (hasAdded && slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")
                 && chronomatronOrder.size() > clicks && System.currentTimeMillis() - lastClickTime > AllConfig.clickDelay) {
             int slotToClick = chronomatronOrder.get(clicks);
-            sendClickPacket(handler, slotToClick);
+            Utils.clickSlot(slotToClick);
             lastClickTime = System.currentTimeMillis();
             clicks++;
         }
@@ -176,25 +176,11 @@ public class ExperimentIntegration {
                 && ultrasequencerOrder.containsKey(clicks) && System.currentTimeMillis() - lastClickTime > AllConfig.clickDelay) {
             Integer slotToClick = ultrasequencerOrder.get(clicks);
             if (slotToClick != null) {
-                sendClickPacket(handler, slotToClick);
+                Utils.clickSlot(slotToClick);
             }
             lastClickTime = System.currentTimeMillis();
             clicks++;
         }
-    }
-
-    private void sendClickPacket(ScreenHandler handler, int slotIdx) {
-        if (mc.interactionManager == null || mc.player == null) {
-            return;
-        }
-
-        mc.interactionManager.clickSlot(
-                handler.syncId,
-                slotIdx,
-                0,
-                SlotActionType.PICKUP,
-                mc.player
-        );
     }
 
     private boolean isItem(ItemStack stack, String itemId) {

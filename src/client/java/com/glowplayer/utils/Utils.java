@@ -5,6 +5,7 @@ import net.minecraft.component.type.LoreComponent;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -65,6 +66,20 @@ public class Utils {
             return customData.getString("id").orElse("");
         }
         return "";
+    }
+
+    public static void clickSlot(int slotIdx) {
+        if (mc.interactionManager == null || mc.player == null) {
+            return;
+        }
+
+        mc.interactionManager.clickSlot(
+                mc.player.currentScreenHandler.syncId,
+                slotIdx,
+                0,
+                SlotActionType.PICKUP,
+                mc.player
+        );
     }
 
     public static String getSkyblockId(ItemStack stack) {
