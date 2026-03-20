@@ -3,7 +3,7 @@ package com.somefrills.features.solvers;
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
 import com.somefrills.config.SettingInt;
-import com.somefrills.events.HudTickEvent;
+import com.somefrills.events.HudRenderEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.MinecraftClient;
@@ -26,7 +26,7 @@ public class ChocolateFactory {
     private static long lastClaimTime = 0;
 
     @EventHandler
-    public static void onHudTick(HudTickEvent event) {
+    public static void onHudTick(HudRenderEvent event) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
