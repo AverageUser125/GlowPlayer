@@ -1,26 +1,27 @@
 {
   "schemaVersion": 1,
-  "id": "glowplayer",
+  "id": "somefrills",
   "version": "${version}",
-  "name": "GlowPlayer",
+  "name": "SomeFrills",
   "description": "This Mod makes stuff glow",
   "authors": [
     "NaorVaninu"
   ],
-  "license": "MIT",
-  "icon": "assets/glowplayer/icon.png",
+  "license": "GPLv3",
+  "icon": "icon-mod/logo.png",
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.glowplayer.Main"
+      "com.somefrills.Main"
     ],
     "modmenu": [
-      "com.glowplayer.GlowPlayerModMenuImpl"
+      "com.somefrills.hud.ModMenuIntegration"
     ]
   },
   "mixins": [
-    "glowplayer.mixins.json"
+    "somefrills.mixins.json"
   ],
+  "accessWidener": "somefrills.accesswidener",
   "depends": {
     "fabricloader": ">=0.16.14",
     "minecraft": "~1.21.10",

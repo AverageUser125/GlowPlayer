@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.somefrills.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BossBarHudAccessor",
+    "ClientConnectionMixin",
+    "ClientPlayerInteractionManagerAccessor",
+    "ClientPlayerInteractionManagerMixin",
+    "ClientPlayNetworkHandlerMixin",
+    "ClientWorldMixin",
+    "HandledScreenAccessor",
+    "HandledScreenMixin",
+    "InGameHudMixin",
+    "KeyboardMixin",
+    "MinecraftClientMixin",
+    "MouseMixin",
+    "PlayerListHudAccessor",
+    "WorldMixin",
+    "WorldRendererMixin"
+  ]
+}
+
