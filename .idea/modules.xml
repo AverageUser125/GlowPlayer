@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GlowPlayer.client.iml" filepath="$PROJECT_DIR$/.idea/modules/GlowPlayer.client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GlowPlayer.main.iml" filepath="$PROJECT_DIR$/.idea/modules/GlowPlayer.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GlowPlayer.test.iml" filepath="$PROJECT_DIR$/.idea/modules/GlowPlayer.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SomeFrills.client.iml" filepath="$PROJECT_DIR$/.idea/modules/SomeFrills.client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SomeFrills.main.iml" filepath="$PROJECT_DIR$/.idea/modules/SomeFrills.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SomeFrills.test.iml" filepath="$PROJECT_DIR$/.idea/modules/SomeFrills.test.iml" />
     </modules>
   </component>
 </project>

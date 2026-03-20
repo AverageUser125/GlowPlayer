@@ -4,7 +4,9 @@ import com.somefrills.config.Config;
 import com.somefrills.events.ChatMsgEvent;
 import com.somefrills.events.OverlayMsgEvent;
 import com.somefrills.events.PartyChatMsgEvent;
-import com.somefrills.features.*;
+import com.somefrills.features.farming.*;
+import com.somefrills.features.tweaks.*;
+import com.somefrills.features.mining.*;
 import com.somefrills.hud.ClickGui;
 import com.somefrills.misc.Utils;
 import com.mojang.brigadier.CommandDispatcher;
@@ -68,6 +70,11 @@ public class Main implements ClientModInitializer {
 
         eventBus.subscribe(SpaceFarmer.class);
         eventBus.subscribe(Rewarp.class);
+        eventBus.subscribe(MiddleClickOverride.class);
+        eventBus.subscribe(BreakResetFix.class);
+        eventBus.subscribe(DoubleUseFix.class);
+        eventBus.subscribe(GemstoneDesyncFix.class);
+        eventBus.subscribe(GhostVision.class);
 
         LOGGER.info("It's time to get real, NoFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
     }

@@ -1,4 +1,4 @@
-package com.somefrills.features;
+package com.somefrills.features.farming;
 
 import com.somefrills.config.Feature;
 import com.somefrills.events.InputEvent;

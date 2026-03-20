@@ -2,7 +2,7 @@ package com.somefrills.hud;
 
 import com.google.common.collect.Lists;
 import com.somefrills.config.Config;
-import com.somefrills.features.SpaceFarmer;
+import com.somefrills.features.farming.SpaceFarmer;
 import com.somefrills.hud.components.FlatTextbox;
 import com.somefrills.hud.components.PlainLabel;
 import com.somefrills.misc.RenderColor;

@@ -4,21 +4,30 @@
   "package": "com.somefrills.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BlockItemMixin",
     "BossBarHudAccessor",
     "ClientConnectionMixin",
     "ClientPlayerInteractionManagerAccessor",
     "ClientPlayerInteractionManagerMixin",
     "ClientPlayNetworkHandlerMixin",
     "ClientWorldMixin",
+    "ConnectionMixin",
+    "EntityMixin",
     "HandledScreenAccessor",
     "HandledScreenMixin",
     "InGameHudMixin",
+    "ItemStackMixin",
     "KeyboardMixin",
     "MinecraftClientMixin",
     "MouseMixin",
+    "PaneBlockMixin",
     "PlayerListHudAccessor",
     "WorldMixin",
     "WorldRendererMixin"
+  ],
+  "client": [
+    "CreeperChargeFeatureRendererMixin",
+    "CreeperEntityMixin"
   ]
 }
 

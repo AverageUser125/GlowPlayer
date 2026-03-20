@@ -1,4 +1,4 @@
-package com.somefrills.features;
+package com.somefrills.features.farming;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

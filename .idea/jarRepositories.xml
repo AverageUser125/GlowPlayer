@@ -51,5 +51,15 @@
       <option name="name" value="maven2" />
       <option name="url" value="https://maven.shedaniel.me/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="meteor-maven" />
+      <option name="name" value="meteor-maven" />
+      <option name="url" value="https://maven.meteordev.org/releases" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="wispforest-maven" />
+      <option name="name" value="wispforest-maven" />
+      <option name="url" value="https://maven.wispforest.io/releases/" />
+    </remote-repository>
   </component>
 </project>

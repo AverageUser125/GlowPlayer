@@ -8,7 +8,7 @@
     "NaorVaninu"
   ],
   "license": "GPLv3",
-  "icon": "icon-mod/logo.png",
+  "icon": "icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [

@@ -1,0 +1,27 @@
+package com.somefrills.mixin;
+
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import static com.somefrills.Main.LOGGER;
+
+@Mixin(ClientConnection.class)
+public class ConnectionMixin {
+    @Inject(method = "send(Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"), cancellable = true)
+    private void glowplayer$interceptPackets(Packet<?> packet, CallbackInfo ci) {
+        if (packet instanceof CustomPayloadC2SPacket(CustomPayload payload)) {
+            CustomPayload.Id<?> type = payload.getId();
+            if (type == null) return;
+            String typeId = type.id().toString();
+            if (typeId.contains("firmament")) {
+                LOGGER.debug("Intercepted mod list packet, cancelling to prevent server from knowing about SomeFrills");
+                ci.cancel();
+            }
+        }
+    }
+}

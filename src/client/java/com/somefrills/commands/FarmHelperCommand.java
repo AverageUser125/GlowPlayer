@@ -1,7 +1,7 @@
 package com.somefrills.commands;
 
 import com.somefrills.config.Config;
-import com.somefrills.features.Rewarp;
+import com.somefrills.features.farming.Rewarp;
 import com.somefrills.hud.ClickGui;
 import com.somefrills.misc.Utils;
 import com.mojang.brigadier.CommandDispatcher;

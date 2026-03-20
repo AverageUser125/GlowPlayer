@@ -1,7 +1,7 @@
 package com.somefrills.mixin;
 
 import com.somefrills.events.InputEvent;
-import com.somefrills.features.SpaceFarmer;
+import com.somefrills.features.farming.SpaceFarmer;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.input.MouseInput;
 import org.spongepowered.asm.mixin.Mixin;

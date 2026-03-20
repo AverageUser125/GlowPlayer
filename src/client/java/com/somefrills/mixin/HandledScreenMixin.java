@@ -3,6 +3,7 @@ package com.somefrills.mixin;
 import com.somefrills.events.ScreenRenderEvent;
 import com.somefrills.events.SlotClickEvent;
 import com.somefrills.events.TooltipRenderEvent;
+import com.somefrills.features.tweaks.MiddleClickFix;
 import com.somefrills.misc.SlotOptions;
 import com.somefrills.misc.Utils;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -110,5 +111,13 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
     @Inject(method = "renderMain", at = @At(value = "INVOKE", target = "Lorg/joml/Matrix3x2fStack;popMatrix()Lorg/joml/Matrix3x2fStack;"))
     private void onAfterRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         eventBus.post(new ScreenRenderEvent.After(context, mouseX, mouseY, delta, this.title.getString(), this.handler, this.focusedSlot));
+    }
+
+    @ModifyExpressionValue(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isInCreativeMode()Z"))
+    private boolean onMiddleClick(boolean original) {
+        if (MiddleClickFix.instance.isActive()) {
+            return true;
+        }
+        return original;
     }
 }
