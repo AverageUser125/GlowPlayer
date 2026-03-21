@@ -2,10 +2,7 @@ package com.somefrills;
 
 import com.somefrills.config.Config;
 import com.somefrills.config.FeatureRegistry;
-import com.somefrills.events.ChatMsgEvent;
-import com.somefrills.events.ClientDisconnectEvent;
-import com.somefrills.events.OverlayMsgEvent;
-import com.somefrills.events.PartyChatMsgEvent;
+import com.somefrills.events.*;
 import com.somefrills.features.farming.*;
 import com.somefrills.features.solvers.*;
 import com.somefrills.features.tweaks.*;
@@ -21,6 +18,7 @@ import meteordevelopment.orbit.IEventBus;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
@@ -69,6 +67,25 @@ public class Main implements ClientModInitializer {
             return !cancelled;
         });
 
+
+        ClientTickEvents.END_CLIENT_TICK.register((client) -> eventBus.post(new EndTickEvent()));
+
+        // Post ClientDisconnectEvent on Fabric disconnect and save config
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            eventBus.post(new ClientDisconnectEvent());
+            // ensure config persists on disconnect
+            Config.save();
+        });
+
+        // Save config on JVM shutdown (game close)
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Config.save();
+            } catch (Throwable t) {
+                LOGGER.error("Error saving config on shutdown", t);
+            }
+        }));
+
         eventBus.registerLambdaFactory("com.somefrills",
                 (lookupInMethod, klass) -> (MethodHandles.Lookup)
                         lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
@@ -87,22 +104,6 @@ public class Main implements ClientModInitializer {
 
         // initialize reflection-based registry which also subscribes discovered features
         FeatureRegistry.init();
-
-        // Post ClientDisconnectEvent on Fabric disconnect and save config
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            eventBus.post(new ClientDisconnectEvent());
-            // ensure config persists on disconnect
-            Config.save();
-        });
-
-        // Save config on JVM shutdown (game close)
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                Config.save();
-            } catch (Throwable t) {
-                LOGGER.error("Error saving config on shutdown", t);
-            }
-        }));
 
         LOGGER.info("It's time to get real, NoFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
     }

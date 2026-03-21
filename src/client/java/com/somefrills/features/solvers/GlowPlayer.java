@@ -2,6 +2,7 @@ package com.somefrills.features.solvers;
 
 import com.somefrills.config.Feature;
 import com.somefrills.events.ClientDisconnectEvent;
+import com.somefrills.events.EndTickEvent;
 import com.somefrills.events.WorldTickEvent;
 import com.somefrills.misc.GlowManager;
 import com.somefrills.misc.GlowTeamManager;
@@ -15,7 +16,7 @@ public class GlowPlayer {
     public static final Feature instance = new Feature("glowPlayer", true);
 
     @EventHandler
-    public void onWorldTick(WorldTickEvent event) {
+    public void onWorldTick(EndTickEvent event) {
         if (!instance.isActive()) return;
         if (mc.world == null) return;
         GlowTeamManager.init();

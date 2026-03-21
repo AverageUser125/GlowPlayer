@@ -3,7 +3,7 @@ import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
 import com.somefrills.config.SettingInt;
 import com.somefrills.config.SettingDescription;
-import com.somefrills.events.HudRenderEvent;
+import com.somefrills.events.HudTickEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -57,7 +57,7 @@ public class ExperimentSolver {
     private int clicks = 0;
 
     @EventHandler
-    private void onHudTick(HudRenderEvent event) {
+    private void onHudTick(HudTickEvent event) {
         if (mc == null || mc.player == null) return;
         ClientPlayerEntity player = mc.player;
         ScreenHandler handler = player.currentScreenHandler;
