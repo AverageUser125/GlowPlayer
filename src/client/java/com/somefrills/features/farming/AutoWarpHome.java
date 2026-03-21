@@ -41,7 +41,6 @@ public class AutoWarpHome {
         lastStatus = PestStatus.UNKNOWN;
     }
 
-
     private static PestStatus checkAliveState(List<String> tabListLines) {
         for (String line : tabListLines) {
             if (line.contains("Alive")) {

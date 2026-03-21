@@ -2,7 +2,7 @@ package com.somefrills.features.misc;
 
 import com.somefrills.config.Feature;
 import com.somefrills.events.ClientDisconnectEvent;
-import com.somefrills.events.EndTickEvent;
+import com.somefrills.events.WorldTickEvent;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
@@ -51,7 +51,7 @@ public class GlowPlayer {
     }
 
     @EventHandler
-    public static void onWorldTick(EndTickEvent event) {
+    public static void onWorldTick(WorldTickEvent event) {
         if (!instance.isActive()) return;
         // Ensure teams exist before assigning
         createTeams();
