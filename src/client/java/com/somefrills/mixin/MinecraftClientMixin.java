@@ -3,8 +3,10 @@ package com.somefrills.mixin;
 import com.somefrills.config.Config;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.somefrills.events.*;
+import com.somefrills.features.solvers.GlowPlayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.world.ClientWorld;
@@ -29,14 +31,18 @@ public abstract class MinecraftClientMixin {
     @Nullable
     public ClientWorld world;
     @Shadow
-    @Final
-    private SoundManager soundManager;
-
-    @Shadow
     public abstract void setScreen(@Nullable Screen screen);
 
-    @Shadow
-    public abstract @Nullable ServerInfo getCurrentServerEntry();
+    @Inject(method = "hasOutline", at = @At("HEAD"), cancellable = true)
+    private void glowSpecificPlayers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if(!GlowPlayer.instance.isActive())return;
+        if (entity instanceof AbstractClientPlayerEntity player) {
+            String pure = GlowPlayer.convertToPureName(player.getName().getString());
+            if (GlowPlayer.hasPlayer(pure)) {
+                cir.setReturnValue(true);
+            }
+        }
+    }
 
     @Inject(method = "setScreen", at = @At("TAIL"))
     private void onOpenScreen(Screen screen, CallbackInfo ci) {
@@ -69,7 +75,7 @@ public abstract class MinecraftClientMixin {
         }
     }
 
-    @Inject(method = "doAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;attackBlock(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)Z"), cancellable = true)
+    @Inject(method = "doAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;attackBlock(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)Z"))
     private void onAttackBlock(CallbackInfoReturnable<Boolean> cir, @Local BlockHitResult blockHitResult, @Local BlockPos blockPos) {
         eventBus.post(new AttackBlockEvent(blockHitResult, blockPos));
     }

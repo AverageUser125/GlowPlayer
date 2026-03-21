@@ -6,8 +6,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.somefrills.features.solvers.GlowPlayer;
-import com.somefrills.misc.GlowManager;
-import com.somefrills.misc.GlowTeamManager;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -109,7 +107,7 @@ public class GlowPlayerCommand {
                                 Utils.info("GlowPlayer feature is disabled.");
                                 return 1;
                             }
-                            GlowManager.clear();
+                            GlowPlayer.clear();
                             Utils.info("Cleared all forced glows.");
                             return 1;
                         }))
@@ -119,82 +117,72 @@ public class GlowPlayerCommand {
     /* ---------------- Command handlers ---------------- */
 
     private static int addGlow(CommandContext<FabricClientCommandSource> ctx, Formatting color) {
-        String name = StringArgumentType.getString(ctx, "player");
-        AbstractClientPlayerEntity player = findOnlinePlayer(name);
+        String rawName = StringArgumentType.getString(ctx, "player");
+        String pureName = GlowPlayer.convertToPureName(rawName);
 
-        if (player == null) {
-            Utils.info("Player must be online to add glow!");
+        if (pureName == null) {
+            Utils.info("Invalid player name.");
             return 1;
         }
 
-        boolean added = GlowManager.add(player.getUuid(), color);
+        boolean added = GlowPlayer.addPlayer(pureName, color);
         Utils.info(
                 added
-                        ? player.getName().getString() + " will now glow (" + color.getName() + ")."
-                        : player.getName().getString() + " is already glowing."
+                        ? pureName + " will now glow (" + color.getName() + ")."
+                        : pureName + " is already glowing."
         );
         return 1;
     }
 
     private static int setColor(CommandContext<FabricClientCommandSource> ctx, Formatting color) {
-        String name = StringArgumentType.getString(ctx, "player");
-        AbstractClientPlayerEntity player = findOnlinePlayer(name);
+        String rawName = StringArgumentType.getString(ctx, "player");
+        String pureName = GlowPlayer.convertToPureName(rawName);
 
-        if (player == null) {
-            Utils.info("Player must be online to change glow color!");
+        if (pureName == null) {
+            Utils.info("Invalid player name.");
             return 1;
         }
 
-        if (!GlowManager.has(player.getUuid())) {
-            Utils.info(player.getName().getString() + " is not glowing.");
-            return 1;
-        }
-
-        GlowManager.add(player.getUuid(), color);
-        Utils.info(player.getName().getString() + " glow color set to " + color.getName() + ".");
+        // Set color even if the player wasn't previously added
+        GlowPlayer.addPlayer(pureName, color);
+        Utils.info(pureName + " glow color set to " + color.getName() + ".");
         return 1;
     }
 
     private static int removeGlow(CommandContext<FabricClientCommandSource> ctx) {
-        String name = StringArgumentType.getString(ctx, "player");
-        AbstractClientPlayerEntity player = findOnlinePlayer(name);
+        String rawName = StringArgumentType.getString(ctx, "player");
+        String pureName = GlowPlayer.convertToPureName(rawName);
 
-        if (player == null) {
-            Utils.info("Player must be online to remove glow!");
+        if (pureName == null) {
+            Utils.info("Invalid player name.");
             return 1;
         }
 
-        boolean removed = GlowManager.remove(player.getUuid());
+        boolean removed = GlowPlayer.removePlayer(pureName);
         Utils.info(
                 removed
-                        ? player.getName().getString() + " will no longer glow."
-                        : player.getName().getString() + " was not glowing."
+                        ? pureName + " will no longer glow."
+                        : pureName + " was not glowing."
         );
-        GlowTeamManager.remove(player.getName().getString());
-        // Never removed from GlowTeamManager since I don't care
+        // Ensure any scoreboard/team state is cleaned up
+        // GlowPlayer.removePlayer already restores teams on remove
         return 1;
     }
 
     /* ---------------- Listing ---------------- */
 
     private static void listGlows() {
-        if (mc.world == null) return;
-
-        StringBuilder sb = new StringBuilder("Forced glows:\n");
-        boolean any = false;
-
-        for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
-            Formatting color = GlowManager.getColor(player.getUuid());
-            if (color != null) {
-                sb.append(player.getName().getString())
-                        .append(" (")
-                        .append(color.getName())
-                        .append(")\n");
-                any = true;
-            }
+        java.util.Set<String> names = GlowPlayer.getForcedNames();
+        if (names.isEmpty()) {
+            Utils.info("No forced glows.");
+            return;
         }
 
-        if (!any) sb = new StringBuilder("No forced glows.");
+        StringBuilder sb = new StringBuilder("Forced glows:\n");
+        for (String name : names) {
+            Formatting color = GlowPlayer.getColor(name);
+            sb.append(name).append(" (").append(color == null ? "none" : color.getName()).append(")\n");
+        }
         Utils.info(sb.toString());
     }
 
@@ -234,17 +222,5 @@ public class GlowPlayerCommand {
     }
 
     /* ---------------- Utilities ---------------- */
-
-    private static AbstractClientPlayerEntity findOnlinePlayer(String name) {
-        if (mc.world == null) return null;
-
-        for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
-            if (Utils.isRealPlayer(player)
-                    && player.getName().getString().equalsIgnoreCase(name)) {
-                return player;
-            }
-        }
-        return null;
-    }
 
 }
