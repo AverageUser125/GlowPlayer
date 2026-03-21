@@ -1,11 +1,14 @@
 package com.somefrills.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.somefrills.events.ScreenRenderEvent;
 import com.somefrills.events.SlotClickEvent;
 import com.somefrills.events.TooltipRenderEvent;
 import com.somefrills.features.tweaks.MiddleClickFix;
+import com.somefrills.features.tweaks.MiddleClickOverride;
 import com.somefrills.misc.SlotOptions;
 import com.somefrills.misc.Utils;
 import net.minecraft.client.gui.DrawContext;
@@ -17,6 +20,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,8 +50,14 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
         super(title);
     }
 
-    @Shadow
-    protected abstract void onMouseClick(Slot slot, int slotId, int button, SlotActionType actionType);
+    @WrapOperation(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;onMouseClick(Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V", ordinal = 1))
+    private void onClickSlotRedirect(HandledScreen<?> instance, Slot slot, int slotId, int button, SlotActionType actionType, Operation<Void> original) {
+        if (MiddleClickOverride.shouldOverride(slot, button, actionType)) {
+            instance.onMouseClick(slot, slotId, GLFW.GLFW_MOUSE_BUTTON_3, SlotActionType.CLONE);
+        } else {
+            original.call(instance, slot, slotId, button, actionType);
+        }
+    }
 
     @Inject(method = "onMouseClick(Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V", at = @At("HEAD"), cancellable = true)
     private void onClickSlot(Slot slot, int slotId, int button, SlotActionType actionType, CallbackInfo ci) {

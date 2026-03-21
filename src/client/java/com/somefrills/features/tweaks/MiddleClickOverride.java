@@ -78,11 +78,7 @@ public class MiddleClickOverride {
         return Utils.getLoreLines(stack).stream().anyMatch(line -> line.equals("Cost") || line.equals("Sell Price") || line.equals("Bazaar Price"));
     }
 
-    @EventHandler
-    public static boolean shouldOverride(SlotClickEvent event) {
-        Slot slot = event.slot;
-        int button = event.button;
-        SlotActionType actionType = event.actionType;
+    public static boolean shouldOverride(Slot slot, int button, SlotActionType actionType) {
         if (instance.isActive() && mc.currentScreen instanceof GenericContainerScreen container) {
             if (slot != null && button == GLFW.GLFW_MOUSE_BUTTON_LEFT && actionType.equals(SlotActionType.PICKUP)) {
                 String title = container.getTitle().getString();
