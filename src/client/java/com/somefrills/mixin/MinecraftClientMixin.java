@@ -3,7 +3,7 @@ package com.somefrills.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.somefrills.config.Config;
 import com.somefrills.events.*;
-import com.somefrills.features.solvers.GlowPlayer;
+import com.somefrills.features.misc.GlowPlayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;

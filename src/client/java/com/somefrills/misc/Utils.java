@@ -11,7 +11,6 @@ import com.mojang.authlib.properties.Property;
 import com.somefrills.mixin.BossBarHudAccessor;
 import com.somefrills.mixin.HandledScreenAccessor;
 import com.somefrills.mixin.PlayerListHudAccessor;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.client.gui.hud.MessageIndicator;
@@ -54,12 +53,9 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.entity.SimpleEntityLookup;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,9 +67,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.somefrills.Main.LOGGER;
 import static com.somefrills.Main.mc;
-import static net.fabricmc.loader.impl.FabricLoaderImpl.MOD_ID;
 
 public class Utils {
     public static final MessageIndicator someFrillsIndicator = new MessageIndicator(0x5ca0bf, null, Text.of("Message SomeFrills mod."), "FarmHelper Mod");
@@ -708,37 +702,6 @@ public class Utils {
         Files.deleteIfExists(tempPath);
     }
 
-    private static int getVersionNumber(String version) {
-        String[] numbers = version.split("\\.");
-        if (numbers.length >= 3) {
-            return parseInt(numbers[0]).orElse(0) * 1000 + parseInt(numbers[1]).orElse(0) * 100 + parseInt(numbers[2]).orElse(0);
-        }
-        return 0;
-    }
-
-    public static void checkUpdate(boolean notifyIfMatch) {
-        Thread.startVirtualThread(() -> {
-            try {
-                String version = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion().getFriendlyString();
-                InputStream connection = URI.create("https://raw.githubusercontent.com/WhatYouThing/com.jelly.farmhelper/refs/heads/main/gradle.properties").toURL().openStream();
-                for (String line : IOUtils.toString(connection, StandardCharsets.UTF_8).split("\n")) {
-                    if (line.startsWith("mod_version=")) {
-                        String newest = line.replace("mod_version=", "");
-                        if (getVersionNumber(newest) > getVersionNumber(version)) {
-                            infoLink(format("§a§lNew version available! §aClick here to open the Modrinth releases page. §7Current: {}, Newest: {}", version, newest), "https://modrinth.com/mod/com.jelly.farmhelper/versions");
-                            return;
-                        }
-                    }
-                }
-                if (notifyIfMatch) {
-                    info("§aSomeFrills is up to date.");
-                }
-            } catch (IOException exception) {
-                info("§cAn error occurred while checking for an update. Additional information can be found in the log.");
-                LOGGER.error("SomeFrills update check failed.", exception);
-            }
-        });
-    }
 
     /**
      * Checks if our player entity is currently within an area, made from 2 sets of coordinates.

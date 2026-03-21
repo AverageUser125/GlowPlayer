@@ -1,4 +1,4 @@
-package com.somefrills.features.solvers;
+package com.somefrills.features.misc;
 
 import com.somefrills.config.Feature;
 import com.somefrills.events.ClientDisconnectEvent;
