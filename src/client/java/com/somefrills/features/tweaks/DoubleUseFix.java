@@ -1,4 +1,5 @@
 package com.somefrills.features.tweaks;
+
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
 import com.somefrills.config.SettingDescription;

@@ -1,5 +1,5 @@
 package com.somefrills.hud.clickgui;
-import com.somefrills.hud.clickgui.Module;
+
 import com.somefrills.hud.clickgui.components.PlainLabel;
 import io.wispforest.owo.ui.base.BaseComponent;
 import io.wispforest.owo.ui.container.Containers;

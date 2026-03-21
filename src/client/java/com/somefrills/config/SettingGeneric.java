@@ -7,9 +7,9 @@ import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
 
 public class SettingGeneric {
+    private final JsonElement defaultValue;
     private String key;
     private String parent;
-    private final JsonElement defaultValue;
     private JsonElement value;
 
     // Only default constructor: keys/parents are assigned by the registry using reflection

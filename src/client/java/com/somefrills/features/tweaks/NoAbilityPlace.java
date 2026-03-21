@@ -23,7 +23,7 @@ public class NoAbilityPlace {
     );
 
     public static boolean hasAbility(ItemPlacementContext context) {
-        if(!instance.isActive()) return false;
+        if (!instance.isActive()) return false;
         if (context == null) return false;
         ItemStack stack = context.getStack();
         String id = Utils.getSkyblockId(stack);

@@ -1,43 +1,52 @@
 package com.somefrills.hud.clickgui;
 
 import com.google.common.collect.Lists;
-import com.somefrills.config.Config;
+import com.somefrills.config.*;
+import com.somefrills.config.FeatureRegistry.FeatureInfo;
 import com.somefrills.hud.clickgui.components.FlatTextbox;
 import com.somefrills.hud.clickgui.components.PlainLabel;
 import com.somefrills.misc.RenderColor;
-import com.somefrills.misc.Rendering;
 import com.somefrills.misc.Utils;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
-import io.wispforest.owo.ui.component.ButtonComponent;
-import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-import com.somefrills.hud.clickgui.Module;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.somefrills.config.FeatureRegistry;
-import com.somefrills.config.FeatureRegistry.FeatureInfo;
-import com.somefrills.config.*;
-
-import static com.somefrills.Main.mc;
-
 public class ClickGui extends BaseOwoScreen<FlowLayout> {
     public List<Category> categories;
     public ScrollContainer<FlowLayout> mainScroll;
     public int mouseX = 0;
     public int mouseY = 0;
+
+    private static String humanize(String in) {
+        if (in == null || in.isEmpty()) return "";
+        // replace underscores/dashes with spaces, split camelCase and capitalize words
+        String withSpaces = in.replace('_', ' ').replace('-', ' ');
+        StringBuilder out = new StringBuilder();
+        char prev = ' ';
+        for (int i = 0; i < withSpaces.length(); i++) {
+            char c = withSpaces.charAt(i);
+            if (i > 0 && Character.isUpperCase(c) && (Character.isLowerCase(prev) || Character.isDigit(prev))) {
+                out.append(' ');
+            }
+            out.append(c);
+            prev = c;
+        }
+        String result = out.toString().trim();
+        if (result.isEmpty()) return result;
+        return Character.toUpperCase(result.charAt(0)) + result.substring(1);
+    }
 
     private boolean matchSearch(String text, String search) {
         return Utils.toLower(text).replaceAll(" ", "").contains(Utils.toLower(search).replaceAll(" ", ""));
@@ -215,24 +224,5 @@ public class ClickGui extends BaseOwoScreen<FlowLayout> {
             this.uiAdapter.dispose();
         }
         super.close();
-    }
-
-    private static String humanize(String in) {
-        if (in == null || in.isEmpty()) return "";
-        // replace underscores/dashes with spaces, split camelCase and capitalize words
-        String withSpaces = in.replace('_', ' ').replace('-', ' ');
-        StringBuilder out = new StringBuilder();
-        char prev = ' ';
-        for (int i = 0; i < withSpaces.length(); i++) {
-            char c = withSpaces.charAt(i);
-            if (i > 0 && Character.isUpperCase(c) && (Character.isLowerCase(prev) || Character.isDigit(prev))) {
-                out.append(' ');
-            }
-            out.append(c);
-            prev = c;
-        }
-        String result = out.toString().trim();
-        if (result.isEmpty()) return result;
-        return Character.toUpperCase(result.charAt(0)) + result.substring(1);
     }
 }

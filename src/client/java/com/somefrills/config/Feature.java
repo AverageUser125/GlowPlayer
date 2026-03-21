@@ -1,12 +1,11 @@
 package com.somefrills.config;
 
 import com.google.gson.JsonObject;
-import com.somefrills.Main;
 
 public class Feature {
+    private final boolean defaultEnabled;
     public String key;
     private boolean value = false;
-    private final boolean defaultEnabled;
 
     public Feature(String key) {
         this(key, false);

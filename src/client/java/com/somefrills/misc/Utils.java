@@ -4,13 +4,13 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.somefrills.mixin.BossBarHudAccessor;
-import com.somefrills.mixin.HandledScreenAccessor;
-import com.somefrills.mixin.PlayerListHudAccessor;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
+import com.somefrills.mixin.BossBarHudAccessor;
+import com.somefrills.mixin.HandledScreenAccessor;
+import com.somefrills.mixin.PlayerListHudAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.hud.ClientBossBar;
@@ -92,6 +92,14 @@ public class Utils {
             "Dungeon Hub",
             "Crimson Isle"
     );
+    // Helper data and utilities for player/name validation and color parsing
+    private static final java.util.Set<String> EXTRA_DISPLAY_NPC_BY_NAME = java.util.Set.of(
+            "Guy ",
+            "vswiblxdxg",
+            "anrrtqytsl"
+    );
+    private static final Pattern DISPLAY_NPC_COMPRESSED_NAME_PATTERN = Pattern.compile("[a-z0-9]{10}");
+
     public static void clickSlot(int slotIdx) {
         if (mc.interactionManager == null || mc.player == null) {
             return;
@@ -105,6 +113,7 @@ public class Utils {
                 mc.player
         );
     }
+
     public static void showTitle(String title, String subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
         mc.inGameHud.setTitle(Text.of(title));
         mc.inGameHud.setSubtitle(Text.of(subtitle));
@@ -152,15 +161,6 @@ public class Utils {
             }
         }
     }
-
-    // Helper data and utilities for player/name validation and color parsing
-    private static final java.util.Set<String> EXTRA_DISPLAY_NPC_BY_NAME = java.util.Set.of(
-            "Guy ",
-            "vswiblxdxg",
-            "anrrtqytsl"
-    );
-
-    private static final Pattern DISPLAY_NPC_COMPRESSED_NAME_PATTERN = Pattern.compile("[a-z0-9]{10}");
 
     public static Formatting parseColor(String input) {
         if (input == null) return null;

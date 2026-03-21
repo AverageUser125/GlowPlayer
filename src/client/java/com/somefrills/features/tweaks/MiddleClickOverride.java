@@ -1,4 +1,5 @@
 package com.somefrills.features.tweaks;
+
 import com.google.common.collect.Sets;
 import com.somefrills.config.Feature;
 import com.somefrills.events.SlotClickEvent;

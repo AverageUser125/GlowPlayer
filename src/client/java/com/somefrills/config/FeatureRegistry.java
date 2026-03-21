@@ -22,18 +22,6 @@ import java.util.stream.Collectors;
 public class FeatureRegistry {
     public static final List<FeatureInfo> FEATURES = new ArrayList<>();
 
-    public static class FeatureInfo {
-        public final Class<?> clazz;
-        public final Feature featureInstance;
-        public final Map<Field, SettingGeneric> settings = new LinkedHashMap<>();
-        public final Map<Field, String> descriptions = new LinkedHashMap<>();
-
-        public FeatureInfo(Class<?> clazz, Feature featureInstance) {
-            this.clazz = clazz;
-            this.featureInstance = featureInstance;
-        }
-    }
-
     public static void init() {
         try {
             List<Class<?>> classes = getClasses("com.somefrills.features");
@@ -161,5 +149,17 @@ public class FeatureRegistry {
 
     public static List<FeatureInfo> getFeatures() {
         return Collections.unmodifiableList(FEATURES);
+    }
+
+    public static class FeatureInfo {
+        public final Class<?> clazz;
+        public final Feature featureInstance;
+        public final Map<Field, SettingGeneric> settings = new LinkedHashMap<>();
+        public final Map<Field, String> descriptions = new LinkedHashMap<>();
+
+        public FeatureInfo(Class<?> clazz, Feature featureInstance) {
+            this.clazz = clazz;
+            this.featureInstance = featureInstance;
+        }
     }
 }

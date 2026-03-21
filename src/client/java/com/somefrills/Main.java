@@ -1,17 +1,12 @@
 package com.somefrills;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.somefrills.commands.SomeFrillsCommand;
 import com.somefrills.config.Config;
 import com.somefrills.config.FeatureRegistry;
 import com.somefrills.events.*;
-import com.somefrills.features.farming.*;
-import com.somefrills.features.solvers.*;
-import com.somefrills.features.tweaks.*;
-import com.somefrills.features.mining.*;
 import com.somefrills.hud.clickgui.ClickGui;
 import com.somefrills.misc.Utils;
-import com.mojang.brigadier.CommandDispatcher;
-import com.somefrills.commands.SomeFrillsCommand;
-import com.somefrills.features.solvers.GlowPlayer;
 import io.wispforest.owo.config.ui.ConfigScreenProviders;
 import meteordevelopment.orbit.EventBus;
 import meteordevelopment.orbit.IEventBus;
@@ -60,7 +55,7 @@ public class Main implements ClientModInitializer {
             boolean cancelled = eventBus.post(new ChatMsgEvent(message, msg)).isCancelled();
             if (msg.startsWith("Party > ") && msg.contains(": ")) {
                 int nameStart = msg.contains("]") && msg.indexOf("]") < msg.indexOf(":") ? msg.indexOf("]") : msg.indexOf(">");
-                String[] clean = msg.replace(msg.substring(0, nameStart + 1), "").split(":" , 2);
+                String[] clean = msg.replace(msg.substring(0, nameStart + 1), "").split(":", 2);
                 String author = clean[0].trim(), content = clean[1].trim();
                 cancelled = eventBus.post(new PartyChatMsgEvent(content, author)).isCancelled() || cancelled;
             }

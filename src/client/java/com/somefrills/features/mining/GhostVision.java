@@ -1,10 +1,6 @@
 package com.somefrills.features.mining;
 
-import com.somefrills.config.Feature;
-import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingColor;
-import com.somefrills.config.SettingEnum;
-import com.somefrills.config.SettingDescription;
+import com.somefrills.config.*;
 import com.somefrills.events.EntityUpdatedEvent;
 import com.somefrills.events.WorldRenderEvent;
 import com.somefrills.misc.EntityCache;

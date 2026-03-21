@@ -2,7 +2,9 @@ package com.somefrills.hud;
 
 import com.somefrills.config.SettingColor;
 import com.somefrills.hud.clickgui.Settings;
-import com.somefrills.hud.clickgui.components.*;
+import com.somefrills.hud.clickgui.components.FlatSlider;
+import com.somefrills.hud.clickgui.components.FlatTextbox;
+import com.somefrills.hud.clickgui.components.PlainLabel;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
 import io.wispforest.owo.ui.component.BoxComponent;

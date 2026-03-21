@@ -16,8 +16,8 @@ public class EntityMixin {
     private void makeCreeperVisible(CallbackInfoReturnable<Boolean> cir) {
         // Make invisible creepers fully visible (client-side) if config enabled
         if (GhostVision.instance.isActive() && GhostVision.makeCreepersVisible.value()) {
-            if((Object) this instanceof CreeperEntity creeper) {
-                 if (GhostVision.isGhost(creeper)) {
+            if ((Object) this instanceof CreeperEntity creeper) {
+                if (GhostVision.isGhost(creeper)) {
                     cir.setReturnValue(false);
                 }
             }
@@ -45,7 +45,7 @@ public class EntityMixin {
     @Inject(method = "getCustomName", at = @At("HEAD"), cancellable = true)
     private void giveCreeperName(CallbackInfoReturnable<Text> cir) {
         if (GhostVision.instance.isActive() && GhostVision.creeperShowHP.value()) {
-            if((Object) this instanceof CreeperEntity creeper) {
+            if ((Object) this instanceof CreeperEntity creeper) {
                 // Only show HP if creeper is not invisible and config enabled
                 float currentHealth = creeper.getHealth();
                 float maxHealth = creeper.getMaxHealth();

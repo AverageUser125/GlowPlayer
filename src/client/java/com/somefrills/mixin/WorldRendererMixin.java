@@ -1,7 +1,7 @@
 package com.somefrills.mixin;
 
-import com.somefrills.events.WorldRenderEvent;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.somefrills.events.WorldRenderEvent;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.render.VertexConsumerProvider;

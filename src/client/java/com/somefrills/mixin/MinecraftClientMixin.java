@@ -1,21 +1,18 @@
 package com.somefrills.mixin;
 
-import com.somefrills.config.Config;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.somefrills.config.Config;
 import com.somefrills.events.*;
 import com.somefrills.features.solvers.GlowPlayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,12 +27,13 @@ public abstract class MinecraftClientMixin {
     @Shadow
     @Nullable
     public ClientWorld world;
+
     @Shadow
     public abstract void setScreen(@Nullable Screen screen);
 
     @Inject(method = "hasOutline", at = @At("HEAD"), cancellable = true)
     private void glowSpecificPlayers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if(!GlowPlayer.instance.isActive())return;
+        if (!GlowPlayer.instance.isActive()) return;
         if (entity instanceof AbstractClientPlayerEntity player) {
             String pure = GlowPlayer.convertToPureName(player.getName().getString());
             if (GlowPlayer.hasPlayer(pure)) {

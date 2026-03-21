@@ -1,8 +1,8 @@
 package com.somefrills.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.somefrills.events.*;
 import com.somefrills.misc.SkyblockData;
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.Entity;

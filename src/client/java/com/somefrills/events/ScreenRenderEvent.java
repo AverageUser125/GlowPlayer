@@ -1,8 +1,8 @@
 package com.somefrills.events;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Rendering;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.renderstate.LineElementRenderState;
 import net.minecraft.client.gl.RenderPipelines;

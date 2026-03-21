@@ -1,11 +1,11 @@
 package com.somefrills.commands;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.somefrills.config.Config;
 import com.somefrills.features.farming.Rewarp;
 import com.somefrills.hud.clickgui.ClickGui;
 import com.somefrills.misc.Utils;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 

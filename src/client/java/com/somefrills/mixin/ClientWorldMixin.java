@@ -1,8 +1,8 @@
 package com.somefrills.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.somefrills.events.EntityRemovedEvent;
 import com.somefrills.events.WorldTickEvent;
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.DynamicRegistryManager;
