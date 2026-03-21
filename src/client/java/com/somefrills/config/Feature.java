@@ -6,9 +6,15 @@ public class Feature {
     public String key;
     private int hash = 0;
     private boolean value = false;
+    private final boolean defaultEnabled;
 
     public Feature(String key) {
+        this(key, false);
+    }
+
+    public Feature(String key, boolean defaultEnabled) {
         this.key = key;
+        this.defaultEnabled = defaultEnabled;
         this.value = this.isActive();
     }
 
@@ -22,7 +28,8 @@ public class Feature {
                 JsonObject data = Config.get().get(this.key).getAsJsonObject();
                 this.value = data.has("enabled") && data.get("enabled").getAsBoolean();
             } else {
-                this.value = false;
+                // use the feature's default when config does not contain it
+                this.value = this.defaultEnabled;
             }
             this.hash = Config.getHash();
         }

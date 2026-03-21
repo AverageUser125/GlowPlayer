@@ -14,7 +14,7 @@ import net.minecraft.util.hit.HitResult;
 import static com.somefrills.Main.mc;
 
 public class DoubleUseFix {
-    public static final Feature instance = new Feature("doubleUseFix");
+    public static final Feature instance = new Feature("doubleUseFix", true);
 
     @SettingDescription("Only enable double-use fix while in Skyblock")
     public static final SettingBool skyblockCheck = new SettingBool(false);

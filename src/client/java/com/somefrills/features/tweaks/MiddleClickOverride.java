@@ -15,7 +15,7 @@ import java.util.HashSet;
 import static com.somefrills.Main.mc;
 
 public class MiddleClickOverride {
-    public static final Feature instance = new Feature("middleClickOverride");
+    public static final Feature instance = new Feature("middleClickOverride", true);
     private static final HashSet<String> matchBlacklist = Sets.newHashSet(
             "Attribute Fusion",
             "Beacon",

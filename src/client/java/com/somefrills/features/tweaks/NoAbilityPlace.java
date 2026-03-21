@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack;
 import java.util.HashSet;
 
 public class NoAbilityPlace {
-    public static final Feature instance = new Feature("noAbilityPlace");
+    public static final Feature instance = new Feature("noAbilityPlace", true);
     private static final HashSet<String> abilityWhitelist = Sets.newHashSet(
             "ABINGOPHONE",
             "SUPERBOOM_TNT",

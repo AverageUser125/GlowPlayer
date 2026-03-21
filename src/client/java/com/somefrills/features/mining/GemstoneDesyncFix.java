@@ -17,7 +17,7 @@ import static com.somefrills.Main.mc;
 import static net.minecraft.block.ConnectingBlock.*;
 
 public class GemstoneDesyncFix {
-    public static final Feature instance = new Feature("gemstoneDesyncFix");
+    public static final Feature instance = new Feature("gemstoneDesyncFix", true);
 
     private static final HashSet<String> islands = Sets.newHashSet(
             "Dwarven Mines",

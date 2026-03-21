@@ -12,7 +12,7 @@ import net.minecraft.util.Formatting;
 import static com.somefrills.Main.mc;
 
 public class GlowPlayer {
-    public static final Feature instance = new Feature("glowPlayer");
+    public static final Feature instance = new Feature("glowPlayer", true);
 
     @EventHandler
     public void onWorldTick(WorldTickEvent event) {
