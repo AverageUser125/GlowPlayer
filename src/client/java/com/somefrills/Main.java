@@ -90,18 +90,6 @@ public class Main implements ClientModInitializer {
                 (lookupInMethod, klass) -> (MethodHandles.Lookup)
                         lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
 
-        // subscribe some individual ones retained for earlier static usage
-        eventBus.subscribe(SpaceFarmer.class);
-        eventBus.subscribe(Rewarp.class);
-        eventBus.subscribe(MiddleClickOverride.class);
-        eventBus.subscribe(BreakResetFix.class);
-        eventBus.subscribe(DoubleUseFix.class);
-        eventBus.subscribe(GemstoneDesyncFix.class);
-        eventBus.subscribe(GhostVision.class);
-        eventBus.subscribe(ChocolateFactory.class);
-        eventBus.subscribe(ExperimentSolver.class);
-        eventBus.subscribe(GlowPlayer.class);
-
         // initialize reflection-based registry which also subscribes discovered features
         FeatureRegistry.init();
 

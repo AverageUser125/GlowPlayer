@@ -5,6 +5,8 @@ import com.somefrills.Main;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.*;
@@ -47,6 +49,14 @@ public class FeatureRegistry {
                     instanceField.setAccessible(true);
                     Feature feat = (Feature) instanceField.get(null);
                     if (feat == null) continue;
+
+                    // Validate event handler methods: any method annotated with @EventHandler must be static
+                    for (Method m : cls.getDeclaredMethods()) {
+                        if (m.isAnnotationPresent(meteordevelopment.orbit.EventHandler.class) && !Modifier.isStatic(m.getModifiers())) {
+                            throw new IllegalStateException("Feature class '" + cls.getName() + "' declares a non-static @EventHandler method '" + m.getName() + "' — feature event handlers must be static when subscribing the class. Use a static method or have the registry subscribe an instance.");
+                        }
+                    }
+
                     FeatureInfo info = new FeatureInfo(cls, feat);
 
                     for (Field f : cls.getDeclaredFields()) {
@@ -75,10 +85,12 @@ public class FeatureRegistry {
                     FEATURES.add(info);
                 } catch (Throwable t) {
                     Main.LOGGER.debug("Failed to inspect feature class {}: {}", cls.getName(), t.toString());
+                    // If it's an IllegalStateException we want it to bubble up so the developer notices
+                    if (t instanceof IllegalStateException) throw (IllegalStateException) t;
                 }
             }
 
-            // subscribe found feature classes to event bus
+            // subscribe found feature classes to event bus (class subscription registers static handlers)
             for (FeatureInfo info : FEATURES) {
                 try {
                     Main.eventBus.subscribe(info.clazz);
