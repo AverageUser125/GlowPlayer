@@ -1,10 +1,8 @@
 package com.somefrills.features.farming;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonArray;
 import com.somefrills.config.Feature;
-import com.somefrills.config.SettingJson;
+import com.somefrills.config.SettingBlockPosList;
 import com.somefrills.config.SettingDescription;
 import com.somefrills.events.WorldRenderEvent;
 import com.somefrills.misc.RenderColor;
@@ -15,44 +13,32 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.List;
+
 import static com.somefrills.Main.mc;
 
 public class Rewarp {
     public static final Feature instance = new Feature("rewarp");
     // Use the feature key as the parent so settings are grouped under the feature
     @SettingDescription("Stored rewarp points (edited with commands)")
-    public static SettingJson warps = new SettingJson(new JsonObject());
+    public static SettingBlockPosList warps = new SettingBlockPosList(new JsonObject());
 
     // Add current player position as a waypoint (x,y,z)
     public static void addWaypoint() {
         if (mc.player == null) return;
         BlockPos pos = mc.player.getBlockPos();
-        warps.edit(data -> {
-            JsonArray arr = data.has("waypoints") ? data.getAsJsonArray("waypoints") : new JsonArray();
-            JsonObject obj = new JsonObject();
-            obj.addProperty("x", pos.getX());
-            obj.addProperty("y", pos.getY());
-            obj.addProperty("z", pos.getZ());
-            arr.add(obj);
-            data.add("waypoints", arr);
-        });
+        warps.add(pos);
         Utils.infoFormat("Added waypoint at {},{},{}.", pos.getX(), pos.getY(), pos.getZ());
     }
 
     // Remove the last waypoint (if any)
     public static void removeLastWaypoint() {
-        warps.edit(data -> {
-            if (!data.has("waypoints")) return;
-            JsonArray arr = data.getAsJsonArray("waypoints");
-            if (arr.size() == 0) return;
-            arr.remove(arr.size() - 1);
-            data.add("waypoints", arr);
-        });
+        warps.removeLast();
         Utils.info("Removed last waypoint.");
     }
 
     public static void clearWaypoints() {
-        warps.edit(d -> d.add("waypoints", new JsonArray()));
+        warps.clearWaypoints();
         Utils.info("Cleared all waypoints.");
     }
 
@@ -61,22 +47,14 @@ public class Rewarp {
         // Only render if player exists
         if (mc.player == null) return;
 
-        JsonObject data = warps.value();
-        if (data == null || !data.has("waypoints")) return;
-
-        JsonArray arr = data.getAsJsonArray("waypoints");
-        if (arr == null) return;
+        List<BlockPos> list = warps.valueList();
+        if (list == null || list.isEmpty()) return;
 
         RenderColor cyan = RenderColor.fromHex(0x00FFFF, 0.4f);
 
-        for (JsonElement e : arr) {
+        for (BlockPos pos : list) {
             try {
-                if (!e.isJsonObject()) continue;
-                JsonObject obj = e.getAsJsonObject();
-                int x = obj.get("x").getAsInt();
-                int y = obj.get("y").getAsInt();
-                int z = obj.get("z").getAsInt();
-                Vec3d center = new Vec3d(x + 0.5, y + 0.5, z + 0.5);
+                Vec3d center = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
                 Box box = Box.of(center, 0.5, 0.5, 0.5);
                 Rendering.drawFilled(event.matrices, event.consumer, event.camera, box, true, cyan);
             } catch (Exception ignored) {

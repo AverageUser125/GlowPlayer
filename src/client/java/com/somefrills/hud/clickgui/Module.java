@@ -1,7 +1,7 @@
-package com.somefrills.hud;
+package com.somefrills.hud.clickgui;
 
 import com.somefrills.config.Feature;
-import com.somefrills.hud.components.PlainLabel;
+import com.somefrills.hud.clickgui.components.PlainLabel;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.gui.Click;

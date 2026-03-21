@@ -1,12 +1,16 @@
-package com.somefrills.hud;
+package com.somefrills.hud.clickgui;
 
 import com.somefrills.config.*;
-import com.somefrills.hud.components.*;
+import com.somefrills.hud.ColorPickerScreen;
+import com.somefrills.hud.clickgui.components.*;
+import com.somefrills.hud.clickgui.components.KeybindButton;
+import com.somefrills.hud.clickgui.components.PlainLabel;
+import com.somefrills.hud.clickgui.components.ToggleButton;
 import com.somefrills.misc.Rendering;
 import com.somefrills.misc.Utils;
 import io.wispforest.owo.ui.base.BaseComponent;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
-import io.wispforest.owo.ui.component.ButtonComponent;
+import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -397,62 +401,6 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
         }
     }
 
-    // Numeric text input for integer settings (no slider)
-    public static class NumberInputInt extends FlowLayout {
-        public SettingInt setting;
-
-        public NumberInputInt(String name, SettingInt setting, String tooltip) {
-            super(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL);
-            this.padding(Insets.of(5));
-            this.horizontalAlignment(HorizontalAlignment.LEFT);
-            this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
-            FlatTextbox text = new FlatTextbox(Sizing.fixed(150));
-            label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
-            text.onChanged().subscribe(change -> {
-                java.util.Optional<Integer> value = Utils.parseInt(text.getText());
-                if (value.isPresent()) {
-                    this.setting.set(value.get());
-                }
-            });
-            text.text(String.valueOf(this.setting.value()));
-            this.child(label);
-            this.child(text);
-            this.child(buildResetButton(btn -> {
-                this.setting.reset();
-                text.setText(String.valueOf(this.setting.value()));
-            }));
-        }
-    }
-
-    // Numeric text input for double settings (allows decimal input)
-    public static class NumberInputDouble extends FlowLayout {
-        public SettingDouble setting;
-
-        public NumberInputDouble(String name, SettingDouble setting, String tooltip) {
-            super(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL);
-            this.padding(Insets.of(5));
-            this.horizontalAlignment(HorizontalAlignment.LEFT);
-            this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
-            FlatTextbox text = new FlatTextbox(Sizing.fixed(150));
-            label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
-            text.onChanged().subscribe(change -> {
-                java.util.Optional<Double> value = Utils.parseDouble(text.getText());
-                value.ifPresent(aDouble -> this.setting.set(aDouble));
-            });
-            text.text(String.valueOf(roundDouble(this.setting.value())));
-            this.child(label);
-            this.child(text);
-            this.child(buildResetButton(btn -> {
-                this.setting.reset();
-                text.setText(String.valueOf(roundDouble(this.setting.value())));
-            }));
-        }
-    }
-
     public static class Keybind extends FlowLayout {
         public SettingKeybind setting;
         public KeybindButton button;
@@ -474,6 +422,45 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
                 this.setting.reset();
                 this.button.bind(this.setting.value());
             }));
+        }
+    }
+
+    public static class BlockPosList extends FlowLayout {
+        public SettingBlockPosList setting;
+
+        public BlockPosList(String name, SettingBlockPosList setting, String tooltip) {
+            super(Sizing.content(), Sizing.content(), Algorithm.VERTICAL);
+            this.padding(Insets.of(5));
+            this.horizontalAlignment(HorizontalAlignment.LEFT);
+            this.setting = setting;
+
+            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            label.tooltip(Text.literal(tooltip));
+            label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
+            this.child(label);
+
+            FlowLayout buttonRow = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+            ButtonComponent addBtn = Components.button(Text.literal("Add Current"), btn -> {
+                if (mc.player != null) setting.add(mc.player.getBlockPos());
+            });
+            ButtonComponent removeBtn = Components.button(Text.literal("Remove Last"), btn -> setting.removeLast());
+            ButtonComponent clearBtn = Components.button(Text.literal("Clear"), btn -> setting.clearWaypoints());
+            addBtn.horizontalSizing(Sizing.fixed(90));
+            removeBtn.horizontalSizing(Sizing.fixed(90));
+            clearBtn.horizontalSizing(Sizing.fixed(60));
+            addBtn.renderer(buttonRenderer);
+            removeBtn.renderer(buttonRenderer);
+            clearBtn.renderer(buttonRenderer);
+            buttonRow.child(addBtn);
+            buttonRow.child(removeBtn);
+            buttonRow.child(clearBtn);
+            this.child(buttonRow);
+
+            this.child(new Separator("Waypoints"));
+            for (net.minecraft.util.math.BlockPos pos : setting.valueList()) {
+                String coord = pos.getX() + "," + pos.getY() + "," + pos.getZ();
+                this.child(new Description(coord, coord));
+            }
         }
     }
 

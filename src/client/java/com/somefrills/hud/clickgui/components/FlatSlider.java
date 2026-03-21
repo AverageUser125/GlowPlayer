@@ -1,4 +1,4 @@
-package com.somefrills.hud.components;
+package com.somefrills.hud.clickgui.components;
 
 import io.wispforest.owo.ui.component.SlimSliderComponent;
 import io.wispforest.owo.ui.core.CursorStyle;

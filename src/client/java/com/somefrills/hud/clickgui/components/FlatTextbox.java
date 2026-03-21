@@ -1,4 +1,4 @@
-package com.somefrills.hud.components;
+package com.somefrills.hud.clickgui.components;
 
 import com.somefrills.misc.Rendering;
 import io.wispforest.owo.ui.component.TextBoxComponent;

@@ -1,6 +1,6 @@
-package com.somefrills.hud.components;
+package com.somefrills.hud.clickgui.components;
 
-import com.somefrills.hud.Settings;
+import com.somefrills.hud.clickgui.Settings;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.util.EventSource;
 import io.wispforest.owo.util.EventStream;

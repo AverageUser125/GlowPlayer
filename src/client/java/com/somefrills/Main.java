@@ -10,7 +10,7 @@ import com.somefrills.features.farming.*;
 import com.somefrills.features.solvers.*;
 import com.somefrills.features.tweaks.*;
 import com.somefrills.features.mining.*;
-import com.somefrills.hud.ClickGui;
+import com.somefrills.hud.clickgui.ClickGui;
 import com.somefrills.misc.Utils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.somefrills.commands.SomeFrillsCommand;

@@ -1,5 +1,6 @@
 package com.somefrills.hud;
 
+import com.somefrills.hud.clickgui.ClickGui;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 

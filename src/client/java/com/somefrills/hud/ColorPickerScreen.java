@@ -1,7 +1,8 @@
-package com.somefrills.hud.components;
+package com.somefrills.hud;
 
 import com.somefrills.config.SettingColor;
-import com.somefrills.hud.Settings;
+import com.somefrills.hud.clickgui.Settings;
+import com.somefrills.hud.clickgui.components.*;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
 import io.wispforest.owo.ui.component.BoxComponent;
