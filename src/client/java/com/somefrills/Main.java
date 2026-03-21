@@ -88,10 +88,21 @@ public class Main implements ClientModInitializer {
         // initialize reflection-based registry which also subscribes discovered features
         FeatureRegistry.init();
 
-        // Post ClientDisconnectEvent on Fabric disconnect
+        // Post ClientDisconnectEvent on Fabric disconnect and save config
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             eventBus.post(new ClientDisconnectEvent());
+            // ensure config persists on disconnect
+            Config.save();
         });
+
+        // Save config on JVM shutdown (game close)
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Config.save();
+            } catch (Throwable t) {
+                LOGGER.error("Error saving config on shutdown", t);
+            }
+        }));
 
         LOGGER.info("It's time to get real, NoFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
     }

@@ -11,7 +11,6 @@ public class SettingGeneric {
     private String parent;
     private final JsonElement defaultValue;
     private JsonElement value;
-    private int hash = 0;
 
     // Only default constructor: keys/parents are assigned by the registry using reflection
     public SettingGeneric(Object defaultValue) {
@@ -35,14 +34,11 @@ public class SettingGeneric {
     }
 
     public void update() {
-        if (this.value == null || this.hash != Config.getHash()) {
-            if (Config.get().has(this.parent)) {
-                JsonObject data = Config.get().getAsJsonObject(this.parent);
-                this.value = data.has(this.key) ? data.get(this.key) : this.defaultValue;
-            } else {
-                this.value = this.defaultValue;
-            }
-            this.hash = Config.getHash();
+        if (Config.get().has(this.parent)) {
+            JsonObject data = Config.get().getAsJsonObject(this.parent);
+            this.value = data.has(this.key) ? data.get(this.key) : this.defaultValue;
+        } else {
+            this.value = this.defaultValue;
         }
     }
 
@@ -51,19 +47,12 @@ public class SettingGeneric {
         return this.value;
     }
 
-    public void set(JsonElement value, boolean recompute) {
+    public void set(JsonElement value) {
         if (!Config.get().has(this.parent)) {
             Config.get().add(this.parent, new JsonObject());
         }
         this.value = value;
         Config.get().get(this.parent).getAsJsonObject().add(this.key, this.value);
-        if (recompute) {
-            Config.computeHash();
-        }
-    }
-
-    public void set(JsonElement value) {
-        this.set(value, true);
     }
 
     public void set(Object value) {

@@ -1,10 +1,10 @@
 package com.somefrills.config;
 
 import com.google.gson.JsonObject;
+import com.somefrills.Main;
 
 public class Feature {
     public String key;
-    private int hash = 0;
     private boolean value = false;
     private final boolean defaultEnabled;
 
@@ -22,16 +22,16 @@ public class Feature {
         return this.key;
     }
 
+    /**
+     * Refresh the feature's value from the current config. If the config does not contain the
+     * feature key, the feature's default is used.
+     */
     public void update() {
-        if (this.hash != Config.getHash()) {
-            if (Config.get().has(this.key)) {
-                JsonObject data = Config.get().get(this.key).getAsJsonObject();
-                this.value = data.has("enabled") && data.get("enabled").getAsBoolean();
-            } else {
-                // use the feature's default when config does not contain it
-                this.value = this.defaultEnabled;
-            }
-            this.hash = Config.getHash();
+        if (Config.get().has(this.key)) {
+            JsonObject data = Config.get().getAsJsonObject(this.key);
+            this.value = data.has("enabled") && data.get("enabled").getAsBoolean();
+        } else {
+            this.value = this.defaultEnabled;
         }
     }
 
@@ -46,6 +46,5 @@ public class Feature {
         }
         this.value = toggle;
         Config.get().get(this.key).getAsJsonObject().addProperty("enabled", this.value);
-        Config.computeHash();
     }
 }

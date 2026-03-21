@@ -697,7 +697,7 @@ public class Utils {
                 fileName.substring(fileName.indexOf(".") + 1)
         ));
         if (!Files.exists(parent)) {
-            Files.createDirectory(parent);
+            Files.createDirectories(parent);
         }
         Files.writeString(tempPath, content);
         try {

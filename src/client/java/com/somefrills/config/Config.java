@@ -24,6 +24,7 @@ public class Config {
     }
 
     public static void load() {
+        // minimal logging: only report load errors
         if (Files.exists(filePath)) {
             try {
                 data = JsonParser.parseString(Files.readString(filePath)).getAsJsonObject();
@@ -37,17 +38,24 @@ public class Config {
     }
 
     public static void save() {
-        try {
-            int currentHash = data.hashCode();
-
-            // kip saving if nothing changed
+        // serialize under lock to avoid concurrent mutation while serializing and writing
+        String json;
+        int currentHash;
+        synchronized (Config.class) {
+            json = GSON.toJson(data);
+            currentHash = json.hashCode();
+            // skip saving if nothing changed
             if (currentHash == hash) {
                 return;
             }
+        }
 
-            Utils.atomicWrite(filePath, GSON.toJson(data));
+        try {
+            Utils.atomicWrite(filePath, json);
 
-            hash = currentHash;
+            synchronized (Config.class) {
+                hash = currentHash;
+            }
 
         } catch (Exception exception) {
             LOGGER.error("Unable to save SomeFrills config file!", exception);
@@ -55,15 +63,20 @@ public class Config {
     }
 
     public static void saveAsync() {
-        Thread.startVirtualThread(Config::save);
+        try {
+            // try virtual threads first (Java 21+), fallback to normal thread otherwise
+            Thread.startVirtualThread(Config::save);
+        } catch (Throwable t) {
+            Thread thread = new Thread(Config::save);
+            thread.setDaemon(true);
+            thread.start();
+        }
     }
 
-    public static int getHash() {
-        return hash;
-    }
-
-    public static void computeHash() {
-        hash = data.hashCode();
+    private static void computeHash() {
+        synchronized (Config.class) {
+            hash = data.hashCode();
+        }
     }
 
     public static JsonObject get() {

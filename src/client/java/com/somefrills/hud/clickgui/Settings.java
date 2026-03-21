@@ -174,6 +174,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
 
     @Override
     public void close() {
+        Config.saveAsync();
         mc.setScreen(new ClickGui());
     }
 
