@@ -10,8 +10,6 @@ import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
 import static com.somefrills.Main.mc;
@@ -19,8 +17,6 @@ import static com.somefrills.Main.mc;
 public final class AutoFish {
     public static final Feature instance = new Feature("autoFish");
 
-    @SettingDescription("Verbose logging for AutoFish")
-    public static final SettingBool verbose = new SettingBool(false);
     @SettingDescription("Use fish timer checks from armor stand names")
     public static final SettingBool useFishTimerCheck = new SettingBool(true);
     @SettingDescription("Automatically catch fish")
@@ -45,6 +41,9 @@ public final class AutoFish {
     public static final SettingInt maxRecastAttempts = new SettingInt(3);
     @SettingDescription("Cooldown in milliseconds between automatic recasts")
     public static final SettingInt recastCooldownMs = new SettingInt(500);
+
+    @SettingDescription("Verbose logging for AutoFish")
+    public static final SettingBool verbose = new SettingBool(false);
 
     public static int counter = 0;
     // runtime state (moved to top)
@@ -96,10 +95,7 @@ public final class AutoFish {
     }
 
     private static boolean isHoldingRod(ItemStack item) {
-        if (!item.getItem().equals(Items.FISHING_ROD)) return false;
-        Text customName = item.getCustomName();
-        if (customName == null) return true;
-        return customName.getString().contains("rod");
+        return Utils.getSkyblockId(item).contains("ROD");
     }
 
     @EventHandler

@@ -16,9 +16,6 @@ final class AutoFishAntiAfk {
     // Minimal state: last trigger time to debounce
     private static long lastAfkTriggerTime = 0;
 
-    /**
-     * Reset any anti-afk state. If rotate==true, reset player's view to default (0,0).
-     */
     public static void reset() {
         if (mc.player == null) return;
         if(!instance.isActive()) return;
