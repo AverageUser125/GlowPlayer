@@ -44,7 +44,6 @@ public class Main implements ClientModInitializer {
         mc = MinecraftClient.getInstance();
 
         Config.load();
-
         ConfigScreenProviders.register("com.somefrills", screen -> new ClickGui());
         ClientCommandRegistrationCallback.EVENT.register(Main::registerCommands);
 
@@ -89,7 +88,8 @@ public class Main implements ClientModInitializer {
 
         eventBus.subscribe(SkyblockData.class);
         eventBus.subscribe(EntityCache.class);
-        // initialize reflection-based registry which also subscribes discovered features
+        FeatureRegistry.init();
+        FeatureRegistry.reconcileFeatureSubscriptions();
 
 
         LOGGER.info("It's time to get real, NoFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);

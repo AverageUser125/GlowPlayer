@@ -36,8 +36,6 @@ public class Config {
             save();
         }
         computeHash();
-        // After loading config, subscribe all features that are enabled in the config
-        reconcileFeatureSubscriptions();
     }
 
     public static void save() {
@@ -84,29 +82,5 @@ public class Config {
 
     public static JsonObject get() {
         return data;
-    }
-
-    public static void reconcileFeatureSubscriptions() {
-        try {
-            if (FeatureRegistry.getFeatures().isEmpty()) {
-                FeatureRegistry.init();
-            }
-        } catch (Exception e) {
-            LOGGER.debug("FeatureRegistry.init() failed during reconcile: {}", e.toString());
-        }
-
-        for (FeatureRegistry.FeatureInfo info : FeatureRegistry.getFeatures()) {
-            try {
-                Feature feat = info.featureInstance;
-                if (feat == null) continue;
-                if (feat.isActive()) {
-                    Main.eventBus.subscribe(info.clazz);
-                } else {
-                    Main.eventBus.unsubscribe(info.clazz);
-                }
-            } catch (Throwable t) {
-                LOGGER.debug("Error reconciling feature {}: {}", info.clazz.getName(), t.toString());
-            }
-        }
     }
 }

@@ -170,8 +170,18 @@ public class FeatureRegistry {
         return names;
     }
 
+    public static void reconcileFeatureSubscriptions() {
+        for(FeatureInfo info : FEATURES) {
+            if(info.featureInstance.isActive()){
+                Main.eventBus.subscribe(info.clazz);
+            } else {
+                Main.eventBus.unsubscribe(info.clazz);
+            }
+        }
+    }
+
     public static List<FeatureInfo> getFeatures() {
-        return Collections.unmodifiableList(FEATURES);
+        return FEATURES;
     }
 
     public static class FeatureInfo {
