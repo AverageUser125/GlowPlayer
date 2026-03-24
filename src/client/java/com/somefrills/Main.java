@@ -4,10 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.somefrills.commands.SomeFrillsCommand;
 import com.somefrills.config.Config;
 import com.somefrills.config.FeatureRegistry;
-import com.somefrills.events.ChatMsgEvent;
-import com.somefrills.events.ClientDisconnectEvent;
-import com.somefrills.events.OverlayMsgEvent;
-import com.somefrills.events.PartyChatMsgEvent;
+import com.somefrills.events.*;
+import com.somefrills.features.solvers.ExperimentSolver;
 import com.somefrills.hud.clickgui.ClickGui;
 import com.somefrills.misc.EntityCache;
 import com.somefrills.misc.SkyblockData;
@@ -18,6 +16,7 @@ import meteordevelopment.orbit.IEventBus;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
@@ -42,10 +41,10 @@ public class Main implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         long start = Util.getMeasuringTimeMs();
-
         mc = MinecraftClient.getInstance();
 
         Config.load();
+
         ConfigScreenProviders.register("com.somefrills", screen -> new ClickGui());
         ClientCommandRegistrationCallback.EVENT.register(Main::registerCommands);
 
@@ -73,6 +72,8 @@ public class Main implements ClientModInitializer {
             Config.save();
         });
 
+        ClientTickEvents.END_CLIENT_TICK.register((client) -> eventBus.post(new EndTickEvent()));
+
         // Save config on JVM shutdown (game close)
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -89,7 +90,7 @@ public class Main implements ClientModInitializer {
         eventBus.subscribe(SkyblockData.class);
         eventBus.subscribe(EntityCache.class);
         // initialize reflection-based registry which also subscribes discovered features
-        FeatureRegistry.init();
+
 
         LOGGER.info("It's time to get real, NoFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
     }

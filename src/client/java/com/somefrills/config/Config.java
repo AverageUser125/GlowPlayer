@@ -86,7 +86,7 @@ public class Config {
         return data;
     }
 
-    private static void reconcileFeatureSubscriptions() {
+    public static void reconcileFeatureSubscriptions() {
         try {
             if (FeatureRegistry.getFeatures().isEmpty()) {
                 FeatureRegistry.init();

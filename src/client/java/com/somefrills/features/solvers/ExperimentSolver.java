@@ -1,7 +1,9 @@
 package com.somefrills.features.solvers;
 
 import com.somefrills.config.*;
+import com.somefrills.events.EndTickEvent;
 import com.somefrills.events.HudTickEvent;
+import com.somefrills.events.WorldTickEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -55,7 +57,7 @@ public class ExperimentSolver {
     private static int clicks = 0;
 
     @EventHandler
-    private static void onHudTick(HudTickEvent event) {
+    public static void onHudTick(EndTickEvent event) {
         if (mc == null || mc.player == null) return;
         ClientPlayerEntity player = mc.player;
         ScreenHandler handler = player.currentScreenHandler;
@@ -69,12 +71,13 @@ public class ExperimentSolver {
 
         // Use regex pattern to detect experiment table
         if (EXPERIMENT_PATTERN.matcher(title).find()) {
-
             // Determine which experiment type
             if (enableChronomatron.value() && title.contains("Chronomatron")) {
                 solveChronomatron(handler);
             } else if (enableUltrasequencer.value() && title.contains("Ultrasequencer")) {
                 solveUltraSequencer(handler);
+            } else {
+                reset();
             }
         } else {
             if (!title.isEmpty()) {
@@ -149,40 +152,30 @@ public class ExperimentSolver {
         List<Slot> invSlots = handler.slots;
         int maxUltraSequencer = getMaxXp.value() ? 20 : (9 - serumCount.value());
 
-        // Reset when slot 49 becomes clock (new round)
         ItemStack stack49 = invSlots.get(49).getStack();
-        if (isItem(stack49, "minecraft:clock")) {
-            hasAdded = false;
-        }
 
-        // Detect and rebuild map when slot 49 becomes glowstone
+        // Remember the mapping when glowstone appears
         if (!hasAdded && isItem(stack49, "minecraft:glowstone")) {
             ultrasequencerOrder.clear();
-
             for (int i = 0; i < invSlots.size(); i++) {
                 ItemStack stack = invSlots.get(i).getStack();
-                if (stack != null && ! stack.isEmpty()) {
-                    int stackSize = stack.getCount();
-                    if (isDye(stack)) {
-                        int idx = stackSize - 1;
-                        ultrasequencerOrder.put(idx, i);
-                    }
+                if (stack != null && !stack.isEmpty() && isDye(stack)) {
+                    ultrasequencerOrder.put(stack.getCount() - 1, i); // stackSize-1 -> slot
                 }
             }
-
-            hasAdded = true;
+            hasAdded = true; // mapping remembered
             clicks = 0;
 
-            if (ultrasequencerOrder.size() > maxUltraSequencer && autoClose.value()) {
-                if (mc.player != null) {
-                    mc.player.closeHandledScreen();
-                }
+            if (ultrasequencerOrder.size() > maxUltraSequencer && autoClose.value() && mc.player != null) {
+                mc.player.closeHandledScreen();
             }
         }
 
-        // Perform clicking: slot 49 is clock AND we have dyes to click
-        if (isItem(stack49, "minecraft:clock")
-                && ultrasequencerOrder.containsKey(clicks) && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
+        // Perform clicking only when slot 49 is clock
+        if (isItem(stack49, "minecraft:clock") && hasAdded
+                && clicks < ultrasequencerOrder.size()
+                && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
+
             Integer slotToClick = ultrasequencerOrder.get(clicks);
             if (slotToClick != null) {
                 Utils.clickSlot(slotToClick);
@@ -190,17 +183,28 @@ public class ExperimentSolver {
             lastClickTime = System.currentTimeMillis();
             clicks++;
         }
+
+        // Reset at the start of a new round if necessary
+        if (isItem(stack49, "minecraft:clock") && clicks >= ultrasequencerOrder.size()) {
+            hasAdded = false;
+            clicks = 0;
+            ultrasequencerOrder.clear();
+        }
     }
 
     private static boolean isItem(ItemStack stack, String itemId) {
         if (stack == null || stack.isEmpty()) return false;
-        String actualId = Registries.ITEM.getId(stack.getItem()).toString();
-        return actualId.equals(itemId);
+        String id = Registries.ITEM.getId(stack.getItem()).toString();
+        return id.equals(itemId);
     }
     private static boolean isDye(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;
-        String actualId = Registries.ITEM.getId(stack.getItem()).toString();
-        return !actualId.contains("pane") && !actualId.contains("glass");
+        String id = Registries.ITEM.getId(stack.getItem()).toString();
+        return id.contains("dye")
+                || id.contains("ink_sac") || id.contains("lapis")
+                || id.contains("rose") || id.contains("cactus")
+                || id.contains("cocoa")
+                || id.contains("bone_meal");
     }
 
     private static boolean isEnchanted(ItemStack stack) {
