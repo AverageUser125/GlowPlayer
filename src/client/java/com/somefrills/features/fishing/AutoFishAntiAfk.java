@@ -1,6 +1,8 @@
 package com.somefrills.features.fishing;
 
 import com.somefrills.config.Feature;
+import com.somefrills.config.SettingBool;
+import com.somefrills.config.SettingDescription;
 
 import java.util.Random;
 
@@ -9,15 +11,18 @@ import static com.somefrills.Main.mc;
 
 final class AutoFishAntiAfk {
     private static final Feature instance = new Feature("antiAfk");
+    @SettingDescription("Reset player facing when switching away from rod")
+    public static final SettingBool resetFacingWhenNotFishing = new SettingBool(false);
     // Minimal state: last trigger time to debounce
     private static long lastAfkTriggerTime = 0;
 
     /**
      * Reset any anti-afk state. If rotate==true, reset player's view to default (0,0).
      */
-    public static void reset(boolean rotate) {
+    public static void reset() {
         if (mc.player == null) return;
-        if (rotate) {
+        if(!instance.isActive()) return;
+        if (resetFacingWhenNotFishing.value()) {
             mc.player.setYaw(0f);
             mc.player.setPitch(0f);
         }

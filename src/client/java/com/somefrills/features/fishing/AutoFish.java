@@ -21,8 +21,6 @@ public final class AutoFish {
 
     @SettingDescription("Verbose logging for AutoFish")
     public static final SettingBool verbose = new SettingBool(false);
-    @SettingDescription("Reset player facing when switching away from rod")
-    public static final SettingBool resetFacingWhenNotFishing = new SettingBool(false);
     @SettingDescription("Use fish timer checks from armor stand names")
     public static final SettingBool useFishTimerCheck = new SettingBool(true);
     @SettingDescription("Automatically catch fish")
@@ -94,7 +92,7 @@ public final class AutoFish {
             reset();
         }
 
-        AutoFishAntiAfk.reset(false);
+        AutoFishAntiAfk.reset();
     }
 
     private static boolean isHoldingRod(ItemStack item) {
@@ -115,7 +113,7 @@ public final class AutoFish {
             boolean holdingRod = isHoldingRod(holdingItem);
 
             if (heldRod && !holdingRod) {
-                AutoFishAntiAfk.reset(resetFacingWhenNotFishing.value());
+                AutoFishAntiAfk.reset();
                 // Switching away from rod: clear only hook-related state, do NOT reset throwFirstClock
                 heldRod = false;
                 heldItem = holdingItem;
