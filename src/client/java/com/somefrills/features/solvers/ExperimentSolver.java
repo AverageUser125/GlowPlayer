@@ -2,6 +2,7 @@ package com.somefrills.features.solvers;
 
 import com.somefrills.config.*;
 import com.somefrills.events.HudTickEvent;
+import com.somefrills.misc.Clock;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -49,7 +50,7 @@ public class ExperimentSolver {
     );
     private static final Map<Integer, Integer> ultrasequencerOrder = new HashMap<>();
     private static final List<Integer> chronomatronOrder = new ArrayList<>();
-    private static long lastClickTime = 0;
+    private static final Clock lastClickClock = new Clock();
     private static boolean hasAdded = false;
     private static int lastAdded = 0;
     private static int clicks = 0;
@@ -137,10 +138,10 @@ public class ExperimentSolver {
 
         // Perform clicking: slot 49 is clock AND we have items to click
         if (hasAdded && slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")
-                && chronomatronOrder.size() > clicks && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
+                && chronomatronOrder.size() > clicks && lastClickClock.ended(clickDelay.value())) {
             int slotToClick = chronomatronOrder.get(clicks);
             Utils.clickSlot(slotToClick);
-            lastClickTime = System.currentTimeMillis();
+            lastClickClock.update();
             clicks++;
         }
     }
@@ -184,12 +185,12 @@ public class ExperimentSolver {
 
         // Perform clicking: slot 49 is clock AND we have dyes to click
         if (slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")
-                && ultrasequencerOrder.containsKey(clicks) && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
+                && ultrasequencerOrder.containsKey(clicks) && lastClickClock.ended(clickDelay.value())) {
             Integer slotToClick = ultrasequencerOrder.get(clicks);
             if (slotToClick != null) {
                 Utils.clickSlot(slotToClick);
             }
-            lastClickTime = System.currentTimeMillis();
+            lastClickClock.update();
             clicks++;
         }
     }
@@ -223,5 +224,6 @@ public class ExperimentSolver {
         hasAdded = false;
         lastAdded = 0;
         clicks = 0;
+        lastClickClock.clear();
     }
 }
