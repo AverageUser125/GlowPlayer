@@ -12,9 +12,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.somefrills.Main.mc;
@@ -47,7 +45,8 @@ public class ExperimentSolver {
             "(?:Superpairs|Chronomatron|Ultrasequencer) ?(?:\\(.+\\)|➜ Stakes|Rewards)|Experiment(?:ation Tabl| [Oo]v)er?",
             Pattern.CASE_INSENSITIVE
     );
-    private static final Map<Integer, Integer> ultrasequencerOrder = new HashMap<>();
+    // ultrasequencerIndex: index = (dye count - 1) -> slot index; null when not initialized
+    private static int[] ultrasequencerIndex = null;
     private static final List<Integer> chronomatronOrder = new ArrayList<>();
     private static long lastClickTime = 0;
     private static boolean hasAdded = false;
@@ -108,6 +107,7 @@ public class ExperimentSolver {
             // Each color appears in 2 rows (row height = 9), so skip slots that are 9 apart (same color)
 
             int lastSlotAdded = -1;
+            chronomatronOrder.clear();
             for (int i = 11; i < 57; i++) { // Scan the colored glass/terracotta area (slots 11-56)
                 Slot s = invSlots.get(i);
                 if (s.getStack() != null && !s.getStack().isEmpty() && isEnchanted(s.getStack())) {
@@ -157,38 +157,53 @@ public class ExperimentSolver {
 
         // Detect and rebuild map when slot 49 becomes glowstone
         if (!hasAdded && slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:glowstone")) {
-            ultrasequencerOrder.clear();
-
-            for (int i = 0; i < invSlots.size(); i++) {
+            // Build an index array keyed by dye count (count 1 -> index 0)
+            int start = 11;
+            int end = Math.min(57, invSlots.size());
+            int maxCount = 0;
+            for (int i = start; i < end; i++) {
                 Slot s = invSlots.get(i);
-                if (s.getStack() != null && !s.getStack().isEmpty()) {
-                    int stackSize = s.getStack().getCount();
-                    boolean isDye = isItem(s.getStack(), "minecraft:dye");
-
-                    if (isDye) {
-                        int idx = stackSize - 1;
-                        ultrasequencerOrder.put(idx, i);
-                    }
+                if (s.getStack() != null && !s.getStack().isEmpty() && isItem(s.getStack(), "minecraft:dye")) {
+                    int cnt = s.getStack().getCount();
+                    if (cnt > maxCount) maxCount = cnt;
                 }
             }
 
-            hasAdded = true;
-            clicks = 0;
+            if (maxCount > 0) {
+                int[] idx = new int[maxCount];
+                for (int i = 0; i < maxCount; i++) idx[i] = -1;
+                int valid = 0;
+                for (int i = start; i < end; i++) {
+                    Slot s = invSlots.get(i);
+                    if (s.getStack() != null && !s.getStack().isEmpty() && isItem(s.getStack(), "minecraft:dye")) {
+                        int cnt = s.getStack().getCount();
+                        int pos = cnt - 1;
+                        if (pos >= 0 && pos < maxCount && idx[pos] == -1) {
+                            idx[pos] = i;
+                            valid++;
+                        }
+                    }
+                }
 
-            if (ultrasequencerOrder.size() > maxUltraSequencer && autoClose.value()) {
-                if (mc.player != null) {
-                    mc.player.closeHandledScreen();
+                // Convert index array to ultrasequencerIndex only if we found at least one mapping
+                if (valid > 0) {
+                    ultrasequencerIndex = idx;
+                    hasAdded = true;
+                    clicks = 0;
+
+                    if (valid > maxUltraSequencer && autoClose.value()) {
+                        if (mc.player != null) mc.player.closeHandledScreen();
+                    }
                 }
             }
         }
 
         // Perform clicking: slot 49 is clock AND we have dyes to click
         if (slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")
-                && ultrasequencerOrder.containsKey(clicks) && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
-            Integer slotToClick = ultrasequencerOrder.get(clicks);
-            if (slotToClick != null) {
-                Utils.clickSlot(slotToClick);
-            }
+                && ultrasequencerIndex != null && clicks < ultrasequencerIndex.length && ultrasequencerIndex[clicks] != -1
+                && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
+            int slotToClick = ultrasequencerIndex[clicks];
+            Utils.clickSlot(slotToClick);
             lastClickTime = System.currentTimeMillis();
             clicks++;
         }
@@ -218,7 +233,7 @@ public class ExperimentSolver {
     }
 
     private static void reset() {
-        ultrasequencerOrder.clear();
+        ultrasequencerIndex = null;
         chronomatronOrder.clear();
         hasAdded = false;
         lastAdded = 0;

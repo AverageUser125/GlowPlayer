@@ -535,10 +535,10 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
         }
     }
 
-    public static class DoubleInput extends FlowLayout {
+    public static class NumberDoubleInput extends FlowLayout {
         public SettingDouble setting;
 
-        public DoubleInput(String name, SettingDouble setting, String tooltip) {
+        public NumberDoubleInput(String name, SettingDouble setting, String tooltip) {
             super(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL);
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);

@@ -125,7 +125,7 @@ public class ClickGui extends BaseOwoScreen<FlowLayout> {
                 if (setting instanceof SettingBool sb) {
                     optionLayouts.add(new Settings.Toggle(name, sb, tooltip));
                 } else if (setting instanceof SettingDouble sd) {
-                    optionLayouts.add(new Settings.DoubleInput(name, sd, tooltip));
+                    optionLayouts.add(new Settings.NumberDoubleInput(name, sd, tooltip));
                 } else if (setting instanceof SettingIntSlider sis) {
                     optionLayouts.add(new Settings.SliderInt(name, sis.min(), sis.max(), 1, sis, tooltip));
                 } else if (setting instanceof SettingInt si) {
