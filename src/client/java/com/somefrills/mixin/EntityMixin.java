@@ -67,14 +67,15 @@ public class EntityMixin {
             }
         }
     }
+
     @Inject(method = "getTeamColorValue", at = @At("HEAD"), cancellable = true)
     public void onGetTeamColor(CallbackInfoReturnable<Integer> cir) {
-        if(!GlowPlayer.instance.isActive()) return;
-        Entity self = (Entity)(Object)this;
+        if (!GlowPlayer.instance.isActive()) return;
+        Entity self = (Entity) (Object) this;
         if (self instanceof AbstractClientPlayerEntity player) {
             String pure = GlowPlayer.convertToPureName(player.getName().getString());
             Integer color = GlowPlayer.getColorAsInt(pure);
-            if(color != null) {
+            if (color != null) {
                 cir.setReturnValue(color);
             }
         }

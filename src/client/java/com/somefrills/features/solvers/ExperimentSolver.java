@@ -4,7 +4,6 @@ import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
 import com.somefrills.config.SettingDescription;
 import com.somefrills.config.SettingInt;
-import com.somefrills.events.HudRenderEvent;
 import com.somefrills.events.HudTickEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;

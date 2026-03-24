@@ -4,11 +4,10 @@ import com.somefrills.config.Feature;
 import com.somefrills.events.ClientDisconnectEvent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.ColorHelper;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.somefrills.Main.mc;
 
 public class GlowPlayer {
     public static final Feature instance = new Feature("glowPlayer", true);
@@ -38,6 +37,7 @@ public class GlowPlayer {
         // Fallback: return the stripped string (best effort)
         return stripped;
     }
+
     public static void onDisconnect(ClientDisconnectEvent event) {
         if (!instance.isActive()) return;
         clear();
@@ -71,11 +71,12 @@ public class GlowPlayer {
     public static java.util.Set<String> getForcedNames() {
         return java.util.Set.copyOf(forcedGlows.keySet());
     }
+
     public static Integer getColorAsInt(String pureName) {
         Formatting f = getColor(pureName);
-        if(f == null) return null;
+        if (f == null) return null;
         Integer color = f.getColorValue();
-        if(color == null) return null;
+        if (color == null) return null;
         return ColorHelper.fullAlpha(color);
     }
 }

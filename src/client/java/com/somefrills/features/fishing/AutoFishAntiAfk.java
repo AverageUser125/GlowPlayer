@@ -1,13 +1,11 @@
 package com.somefrills.features.fishing;
 
+import com.somefrills.config.Feature;
+
 import java.util.Random;
 
-import com.somefrills.config.Feature;
-import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingDescription;
-
-import static com.somefrills.Main.mc;
 import static com.somefrills.Main.LOGGER;
+import static com.somefrills.Main.mc;
 
 final class AutoFishAntiAfk {
     private static final Feature instance = new Feature("antiAfk");
