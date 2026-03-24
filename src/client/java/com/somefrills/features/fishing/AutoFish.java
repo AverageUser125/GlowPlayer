@@ -8,20 +8,17 @@ import com.somefrills.events.*;
 import com.somefrills.misc.Clock;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import org.jetbrains.annotations.Nullable;
 
 import static com.somefrills.Main.mc;
 
 public final class AutoFish {
     public static final Feature instance = new Feature("autoFish");
 
-    // Keep only settings that are actually used (migrated from AutoFishConfiguration)
     @SettingDescription("Verbose logging for AutoFish")
     public static final SettingBool verbose = new SettingBool(false);
     @SettingDescription("Reset player facing when switching away from rod")
@@ -53,18 +50,14 @@ public final class AutoFish {
 
     public static int counter = 0;
     // runtime state (moved to top)
-    @Nullable
-    private static ItemStack heldItem = null;
+    private static ItemStack heldItem = ItemStack.EMPTY;
     private static boolean heldRod = false;
     private static long waitingForHookSince = 0;
     private static boolean waitingForHookCast = false;
-    // replaced WeakReference with strong references
-    @Nullable
-    private static FishingBobberEntity hookRef = null;
-    @Nullable
-    private static ArmorStandEntity timerRef = null;
-    @Nullable
-    private static HookWaitingState hookWaitingState = null;
+    private static int hookId = -1; // -1 means none
+
+    // hook waiting state is never null; use NONE as the default/idle state
+    private static HookWaitingState hookWaitingState = HookWaitingState.NONE;
     private static Clock catchClock = new Clock();
     private static Clock throwClock = new Clock();
     private static Clock throwFirstClock = new Clock();
@@ -75,15 +68,14 @@ public final class AutoFish {
     private static long lastRecastTime = 0; // last auto recast timestamp
 
     static void reset() {
-        heldItem = null;
+        heldItem = ItemStack.EMPTY;
         heldRod = false;
         doneRightClickThisTick = false;
         catchClock = new Clock();
         throwClock = new Clock();
         throwFirstClock = new Clock();
-        hookWaitingState = null;
-        hookRef = null;
-        timerRef = null;
+        hookWaitingState = HookWaitingState.NONE;
+        hookId = -1;
         // reset fault detection
         waitingForHookSince = 0;
         waitingForHookCast = false;
@@ -93,10 +85,9 @@ public final class AutoFish {
 
     @EventHandler
     public static void onWorldLoad(ServerJoinEvent event) {
-        hookRef = null;
-        timerRef = null;
-        heldItem = null;
-        hookWaitingState = null;
+        hookId = -1;
+        heldItem = ItemStack.EMPTY;
+        hookWaitingState = HookWaitingState.NONE;
 
         if (instance.isActive()) {
             throwFirstClock.update();
@@ -129,9 +120,8 @@ public final class AutoFish {
                 heldRod = false;
                 heldItem = holdingItem;
                 doneRightClickThisTick = false;
-                hookWaitingState = null;
-                hookRef = null;
-                timerRef = null;
+                hookWaitingState = HookWaitingState.NONE;
+                hookId = -1;
                 waitingForHookSince = 0;
                 waitingForHookCast = false;
                 recastAttempts = 0;
@@ -148,8 +138,9 @@ public final class AutoFish {
             // Already handled above, but keep as safety
             return;
         }
-        // If we are waiting for a hook after cast and it's been more than HOOK_WAIT_TIMEOUT_MS, consider recasting
-        if (faultDetectionEnabled.value() && waitingForHookCast && waitingForHookSince > 0 && hookRef == null) {
+        // If we are waiting for a hook after cast,
+        // and it's been more than HOOK_WAIT_TIMEOUT_MS, consider recasting
+        if (faultDetectionEnabled.value() && waitingForHookCast && waitingForHookSince > 0 && hookId == -1) {
             long now = System.currentTimeMillis();
             if (now - waitingForHookSince > hookWaitTimeoutMs.value()) {
                 // If user interacted recently, assume user caused the change and bail out
@@ -165,6 +156,7 @@ public final class AutoFish {
                     recastAttempts = 0;
                 } else if (now - lastRecastTime < recastCooldownMs.value()) {
                     // too soon since last recast, skip this tick (cooldown)
+                    chat("Recast cooldown active: {}ms left", Math.max(0, recastCooldownMs.value() - (now - lastRecastTime)));
                 } else {
                     chat("No hook detected after {}ms — recasting (attempt)", now - waitingForHookSince);
                     doRightClick();
@@ -175,7 +167,7 @@ public final class AutoFish {
                 }
             }
         }
-        if (hookRef != null) {
+        if (hookId != -1) {
             waitingForHookSince = 0; // reset if hook appears
             waitingForHookCast = false;
             recastAttempts = 0;
@@ -214,8 +206,8 @@ public final class AutoFish {
         if (!hook.getOwner().getUuid().equals(player.getUuid())) {
             return;
         }
-        hookRef = hook;
-        hookWaitingState = null;
+        hookId = hook.getId();
+        hookWaitingState = HookWaitingState.NONE;
         waitingForHookSince = 0; // reset waiting when hook joins
         waitingForHookCast = false;
         // reset fault/detection
@@ -226,18 +218,16 @@ public final class AutoFish {
     @EventHandler
     public static void onEntityDead(EntityRemovedEvent event) {
         int id = event.entity.getId();
-        if (hookRef != null && id == hookRef.getId()) {
+        if (hookId != -1 && id == hookId) {
             counter++;
             if (counter < 2) {
                 return;
             }
             counter = 0;
-            hookRef = null;
-            if (hookWaitingState != HookWaitingState.WAITING_JOIN) hookWaitingState = null;
+            hookId = -1;
+            if (hookWaitingState != HookWaitingState.WAITING_JOIN) hookWaitingState = HookWaitingState.NONE;
         }
-        if (useFishTimerCheck.value() && timerRef != null && id == timerRef.getId()) {
-            timerRef = null;
-        }
+        // timerRef removed — no-op
     }
 
     @EventHandler
@@ -259,8 +249,8 @@ public final class AutoFish {
                 !autoCatch.value() ||
                         doneRightClickThisTick ||
                         !heldRod ||
-                        hookRef == null ||
-                        hookWaitingState != null ||
+                        hookId == -1 ||
+                        hookWaitingState != HookWaitingState.NONE ||
                         !catchClock.ended(autoCatchDelay.value())
         ) return;
         chat("Do catch, time={}", System.currentTimeMillis());
@@ -279,7 +269,7 @@ public final class AutoFish {
                         doneRightClickThisTick ||
                         !heldRod ||
                         hookWaitingState == HookWaitingState.WAITING_JOIN ||
-                        hookRef != null && !(doNotWaitHookDead.value() && hookWaitingState == HookWaitingState.WAITING_DEAD) ||
+                        hookId != -1 && !(doNotWaitHookDead.value() && hookWaitingState == HookWaitingState.WAITING_DEAD) ||
                         !throwClock.ended(autoThrowDelay.value()) ||
                         !throwFirstClock.ended(autoThrowFirstDelay.value())
         ) return;
@@ -308,6 +298,7 @@ public final class AutoFish {
     }
 
     private enum HookWaitingState {
+        NONE,
         WAITING_JOIN,
         WAITING_DEAD,
     }

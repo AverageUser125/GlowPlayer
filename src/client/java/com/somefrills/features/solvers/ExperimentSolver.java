@@ -1,9 +1,6 @@
 package com.somefrills.features.solvers;
 
-import com.somefrills.config.Feature;
-import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingDescription;
-import com.somefrills.config.SettingInt;
+import com.somefrills.config.*;
 import com.somefrills.events.HudTickEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
@@ -38,7 +35,7 @@ public class ExperimentSolver {
     public static final SettingBool autoClose = new SettingBool(true);
 
     @SettingDescription("Number of serum items to keep in Chronomatron")
-    public static final com.somefrills.config.SettingIntSlider serumCount = new com.somefrills.config.SettingIntSlider(3, 0, 3);
+    public static final SettingIntSlider serumCount = new SettingIntSlider(3, 0, 3);
 
     @SettingDescription("Delay between automated clicks (ms)")
     public static final SettingInt clickDelay = new SettingInt(100);
