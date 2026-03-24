@@ -88,9 +88,9 @@ public class ExperimentSolver {
         int maxChronomatron = getMaxXp.value() ? 15 : (11 - serumCount.value());
 
         // Check if slot 49 is glowstone AND last added slot is not enchanted (click registered)
-        Slot slot49 = invSlots.get(49);
+        ItemStack stack49 = invSlots.get(49).getStack();
         Slot lastAddedSlot = invSlots.get(lastAdded);
-        boolean slot49IsGlowstone = slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:glowstone");
+        boolean slot49IsGlowstone = isItem(stack49, "minecraft:glowstone");
         boolean lastAddedNotEnchanted = lastAddedSlot.getStack() != null && !isEnchanted(lastAddedSlot.getStack());
 
         if (slot49IsGlowstone && lastAddedNotEnchanted) {
@@ -103,7 +103,7 @@ public class ExperimentSolver {
         }
 
         // Detect new item entering: slot 49 is clock
-        if (!hasAdded && slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")) {
+        if (!hasAdded && isItem(stack49, "minecraft:clock")) {
             // Scan for enchanted TERRACOTTA ONLY, filtering duplicates
             // Each color appears in 2 rows (row height = 9), so skip slots that are 9 apart (same color)
 
@@ -136,7 +136,7 @@ public class ExperimentSolver {
         }
 
         // Perform clicking: slot 49 is clock AND we have items to click
-        if (hasAdded && slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")
+        if (hasAdded && isItem(stack49, "minecraft:clock")
                 && chronomatronOrder.size() > clicks && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
             int slotToClick = chronomatronOrder.get(clicks);
             Utils.clickSlot(slotToClick);
@@ -150,22 +150,20 @@ public class ExperimentSolver {
         int maxUltraSequencer = getMaxXp.value() ? 20 : (9 - serumCount.value());
 
         // Reset when slot 49 becomes clock (new round)
-        Slot slot49 = invSlots.get(49);
-        if (slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")) {
+        ItemStack stack49 = invSlots.get(49).getStack();
+        if (isItem(stack49, "minecraft:clock")) {
             hasAdded = false;
         }
 
         // Detect and rebuild map when slot 49 becomes glowstone
-        if (!hasAdded && slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:glowstone")) {
+        if (!hasAdded && isItem(stack49, "minecraft:glowstone")) {
             ultrasequencerOrder.clear();
 
             for (int i = 0; i < invSlots.size(); i++) {
-                Slot s = invSlots.get(i);
-                if (s.getStack() != null && !s.getStack().isEmpty()) {
-                    int stackSize = s.getStack().getCount();
-                    boolean isDye = isItem(s.getStack(), "minecraft:dye");
-
-                    if (isDye) {
+                ItemStack stack = invSlots.get(i).getStack();
+                if (stack != null && ! stack.isEmpty()) {
+                    int stackSize = stack.getCount();
+                    if (isDye(stack)) {
                         int idx = stackSize - 1;
                         ultrasequencerOrder.put(idx, i);
                     }
@@ -183,7 +181,7 @@ public class ExperimentSolver {
         }
 
         // Perform clicking: slot 49 is clock AND we have dyes to click
-        if (slot49.getStack() != null && isItem(slot49.getStack(), "minecraft:clock")
+        if (isItem(stack49, "minecraft:clock")
                 && ultrasequencerOrder.containsKey(clicks) && System.currentTimeMillis() - lastClickTime > clickDelay.value()) {
             Integer slotToClick = ultrasequencerOrder.get(clicks);
             if (slotToClick != null) {
@@ -197,18 +195,12 @@ public class ExperimentSolver {
     private static boolean isItem(ItemStack stack, String itemId) {
         if (stack == null || stack.isEmpty()) return false;
         String actualId = Registries.ITEM.getId(stack.getItem()).toString();
-
-        // Handle dye variants for 1.21.10 (white_dye, red_dye, etc.) and dye-like items
-        if (itemId.equals("minecraft:dye")) {
-            return actualId.endsWith("_dye") ||
-                    actualId.equals("minecraft:bone_meal") ||
-                    actualId.equals("minecraft:lapis_lazuli") ||
-                    actualId.equals("minecraft:cocoa_beans") ||
-                    actualId.equals("minecraft:ink_sac") ||
-                    actualId.equals("minecraft:glow_ink_sac");
-        }
-
         return actualId.equals(itemId);
+    }
+    private static boolean isDye(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        String actualId = Registries.ITEM.getId(stack.getItem()).toString();
+        return !actualId.contains("pane") && !actualId.contains("glass");
     }
 
     private static boolean isEnchanted(ItemStack stack) {
