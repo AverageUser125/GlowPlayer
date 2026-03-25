@@ -70,9 +70,6 @@ public class Main implements ClientModInitializer {
             // ensure config persists on disconnect
             Config.save();
         });
-
-        ClientTickEvents.END_CLIENT_TICK.register((client) -> eventBus.post(new EndTickEvent()));
-
         // Save config on JVM shutdown (game close)
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

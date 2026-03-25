@@ -1,9 +1,7 @@
 package com.somefrills.features.solvers;
 
 import com.somefrills.config.*;
-import com.somefrills.events.EndTickEvent;
-import com.somefrills.events.HudTickEvent;
-import com.somefrills.events.WorldTickEvent;
+import com.somefrills.events.HudRenderEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -57,7 +55,7 @@ public class ExperimentSolver {
     private static int clicks = 0;
 
     @EventHandler
-    public static void onHudTick(EndTickEvent event) {
+    public static void onHudTick(HudRenderEvent event) {
         if (mc == null || mc.player == null) return;
         ClientPlayerEntity player = mc.player;
         ScreenHandler handler = player.currentScreenHandler;
