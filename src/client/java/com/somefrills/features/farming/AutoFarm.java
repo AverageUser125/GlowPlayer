@@ -111,12 +111,10 @@ public class AutoFarm {
                     moveState = Direction.LEFT;
                     lastStateChangeMs = now;
                     lastExit = Direction.RIGHT;
-                    Utils.infoFormat("State -> DIAG_LEFT (corner: forward+right blocked)");
                 } else if (diagRightBlocked && !diagForwardBlocked && now - lastStateChangeMs > STATE_COOLDOWN_MS) {
                     moveState = Direction.FORWARD;
                     lastStateChangeMs = now;
                     lastExit = Direction.RIGHT;
-                    Utils.infoFormat("State -> FORWARD (right blocked, forward free)");
                 }
             }
 
@@ -127,12 +125,10 @@ public class AutoFarm {
                     moveState = Direction.LEFT;
                     lastStateChangeMs = now;
                     lastExit = Direction.FORWARD;
-                    Utils.infoFormat("State -> DIAG_LEFT (right blocked, forward free)");
                 } else if (diagLeftBlocked && diagForwardBlocked && lastExit != Direction.RIGHT && now - lastStateChangeMs > STATE_COOLDOWN_MS) {
                     moveState = Direction.RIGHT;
                     lastStateChangeMs = now;
                     lastExit = Direction.FORWARD;
-                    Utils.infoFormat("State -> DIAG_RIGHT (left blocked, forward free)");
                 }
             }
 
@@ -143,12 +139,10 @@ public class AutoFarm {
                     moveState = Direction.FORWARD;
                     lastStateChangeMs = now;
                     lastExit = Direction.LEFT;
-                    Utils.infoFormat("State -> FORWARD (left blocked, forward free)");
                 } else if (diagLeftBlocked && diagForwardBlocked && now - lastStateChangeMs > STATE_COOLDOWN_MS) {
                     moveState = Direction.RETURN;
                     lastStateChangeMs = now;
                     lastExit = Direction.LEFT;
-                    Utils.infoFormat("State -> RETURN (left+forward blocked, corner)");
                 }
             }
 
@@ -161,7 +155,6 @@ public class AutoFarm {
                     moveState = Direction.RIGHT;
                     lastStateChangeMs = now;
                     lastExit = Direction.RETURN;
-                    Utils.infoFormat("State -> DIAG_RIGHT (return finished, hit wall behind)");
                 }
             }
         }
