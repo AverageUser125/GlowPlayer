@@ -23,6 +23,8 @@ public class AutoUpdate {
     @SettingDescription("Check for updates when joining a server.")
     public static final SettingBool checkOnJoin = new SettingBool(true);
 
+    private static boolean hasCheckedThisSession = false;
+
     @EventHandler
     public static void onServerJoin(ServerJoinEvent event) {
         if (checkOnJoin.value()) {
@@ -39,6 +41,8 @@ public class AutoUpdate {
     }
 
     public static void checkUpdate() {
+        if (hasCheckedThisSession) return;
+        hasCheckedThisSession = true;
         Thread.startVirtualThread(() -> {
             try {
                 String version = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion().getFriendlyString();
