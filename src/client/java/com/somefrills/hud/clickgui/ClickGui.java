@@ -128,6 +128,8 @@ public class ClickGui extends BaseOwoScreen<FlowLayout> {
                     optionLayouts.add(new Settings.DoubleInput(name, sd, tooltip));
                 } else if (setting instanceof SettingIntSlider sis) {
                     optionLayouts.add(new Settings.SliderInt(name, sis.min(), sis.max(), 1, sis, tooltip));
+                } else if (setting instanceof SettingKeybind sk) { // must be before SettingInt
+                    optionLayouts.add(new Settings.Keybind(name, sk, tooltip));
                 } else if (setting instanceof SettingInt si) {
                     optionLayouts.add(new Settings.NumberInputInt(name, si, tooltip));
                 } else if (setting instanceof SettingEnum<?> se) {
@@ -136,11 +138,9 @@ public class ClickGui extends BaseOwoScreen<FlowLayout> {
                     optionLayouts.add(new Settings.ColorPicker(name, sc, tooltip));
                 } else if (setting instanceof SettingString ss) {
                     optionLayouts.add(new Settings.TextInput(name, ss, tooltip));
-                } else if (setting instanceof SettingKeybind sk) {
-                    optionLayouts.add(new Settings.Keybind(name, sk, tooltip));
                 } else if (setting instanceof SettingJson sj) {
                     optionLayouts.add(new Settings.Description(name, tooltip != null ? tooltip : "JSON setting"));
-                } else if (setting instanceof com.somefrills.config.SettingBlockPosList sbl) {
+                } else if (setting instanceof SettingBlockPosList sbl) {
                     optionLayouts.add(new Settings.BlockPosList(name, sbl, tooltip));
                 } else {
                     // fallback: show as description
