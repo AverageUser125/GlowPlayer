@@ -57,7 +57,8 @@ public class CorpseESP {
 
     @EventHandler
     private void onScoreboardUpdate(AreaChangeEvent event) {
-        inMineshaft = event.area.equals("Glacite Mineshaft");
+        String area = event.area.toLowerCase();
+        inMineshaft = area.contains("glacite") && area.contains("mineshaft");
         if(!inMineshaft) {
             armorStandEntities.clear();
         }
