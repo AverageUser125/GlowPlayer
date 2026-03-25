@@ -42,12 +42,31 @@ public class KeybindButton extends ButtonComponent {
     }
 
     public Text getKeyLabel(int keycode) {
-        InputUtil.Key input = InputUtil.Type.KEYSYM.createFromCode(keycode);
-        if (input.getLocalizedText().getString().equals(input.getTranslationKey())) { // fall back to a mouse key if the keyboard key has no translation
-            return InputUtil.Type.MOUSE.createFromCode(keycode).getLocalizedText();
-        } else {
-            return input.getLocalizedText();
+        // Mouse buttons
+        if (keycode >= GLFW.GLFW_MOUSE_BUTTON_1 && keycode <= GLFW.GLFW_MOUSE_BUTTON_8) {
+            int idx = keycode - GLFW.GLFW_MOUSE_BUTTON_1 + 1;
+            return Text.literal("Mouse " + idx).formatted(net.minecraft.util.Formatting.WHITE);
         }
+
+        // Special-case the grave/tilde key for a nicer label
+        if (keycode == GLFW.GLFW_KEY_GRAVE_ACCENT) {
+            return Text.literal("` / ~").formatted(net.minecraft.util.Formatting.WHITE);
+        }
+
+        InputUtil.Key input = InputUtil.Type.KEYSYM.createFromCode(keycode);
+        // Some keys lack a localized name — fall back to mouse representation if applicable
+        String localized = input.getLocalizedText().getString();
+        if (localized == null || localized.isEmpty() || localized.equals(input.getTranslationKey())) {
+            // try mouse fallback
+            InputUtil.Key mouse = InputUtil.Type.MOUSE.createFromCode(keycode);
+            String mouseLabel = mouse.getLocalizedText().getString();
+            if (mouseLabel != null && !mouseLabel.isEmpty() && !mouseLabel.equals(mouse.getTranslationKey())) {
+                return mouse.getLocalizedText();
+            }
+            // fallback to a generic label
+            return Text.literal("Key " + keycode).formatted(net.minecraft.util.Formatting.WHITE);
+        }
+        return input.getLocalizedText();
     }
 
     public void bind(int key) {
@@ -61,6 +80,10 @@ public class KeybindButton extends ButtonComponent {
         this.isBinding = false;
     }
 
+    public void clearBinding() {
+        this.bind(GLFW.GLFW_KEY_UNKNOWN);
+    }
+
     public EventSource<KeybindChanged> onBound() {
         return changedEvents.source();
     }
@@ -72,6 +95,16 @@ public class KeybindButton extends ButtonComponent {
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean mouseClicked(net.minecraft.client.gui.Click click, boolean doubleClick) {
+        // Right click clears binding when not currently binding
+        if (click.button() == GLFW.GLFW_MOUSE_BUTTON_2 && !this.isBinding) {
+            this.clearBinding();
+            return true;
+        }
+        return super.mouseClicked(click, doubleClick);
     }
 
     public interface KeybindChanged {
