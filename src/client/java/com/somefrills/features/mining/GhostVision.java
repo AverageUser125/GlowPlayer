@@ -1,6 +1,7 @@
 package com.somefrills.features.mining;
 
 import com.somefrills.config.*;
+import com.somefrills.events.AreaChangeEvent;
 import com.somefrills.events.EntityUpdatedEvent;
 import com.somefrills.events.WorldRenderEvent;
 import com.somefrills.misc.EntityCache;
@@ -29,28 +30,31 @@ public class GhostVision {
     public static final SettingBool creeperShowHP = new SettingBool(true);
 
     private static final EntityCache cache = new EntityCache();
-
+    private static boolean inDwarvenMines = false;
     public static boolean isGhost(CreeperEntity entity) {
         return instance.isActive() && cache.has(entity);
     }
 
     @EventHandler
     private static void onEntity(EntityUpdatedEvent event) {
-        if (instance.isActive() && event.entity instanceof CreeperEntity creeper && Utils.isInArea("Dwarven Mines")) {
+        if (inDwarvenMines&& event.entity instanceof CreeperEntity creeper) {
             if (creeper.getEntity().getY() < 100) {
                 cache.add(event.entity);
             }
         }
     }
+    @EventHandler
+    private void onScoreboardUpdate(AreaChangeEvent event) {
+        inDwarvenMines = event.area.equals("Dwarven Mines");
+    }
 
     @EventHandler
     private static void onRender(WorldRenderEvent event) {
-        if (instance.isActive() && Utils.isInArea("Dwarven Mines")) {
-            for (Entity ent : cache.get()) {
-                if (!ent.isAlive()) continue;
-                Box box = Utils.getLerpedBox(ent, event.tickCounter.getTickProgress(true));
-                event.drawStyled(box, style.value(), false, outline.value(), fill.value());
-            }
+        if (!inDwarvenMines) return;
+        for (Entity ent : cache.get()) {
+            if (!ent.isAlive()) continue;
+            Box box = Utils.getLerpedBox(ent, event);
+            event.drawStyled(box, style.value(), false, outline.value(), fill.value());
         }
     }
 }

@@ -8,6 +8,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTextures;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
+import com.somefrills.events.WorldRenderEvent;
 import com.somefrills.mixin.BossBarHudAccessor;
 import com.somefrills.mixin.HandledScreenAccessor;
 import com.somefrills.mixin.PlayerListHudAccessor;
@@ -346,9 +347,12 @@ public class Utils {
         return current >= health && (current % health == 0 || (current - difference) % health == 0);
     }
 
-    /**
-     * Returns the entity's bounding box at their interpolated position.
-     */
+    public static Box getLerpedBox(Entity entity, WorldRenderEvent event) {
+        return Utils.getLerpedBox(entity, event.tickCounter.getTickProgress(true));
+    }
+        /**
+         * Returns the entity's bounding box at their interpolated position.
+         */
     public static Box getLerpedBox(Entity entity, float tickProgress) {
         return entity.getDimensions(EntityPose.STANDING).getBoxAt(entity.getLerpedPos(tickProgress));
     }
