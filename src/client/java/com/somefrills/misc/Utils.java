@@ -149,6 +149,22 @@ public class Utils {
         playSound(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(event)), volume, pitch);
     }
 
+    public static String humanize(String in) {
+        if (in == null || in.isEmpty()) return "";
+        String withSpaces = in.replace('_', ' ').replace('-', ' ');
+        StringBuilder out = new StringBuilder();
+        char prev = ' ';
+        for (int i = 0; i < withSpaces.length(); i++) {
+            char c = withSpaces.charAt(i);
+            if (i > 0 && Character.isUpperCase(c) && (Character.isLowerCase(prev) || Character.isDigit(prev))) out.append(' ');
+            out.append(c);
+            prev = c;
+        }
+        String res = out.toString().trim();
+        if (res.isEmpty()) return res;
+        return Character.toUpperCase(res.charAt(0)) + res.substring(1);
+    }
+
     public static void sendMessage(String message) {
         if (mc.player != null && !message.isEmpty()) {
             if (message.startsWith("/")) {

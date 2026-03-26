@@ -1,6 +1,7 @@
 package com.somefrills.config;
 
 import com.somefrills.Main;
+import com.somefrills.misc.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,8 +68,7 @@ public class FeatureRegistry {
                             if (currentParent == null || currentParent.isEmpty()) {
                                 setting.overrideParent(feat.key());
                             }
-                            info.settings.put(f, setting);
-                            info.descriptions.put(f, desc.value());
+                            info.settings.add(new SettingInfo(Utils.humanize(f.getName()), Utils.humanize(desc.value()), setting));
                         }
                     }
 
@@ -147,7 +147,7 @@ public class FeatureRegistry {
         }
 
         List<Class<?>> classes = new ArrayList<>();
-        for (String cn : classNames.stream().distinct().collect(Collectors.toList())) {
+        for (String cn : classNames.stream().distinct().toList()) {
             try {
                 classes.add(Class.forName(cn));
             } catch (Throwable ignored) {
@@ -185,14 +185,31 @@ public class FeatureRegistry {
     }
 
     public static class FeatureInfo {
+        public final String name;
+        public final String description;
         public final Class<?> clazz;
         public final Feature featureInstance;
-        public final Map<Field, SettingGeneric> settings = new LinkedHashMap<>();
-        public final Map<Field, String> descriptions = new LinkedHashMap<>();
+        public final List<SettingInfo> settings = new ArrayList<>();
 
         public FeatureInfo(Class<?> clazz, Feature featureInstance) {
             this.clazz = clazz;
             this.featureInstance = featureInstance;
+            name = Utils.humanize(featureInstance.key());
+            // FIXME: ideally the description should be a separate field,
+            //  but for now we can just reuse the key as the description until
+            //  we have a better system for providing user-friendly descriptions
+            description = Utils.humanize(featureInstance.key());
+        }
+    }
+    public static class SettingInfo {
+        public final String name;
+        public final String description;
+        public final SettingGeneric settingInstance;
+
+        public SettingInfo(String name, String description, SettingGeneric settingInstance) {
+            this.name = name;
+            this.description = description;
+            this.settingInstance = settingInstance;
         }
     }
 }

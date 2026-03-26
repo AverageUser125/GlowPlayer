@@ -1,33 +1,37 @@
 package com.somefrills.hud.components;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import com.daqem.uilib.gui.widget.ButtonWidget;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ToggleButton {
-    private boolean toggle;
-    private final List<ToggleChanged> listeners = new ArrayList<>();
-    private ButtonWidget widget = null;
+public class ToggleButton extends ButtonWidget {
+    private boolean state;
 
-    public ToggleButton(boolean initial) {
-        this.toggle = initial;
+    public ToggleButton(int x, int y, int width, int height, boolean state) {
+        super(x, y, width, height, boolToStr(state), button -> {
+            var btn = (ToggleButton) button;
+            btn.toggle();
+        }, Button.DEFAULT_NARRATION);
+        this.state = state;
     }
 
-    public ButtonWidget createButton(int x, int y, int width, int height) {
-        this.widget = new ButtonWidget(x, y, width, height, Component.literal(this.toggle ? "Enabled" : "Disabled"), (b) -> {
-            this.setToggle(!this.toggle);
-        });
-        return this.widget;
+    private static Component boolToStr(boolean b) {
+        return b ? Component.literal("ON") : Component.literal("OFF");
     }
 
+    public void toggle() {
+        this.state = !this.state;
+        this.setMessage(boolToStr(this.state));
+    }
+
+    public boolean getToggle() {
+        return this.state;
+    }
     public void setToggle(boolean toggle) {
-        this.toggle = toggle;
-        if (this.widget != null) this.widget.setMessage(Component.literal(this.toggle ? "Enabled" : "Disabled"));
-        for (ToggleChanged l : listeners) l.onToggle(toggle);
+        this.state = toggle;
+        this.setMessage(boolToStr(toggle));
     }
-
-    public void addListener(ToggleChanged l) { listeners.add(l); }
-
-    public interface ToggleChanged { void onToggle(boolean newValue); }
 }
