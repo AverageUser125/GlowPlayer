@@ -52,8 +52,10 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.entity.LevelEntityGetterAdapter;
+import org.joml.Vector2d;
 
 import java.io.IOException;
 import java.net.URI;
@@ -1007,6 +1009,10 @@ public class Utils {
 
     public static void runCommand(String string) {
         mc.player.connection.sendCommand(string);
+    }
+
+    public static Vector2d getMousePos() {
+        return new Vector2d(mc.mouseHandler.getScaledXPos(mc.getWindow()), mc.mouseHandler.getScaledYPos(mc.getWindow()));
     }
 
     public static class Symbols {

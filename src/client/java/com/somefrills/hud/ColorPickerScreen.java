@@ -1,194 +1,82 @@
 package com.somefrills.hud;
 
 import com.somefrills.config.SettingColor;
-import com.somefrills.hud.clickgui.Settings;
-import com.somefrills.hud.clickgui.components.FlatSlider;
-import com.somefrills.hud.clickgui.components.FlatTextbox;
-import com.somefrills.hud.clickgui.components.PlainLabel;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
-import io.wispforest.owo.ui.component.BoxComponent;
-import io.wispforest.owo.ui.component.ButtonComponent;
-import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
-import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.core.*;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.somefrills.Main.mc;
 
-public class ColorPickerScreen extends Settings {
+/**
+ * Simpler ColorPickerScreen that uses vanilla widgets to edit a SettingColor.
+ * Not feature-complete compared to the previous OWO-based implementation but functional.
+ */
+public class ColorPickerScreen extends Screen {
     private final Screen previous;
+    private final SettingColor setting;
+    private EditBox argbBox;
+    private EditBox rBox, gBox, bBox, aBox;
 
-    public ColorPickerScreen(List<FlowLayout> settings, Screen previous) {
-        super(settings);
+    public ColorPickerScreen(SettingColor setting, Screen previous) {
+        super(Component.literal("Color Picker"));
         this.previous = previous;
+        this.setting = setting;
     }
 
-    public static ColorPickerScreen build(SettingColor setting, Screen previous) {
-        List<FlowLayout> list = new ArrayList<>();
+    @Override
+    protected void init() {
+        super.init();
+        int x = 10;
+        int y = 10;
+        int w = Math.max(100, this.width - 20);
 
-        FlowLayout colorSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        colorSection.padding(Insets.of(5));
+        argbBox = new EditBox(this.font, x, y, 200, 20, Component.literal("ARGB"));
+        argbBox.setValue("0x" + Integer.toHexString(setting.value().argb));
+        argbBox.setResponder(v -> Utils.parseHex(v).ifPresent(i -> setting.set(RenderColor.fromArgb(i))));
+        this.addRenderableWidget(argbBox);
+        y += 26;
 
-        BoxComponent colorDisplay = Components.box(Sizing.fixed(290), Sizing.fixed(20));
-        colorDisplay.color(Color.ofArgb(setting.value().argb)).fill(true);
-        colorSection.child(colorDisplay);
+        rBox = new EditBox(this.font, x, y, 40, 20, Component.literal("R"));
+        rBox.setValue(String.valueOf((int) (setting.value().r * 255)));
+        rBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> setting.set(setting.value().withRed(i / 255.0f))));
+        this.addRenderableWidget(rBox);
+        gBox = new EditBox(this.font, x + 46, y, 40, 20, Component.literal("G"));
+        gBox.setValue(String.valueOf((int) (setting.value().g * 255)));
+        gBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> setting.set(setting.value().withGreen(i / 255.0f))));
+        this.addRenderableWidget(gBox);
+        bBox = new EditBox(this.font, x + 92, y, 40, 20, Component.literal("B"));
+        bBox.setValue(String.valueOf((int) (setting.value().b * 255)));
+        bBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> setting.set(setting.value().withBlue(i / 255.0f))));
+        this.addRenderableWidget(bBox);
+        aBox = new EditBox(this.font, x + 138, y, 40, 20, Component.literal("A"));
+        aBox.setValue(String.valueOf((int) (setting.value().a * 255)));
+        aBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> setting.set(setting.value().withAlpha(i / 255.0f))));
+        this.addRenderableWidget(aBox);
+        y += 26;
 
-        FlowLayout argbSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        argbSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox argbInput = new FlatTextbox(Sizing.fixed(100));
-        argbInput.text("0x" + Integer.toHexString(setting.value().argb));
-        argbSection.child(addLabel("ARGB"));
-        argbSection.child(argbInput);
-
-        FlowLayout redSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        redSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox redInput = new FlatTextbox(Sizing.fixed(40));
-        redInput.text(String.valueOf((int) (setting.value().r * 255)));
-        FlatSlider redSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        redSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        redSlider.value((int) (setting.value().r * 255));
-        redSection.child(addLabel("Red"));
-        redSection.child(redInput);
-        redSection.child(redSlider);
-
-        FlowLayout greenSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        greenSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox greenInput = new FlatTextbox(Sizing.fixed(40));
-        greenInput.text(String.valueOf((int) (setting.value().g * 255)));
-        FlatSlider greenSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        greenSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        greenSlider.value((int) (setting.value().g * 255));
-        greenSection.child(addLabel("Green"));
-        greenSection.child(greenInput);
-        greenSection.child(greenSlider);
-
-        FlowLayout blueSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        blueSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox blueInput = new FlatTextbox(Sizing.fixed(40));
-        blueInput.text(String.valueOf((int) (setting.value().b * 255)));
-        FlatSlider blueSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        blueSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        blueSlider.value((int) (setting.value().b * 255));
-        blueSection.child(addLabel("Blue"));
-        blueSection.child(blueInput);
-        blueSection.child(blueSlider);
-
-        FlowLayout alphaSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        alphaSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox alphaInput = new FlatTextbox(Sizing.fixed(40));
-        alphaInput.text(String.valueOf((int) (setting.value().a * 255)));
-        FlatSlider alphaSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        alphaSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        alphaSlider.value((int) (setting.value().a * 255));
-        alphaSection.child(addLabel("Alpha"));
-        alphaSection.child(alphaInput);
-        alphaSection.child(alphaSlider);
-
-        Runnable syncValues = () -> {
-            RenderColor color = setting.value();
-            int red = (int) (color.r * 255);
-            int green = (int) (color.g * 255);
-            int blue = (int) (color.b * 255);
-            int alpha = (int) (color.a * 255);
-            colorDisplay.color(Color.ofArgb(color.argb)).fill(true);
-            argbInput.setValue("0x" + Integer.toHexString(color.argb));
-            redInput.setValue(String.valueOf(red));
-            redSlider.value(red);
-            greenInput.setValue(String.valueOf(green));
-            greenSlider.value(green);
-            blueInput.setValue(String.valueOf(blue));
-            blueSlider.value(blue);
-            alphaInput.setValue(String.valueOf(alpha));
-            alphaSlider.value(alpha);
-        };
-
-        FlowLayout buttonSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        buttonSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        ButtonComponent backButton = Components.button(Component.literal("Back"), (btn) -> mc.setScreen(previous));
-        backButton.margins(Insets.right(5));
-        backButton.renderer(Settings.buttonRenderer);
-        ButtonComponent copyButton = Components.button(Component.literal("Copy Color"), (btn) ->
-                mc.keyboardHandler.setClipboard("0x" + Integer.toHexString(setting.value().argb))
-        );
-        copyButton.margins(Insets.right(5));
-        copyButton.renderer(Settings.buttonRenderer);
-        ButtonComponent pasteButton = Components.button(Component.literal("Paste Color"), (btn) -> {
-            Utils.parseHex(mc.keyboardHandler.getClipboard()).ifPresent(integer -> setting.set(RenderColor.fromArgb(integer)));
-            syncValues.run();
+        // Save & back button (use uilib ButtonWidget to avoid constructor mismatch)
+        com.daqem.uilib.gui.widget.ButtonWidget back = new com.daqem.uilib.gui.widget.ButtonWidget(this.width / 2 - 50, this.height - 30, 100, 20, Component.literal("Back"), btn -> {
+            com.somefrills.config.Config.save();
+            mc.setScreen(this.previous);
         });
-        pasteButton.renderer(Settings.buttonRenderer);
-        buttonSection.child(backButton);
-        buttonSection.child(copyButton);
-        buttonSection.child(pasteButton);
-
-        argbInput.onChanged().subscribe((value) -> {
-            Utils.parseHex(value).ifPresent(integer -> setting.set(RenderColor.fromArgb(integer)));
-            syncValues.run();
-        });
-
-        redInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withRed(integer / 255.0f)));
-            syncValues.run();
-        });
-        redSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withRed((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        greenInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withGreen(integer / 255.0f)));
-            syncValues.run();
-        });
-        greenSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withGreen((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        blueInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withBlue(integer / 255.0f)));
-            syncValues.run();
-        });
-        blueSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withBlue((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        alphaInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withAlpha(integer / 255.0f)));
-            syncValues.run();
-        });
-        alphaSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withAlpha((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        list.add(colorSection);
-        list.add(argbSection);
-        list.add(redSection);
-        list.add(greenSection);
-        list.add(blueSection);
-        list.add(alphaSection);
-        list.add(buttonSection);
-
-        return new ColorPickerScreen(list, previous);
+        this.addRenderableWidget(back);
     }
 
-    public static FlowLayout addLabel(String text) {
-        FlowLayout layout = Containers.horizontalFlow(Sizing.fixed(40), Sizing.content());
-        PlainLabel label = new PlainLabel(Component.literal(text));
-        label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.right(5)).sizing(Sizing.content(), Sizing.fixed(20));
-        layout.child(label);
-        return layout;
+    @Override
+    public void render(net.minecraft.client.gui.GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        // Draw a color preview
+        int px = 10; int py = 10; int pw = 200; int ph = 10;
+        RenderColor color = setting.value();
+        int argb = color.argb;
+        graphics.fill(px + 220, py, px + 260, py + 20, argb);
     }
 
     @Override
     public void onClose() {
         mc.setScreen(this.previous);
+        super.onClose();
     }
 }

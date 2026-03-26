@@ -10,7 +10,6 @@ import com.somefrills.hud.clickgui.ClickGui;
 import com.somefrills.misc.EntityCache;
 import com.somefrills.misc.SkyblockData;
 import com.somefrills.misc.Utils;
-import io.wispforest.owo.config.ui.ConfigScreenProviders;
 import meteordevelopment.orbit.EventBus;
 import meteordevelopment.orbit.IEventBus;
 import net.fabricmc.api.ClientModInitializer;
@@ -44,7 +43,6 @@ public class Main implements ClientModInitializer {
         mc = Minecraft.getInstance();
 
         Config.load();
-        ConfigScreenProviders.register("com.somefrills", screen -> new ClickGui());
         ClientCommandRegistrationCallback.EVENT.register(Main::registerCommands);
 
         ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
@@ -84,6 +82,7 @@ public class Main implements ClientModInitializer {
                         lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
 
         eventBus.subscribe(SkyblockData.class);
+        eventBus.subscribe(ClickGui.class);
         eventBus.subscribe(EntityCache.class);
         FeatureRegistry.init();
         FeatureRegistry.reconcileFeatureSubscriptions();

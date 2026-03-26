@@ -1,54 +1,17 @@
 package com.somefrills.hud.clickgui.components;
 
-import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.core.Component;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.Component;
 
-import java.util.List;
+public class PlainLabel {
+    private Component text;
+    private String plainText = "";
+    private String plainTooltip = "";
 
-import static com.somefrills.Main.mc;
+    public PlainLabel(Component text) { this.text = text; this.plainText = text.getString(); }
 
-public class PlainLabel extends LabelComponent {
-
-    public String plainTooltip = "";
-    public String plainText;
-
-    public PlainLabel(net.minecraft.network.chat.Component text) {
-        super(text);
-        this.plainText = text.getString();
-    }
-
-    @Override
-    public boolean onMouseDown(MouseButtonEvent click, boolean doubled) {
-        return false;
-    }
-
-    @Override
-    public Component tooltip(net.minecraft.network.chat.Component tooltip) {
-        this.plainTooltip = tooltip.getString().replaceAll("\n", " ");
-        return super.tooltip(tooltip);
-    }
-
-    @Override
-    public LabelComponent text(net.minecraft.network.chat.Component text) {
-        this.plainText = text.getString();
-        return super.text(text);
-    }
-
-    public int getTextHeight() {
-        List<FormattedCharSequence> lines = mc.font.split(
-                text,
-                this.horizontalSizing().get().isContent() ? 0 : this.horizontalSizing().get().value
-        );
-        return (lines.size() * (this.lineHeight() + this.lineSpacing())) - this.lineSpacing();
-    }
-
-    public String getTooltip() {
-        return this.plainTooltip;
-    }
-
-    public String getText() {
-        return plainText;
-    }
+    public void setText(Component text) { this.text = text; this.plainText = text.getString(); }
+    public Component getTextComponent() { return this.text; }
+    public String getText() { return this.plainText; }
+    public void setTooltip(Component tooltip) { this.plainTooltip = tooltip.getString().replaceAll("\n", " "); }
+    public String getTooltip() { return this.plainTooltip; }
 }

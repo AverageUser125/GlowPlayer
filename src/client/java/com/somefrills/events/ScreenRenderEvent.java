@@ -1,17 +1,21 @@
 package com.somefrills.events;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Rendering;
-import io.wispforest.owo.ui.core.Color;
-import io.wispforest.owo.ui.renderstate.LineElementRenderState;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.network.chat.Component;
 import org.joml.Matrix3x2f;
+import org.joml.Vector2d;
 
+import java.awt.*;
 import java.util.Optional;
 
 import static com.somefrills.Main.mc;
@@ -48,11 +52,11 @@ public class ScreenRenderEvent {
         if (slot1.isPresent() && slot2.isPresent()) {
             Slot first = slot1.get();
             Slot second = slot2.get();
-            this.drawLine(RenderPipelines.GUI, first.x + 8, first.y + 8, second.x + 8, second.y + 8, width, Color.ofArgb(color.argb));
+            this.drawLine(RenderPipelines.GUI, first.x + 8, first.y + 8, second.x + 8, second.y + 8, width, color);
         }
     }
 
-    public void drawLine(RenderPipeline pipeline, int x1, int y1, int x2, int y2, double width, Color color) {
+    public void drawLine(RenderPipeline pipeline, int x1, int y1, int x2, int y2, double width, RenderColor color) {
         this.context.guiRenderState.submitGuiElement(new LineElementRenderState(
                 pipeline,
                 new Matrix3x2f(context.pose()),
@@ -84,6 +88,39 @@ public class ScreenRenderEvent {
     public static class After extends ScreenRenderEvent {
         public After(GuiGraphics context, int mouseX, int mouseY, float deltaTicks, String title, AbstractContainerMenu handler, Slot focusedSlot) {
             super(context, mouseX, mouseY, deltaTicks, title, handler, focusedSlot);
+        }
+    }
+
+    public record LineElementRenderState(
+            RenderPipeline pipeline,
+            Matrix3x2f pose,
+            ScreenRectangle scissorArea,
+            int x0,
+            int y0,
+            int x1,
+            int y1,
+            double thiccness,
+            RenderColor color
+    ) implements GuiElementRenderState {
+        @Override
+        public void buildVertices(VertexConsumer vertices) {
+            var offset = new Vector2d(this.x1 - this.x0, this.y1 - this.y0).perpendicular().normalize().mul(this.thiccness * .5d);
+
+            int vColor = color.argb;
+            vertices.addVertexWith2DPose(this.pose, (float) (x0 + offset.x), (float) (y0 + offset.y)).setColor(vColor);
+            vertices.addVertexWith2DPose(this.pose, (float) (x0 - offset.x), (float) (y0 - offset.y)).setColor(vColor);
+            vertices.addVertexWith2DPose(this.pose, (float) (x1 - offset.x), (float) (y1 - offset.y)).setColor(vColor);
+            vertices.addVertexWith2DPose(this.pose, (float) (x1 + offset.x), (float) (y1 + offset.y)).setColor(vColor);
+        }
+
+        @Override
+        public TextureSetup textureSetup() {
+            return TextureSetup.noTexture();
+        }
+
+        @Override
+        public ScreenRectangle bounds() {
+            return new ScreenRectangle(this.x0, this.y0, this.x1 - this.x0, this.y1 - this.y0);
         }
     }
 }

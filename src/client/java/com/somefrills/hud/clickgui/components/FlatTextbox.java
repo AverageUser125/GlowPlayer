@@ -1,35 +1,23 @@
 package com.somefrills.hud.clickgui.components;
 
-import com.somefrills.misc.Rendering;
-import io.wispforest.owo.ui.component.TextBoxComponent;
-import io.wispforest.owo.ui.core.Insets;
-import io.wispforest.owo.ui.core.Sizing;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 
-public class FlatTextbox extends TextBoxComponent {
-    public int borderColor = 0xff5ca0bf;
+import java.util.function.Consumer;
 
-    public FlatTextbox(Sizing horizontalSizing) {
-        super(horizontalSizing);
-        this.verticalSizing(Sizing.fixed(18));
-        this.margins(Insets.of(0, 0, 0, 8));
-        this.setMaxLength(256);
+import static com.somefrills.Main.mc;
+
+public class FlatTextbox {
+    private final EditBox box;
+
+    public FlatTextbox(int width) {
+        this.box = new EditBox(mc.font, 0,0, width, 20, Component.empty());
     }
 
-    @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
-        context.fill(this.x(), this.y(), this.getX() + this.width() + 4, this.y() + this.height(), 0xff101010);
-        Rendering.drawBorder(context, this.x(), this.y(), this.width() + 4, this.height(), this.borderColor);
-        super.renderWidget(context, mouseX, mouseY, deltaTicks);
-    }
-
-    @Override
-    public boolean isBordered() {
-        return false;
-    }
-
-    @Override
-    public int getInnerWidth() {
-        return this.width - 8;
-    }
+    public void setValue(String v) { this.box.setValue(v); }
+    public String getValue() { return this.box.getValue(); }
+    public void setMaxLength(int l) { this.box.setMaxLength(l); }
+    public void onChanged(Consumer<String> c) { this.box.setResponder(c::accept); }
+    public void text(String t) { this.setValue(t); }
+    public EditBox getEditBox() { return this.box; }
 }

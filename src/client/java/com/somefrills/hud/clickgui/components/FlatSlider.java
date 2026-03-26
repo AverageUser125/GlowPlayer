@@ -1,36 +1,52 @@
 package com.somefrills.hud.clickgui.components;
 
-import io.wispforest.owo.ui.component.SlimSliderComponent;
-import io.wispforest.owo.ui.core.CursorStyle;
-import io.wispforest.owo.ui.core.OwoUIDrawContext;
-import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 
-public class FlatSlider extends SlimSliderComponent {
-    public int trackColor;
-    public int sliderColor;
+import java.util.function.Consumer;
+
+import static com.somefrills.Main.mc;
+
+public class FlatSlider {
+    private final EditBox box;
+    private double min = 0, max = 100, step = 1;
 
     public FlatSlider(int trackColor, int sliderColor) {
-        super(Axis.HORIZONTAL);
-        this.trackColor = trackColor;
-        this.sliderColor = sliderColor;
-        this.cursorStyle(CursorStyle.POINTER);
-        this.keyPress().subscribe((click) -> {
-            if (click.key() == GLFW.GLFW_KEY_LEFT) {
-                this.value(this.value() - this.stepSize);
-                return true;
-            }
-            if (click.key() == GLFW.GLFW_KEY_RIGHT) {
-                this.value(this.value() + this.stepSize);
-                return true;
-            }
-            return false;
-        });
+        this.box = new EditBox(mc.font, 0,0,80,20, Component.empty());
     }
 
-    @Override
-    public void draw(OwoUIDrawContext context, int mouseX, int mouseY, float partialTicks, float delta) {
-        context.fill(this.x, this.y + 8, this.x + this.width, this.y + this.height - 8, this.trackColor);
-        int sliderX = (int) (this.x + (this.width - 4) * this.value.get());
-        context.fill(sliderX, this.y + 2, sliderX + 4, this.y + this.height - 2, this.sliderColor);
+    public void min(double v) { this.min = v; }
+    public void max(double v) { this.max = v; }
+    public void stepSize(double s) { this.step = s; }
+    public void horizontalSizing(Object o) { /* placeholder */ }
+    public void verticalSizing(Object o) { /* placeholder */ }
+    public void value(double v) { this.box.setValue(String.valueOf(v)); }
+    public double value() {
+        try {
+            double v = Double.parseDouble(this.box.getValue());
+            // clamp to min/max
+            v = Math.max(min, Math.min(max, v));
+            // quantize to step if step > 0
+            if (step > 0) {
+                v = min + Math.round((v - min) / step) * step;
+            }
+            return v;
+        } catch (Exception e) {
+            return min;
+        }
     }
+    public void onChanged(Consumer<Double> c) {
+        this.box.setResponder(s -> {
+            try {
+                double v = Double.parseDouble(s);
+                // clamp
+                v = Math.max(min, Math.min(max, v));
+                if (step > 0) v = min + Math.round((v - min) / step) * step;
+                // update the box with the clamped/quantized value so the UI reflects it
+                this.box.setValue(String.valueOf(v));
+                c.accept(v);
+            } catch (Exception ignored) {}
+        });
+    }
+    public EditBox getEditBox() { return box; }
 }

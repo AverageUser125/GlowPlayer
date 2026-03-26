@@ -32,3 +32,6 @@ target/        # Maven build directory
 *.iml
 .DS_Store      # macOS system files
 Thumbs.db      # Windows system files
+src/main/java/com/somefrills/ui/AbstractScreen.java
+src/main/java/com/somefrills/ui/IComponent.java
+src/main/java/com/somefrills/ui/TextComponentImpl.java
