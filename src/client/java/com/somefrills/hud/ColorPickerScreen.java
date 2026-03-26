@@ -1,190 +1,269 @@
 package com.somefrills.hud;
 
+import com.daqem.uilib.gui.AbstractScreen;
+import com.daqem.uilib.gui.background.BlurredBackground;
 import com.somefrills.config.SettingColor;
-import com.somefrills.hud.clickgui.Settings;
-import com.somefrills.hud.clickgui.components.FlatSlider;
-import com.somefrills.hud.clickgui.components.FlatTextbox;
-import com.somefrills.hud.clickgui.components.PlainLabel;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
-import io.wispforest.owo.ui.component.BoxComponent;
-import io.wispforest.owo.ui.component.ButtonComponent;
-import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
-import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.core.*;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.somefrills.Main.mc;
 
-public class ColorPickerScreen extends Settings {
-    private final Screen previous;
+/**
+ * A color picker with a saturation/value square, hue strip, RGBA and hex inputs.
+ * Click inside the SV box or on the hue to pick a color; inputs update live.
+ */
+public class ColorPickerScreen extends AbstractScreen {
+    private final AbstractScreen previous;
+    private final SettingColor setting;
 
-    public ColorPickerScreen(List<FlowLayout> settings, Screen previous) {
-        super(settings);
+    // layout
+    private int svX, svY, svSize;
+    private int hueX, hueY, hueW, hueH;
+    private int inputsX, inputsY;
+
+    // color state (HSV + alpha)
+    private float hue = 0f; // 0..360
+    private float sat = 1f; // 0..1
+    private float val = 1f; // 0..1
+
+    private EditBox hexBox;
+    private EditBox rBox, gBox, bBox, aBox;
+
+    public ColorPickerScreen(SettingColor setting, AbstractScreen previous) {
+        super(Component.literal("Color Picker"));
         this.previous = previous;
+        this.setting = setting;
     }
 
-    public static ColorPickerScreen build(SettingColor setting, Screen previous) {
-        List<FlowLayout> list = new ArrayList<>();
+    @Override
+    protected void init() {
+        super.init();
+        setBackground(new BlurredBackground());
 
-        FlowLayout colorSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        colorSection.padding(Insets.of(5));
+        // layout
+        svSize = Math.min(200, this.width - 260);
+        svX = 10;
+        svY = 10;
+        hueW = 12;
+        hueX = svX + svSize + 8;
+        hueY = svY;
+        hueH = svSize;
+        inputsX = hueX + hueW + 12;
+        inputsY = svY;
 
-        BoxComponent colorDisplay = Components.box(Sizing.fixed(290), Sizing.fixed(20));
-        colorDisplay.color(Color.ofArgb(setting.value().argb)).fill(true);
-        colorSection.child(colorDisplay);
+        // load initial state from setting
+        RenderColor rc = setting.value();
+        float[] hsv = rgbToHsv(rc.r, rc.g, rc.b);
+        this.hue = hsv[0] * 360f;
+        this.sat = hsv[1];
+        this.val = hsv[2];
 
-        FlowLayout argbSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        argbSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox argbInput = new FlatTextbox(Sizing.fixed(100));
-        argbInput.text("0x" + Integer.toHexString(setting.value().argb));
-        argbSection.child(addLabel("ARGB"));
-        argbSection.child(argbInput);
+        // create inputs
+        int y = inputsY;
+        int w = 50;
+        rBox = new EditBox(this.font, inputsX, y, w, 20, Component.literal("R"));
+        gBox = new EditBox(this.font, inputsX + (w + 6), y, w, 20, Component.literal("G"));
+        bBox = new EditBox(this.font, inputsX + 2 * (w + 6), y, w, 20, Component.literal("B"));
+        aBox = new EditBox(this.font, inputsX + 3 * (w + 6), y, w, 20, Component.literal("A"));
 
-        FlowLayout redSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        redSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox redInput = new FlatTextbox(Sizing.fixed(40));
-        redInput.text(String.valueOf((int) (setting.value().r * 255)));
-        FlatSlider redSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        redSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        redSlider.value((int) (setting.value().r * 255));
-        redSection.child(addLabel("Red"));
-        redSection.child(redInput);
-        redSection.child(redSlider);
+        hexBox = new EditBox(this.font, inputsX, y + 28, w * 3 + 12, 20, Component.literal("Hex"));
 
-        FlowLayout greenSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        greenSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox greenInput = new FlatTextbox(Sizing.fixed(40));
-        greenInput.text(String.valueOf((int) (setting.value().g * 255)));
-        FlatSlider greenSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        greenSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        greenSlider.value((int) (setting.value().g * 255));
-        greenSection.child(addLabel("Green"));
-        greenSection.child(greenInput);
-        greenSection.child(greenSlider);
+        updateUiFromSetting();
 
-        FlowLayout blueSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        blueSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox blueInput = new FlatTextbox(Sizing.fixed(40));
-        blueInput.text(String.valueOf((int) (setting.value().b * 255)));
-        FlatSlider blueSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        blueSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        blueSlider.value((int) (setting.value().b * 255));
-        blueSection.child(addLabel("Blue"));
-        blueSection.child(blueInput);
-        blueSection.child(blueSlider);
+        // responders - update setting live when user edits numeric inputs
+        rBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> {
+            int c = clamp(i, 0, 255);
+            RenderColor cur = setting.value();
+            setting.set(new RenderColor(c, (int) (cur.g * 255), (int) (cur.b * 255), (int) (cur.a * 255)));
+            updateUiFromSetting();
+        }));
+        gBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> {
+            int c = clamp(i, 0, 255);
+            RenderColor cur = setting.value();
+            setting.set(new RenderColor((int) (cur.r * 255), c, (int) (cur.b * 255), (int) (cur.a * 255)));
+            updateUiFromSetting();
+        }));
+        bBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> {
+            int c = clamp(i, 0, 255);
+            RenderColor cur = setting.value();
+            setting.set(new RenderColor((int) (cur.r * 255), (int) (cur.g * 255), c, (int) (cur.a * 255)));
+            updateUiFromSetting();
+        }));
+        aBox.setResponder(v -> Utils.parseInt(v).ifPresent(i -> {
+            int c = clamp(i, 0, 255);
+            RenderColor cur = setting.value();
+            setting.set(new RenderColor((int) (cur.r * 255), (int) (cur.g * 255), (int) (cur.b * 255), c));
+            updateUiFromSetting();
+        }));
 
-        FlowLayout alphaSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        alphaSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        FlatTextbox alphaInput = new FlatTextbox(Sizing.fixed(40));
-        alphaInput.text(String.valueOf((int) (setting.value().a * 255)));
-        FlatSlider alphaSlider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
-        alphaSlider.min(0).max(255).stepSize(1).horizontalSizing(Sizing.fixed(150)).verticalSizing(Sizing.fixed(20));
-        alphaSlider.value((int) (setting.value().a * 255));
-        alphaSection.child(addLabel("Alpha"));
-        alphaSection.child(alphaInput);
-        alphaSection.child(alphaSlider);
+        hexBox.setResponder(v -> {
+            if (v == null) return;
+            String s = v.trim().toLowerCase().replace("#", "");
+            if (s.startsWith("0x")) s = s.substring(2);
+            try {
+                int parsed = (int) Long.parseLong(s, 16);
+                int argb;
+                if (s.length() == 6) argb = (0xFF << 24) | parsed; // assume RGB
+                else if (s.length() == 8) argb = parsed; // assume ARGB
+                else return;
+                setting.set(RenderColor.fromArgb(argb));
+                updateUiFromSetting();
+            } catch (NumberFormatException ignored) {
+            }
+        });
 
-        Runnable syncValues = () -> {
-            RenderColor color = setting.value();
-            int red = (int) (color.r * 255);
-            int green = (int) (color.g * 255);
-            int blue = (int) (color.b * 255);
-            int alpha = (int) (color.a * 255);
-            colorDisplay.color(Color.ofArgb(color.argb)).fill(true);
-            argbInput.setValue("0x" + Integer.toHexString(color.argb));
-            redInput.setValue(String.valueOf(red));
-            redSlider.value(red);
-            greenInput.setValue(String.valueOf(green));
-            greenSlider.value(green);
-            blueInput.setValue(String.valueOf(blue));
-            blueSlider.value(blue);
-            alphaInput.setValue(String.valueOf(alpha));
-            alphaSlider.value(alpha);
+        this.addRenderableWidget(rBox);
+        this.addRenderableWidget(gBox);
+        this.addRenderableWidget(bBox);
+        this.addRenderableWidget(aBox);
+        this.addRenderableWidget(hexBox);
+
+        com.daqem.uilib.gui.widget.ButtonWidget back = new com.daqem.uilib.gui.widget.ButtonWidget(this.width / 2 - 50, this.height - 30, 100, 20, Component.literal("Back"), b -> {
+            com.somefrills.config.Config.save();
+            mc.setScreen(this.previous);
+        });
+        this.addRenderableWidget(back);
+    }
+
+    private static int clamp(int v, int a, int b) {
+        return Math.max(a, Math.min(b, v));
+    }
+
+    private void updateUiFromSetting() {
+        RenderColor cur = setting.value();
+        float[] hsv = rgbToHsv(cur.r, cur.g, cur.b);
+        this.hue = hsv[0] * 360f;
+        this.sat = hsv[1];
+        this.val = hsv[2];
+
+        rBox.setValue(String.valueOf((int) (cur.r * 255)));
+        gBox.setValue(String.valueOf((int) (cur.g * 255)));
+        bBox.setValue(String.valueOf((int) (cur.b * 255)));
+        aBox.setValue(String.valueOf((int) (cur.a * 255)));
+        hexBox.setValue(String.format("0x%08X", setting.value().argb));
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        // draw SV box (per-pixel loop) - s horizontally, v vertically
+        for (int sx = 0; sx < svSize; sx++) {
+            float s = (float) sx / (svSize - 1);
+            for (int sy = 0; sy < svSize; sy++) {
+                float v = 1.0f - ((float) sy / (svSize - 1));
+                float[] rgb = hsvToRgb(hue / 360f, s, v);
+                int col = ARGBFromFloats(rgb[0], rgb[1], rgb[2], setting.value().a);
+                graphics.fill(svX + sx, svY + sy, svX + sx + 1, svY + sy + 1, col);
+            }
+        }
+
+        // draw hue strip
+        for (int hy = 0; hy < hueH; hy++) {
+            float h = (float) hy / (hueH - 1);
+            float[] rgb = hsvToRgb(h, 1f, 1f);
+            int col = ARGBFromFloats(rgb[0], rgb[1], rgb[2], setting.value().a);
+            graphics.fill(hueX, hueY + hy, hueX + hueW, hueY + hy + 1, col);
+        }
+
+        // draw selectors
+        int selX = svX + Math.round(sat * (svSize - 1));
+        int selY = svY + Math.round((1.0f - val) * (svSize - 1));
+        graphics.fill(selX - 2, selY - 2, selX + 3, selY + 3, 0xffffffff);
+        graphics.fill(selX - 1, selY - 1, selX + 2, selY + 2, 0xff000000);
+
+        int hueSelY = hueY + Math.round((hue / 360f) * (hueH - 1));
+        graphics.fill(hueX - 2, hueSelY - 1, hueX + hueW + 2, hueSelY + 2, 0xffffffff);
+
+        // preview box
+        int previewX = inputsX;
+        int previewY = inputsY + 70;
+        graphics.fill(previewX, previewY, previewX + 50, previewY + 50, setting.value().argb);
+
+        // labels (use known positions)
+        graphics.drawString(this.font, "R", rBox.getX() - 10, rBox.getY() + 5, 0xffffffff);
+        graphics.drawString(this.font, "G", gBox.getX() - 10, gBox.getY() + 5, 0xffffffff);
+        graphics.drawString(this.font, "B", bBox.getX() - 10, bBox.getY() + 5, 0xffffffff);
+        graphics.drawString(this.font, "A", aBox.getX() - 10, aBox.getY() + 5, 0xffffffff);
+        graphics.drawString(this.font, "Hex", hexBox.getX() - 36, hexBox.getY() + 5, 0xffffffff);
+
+        // render children/widgets
+        super.render(graphics, mouseX, mouseY, partialTicks);
+    }
+
+    private static int ARGBFromFloats(float r, float g, float b, float aFloat) {
+        int a = (int) (aFloat * 255);
+        int rr = (int) (r * 255);
+        int gg = (int) (g * 255);
+        int bb = (int) (b * 255);
+        return ((a & 0xFF) << 24) | ((rr & 0xFF) << 16) | ((gg & 0xFF) << 8) | (bb & 0xFF);
+    }
+
+    private static float[] hsvToRgb(float h, float s, float v) {
+        if (s == 0f) return new float[]{v, v, v};
+        float hh = h * 6f;
+        int i = (int) Math.floor(hh);
+        float f = hh - i;
+        float p = v * (1f - s);
+        float q = v * (1f - s * f);
+        float t = v * (1f - s * (1f - f));
+        return switch (i % 6) {
+            case 0 -> new float[]{v, t, p};
+            case 1 -> new float[]{q, v, p};
+            case 2 -> new float[]{p, v, t};
+            case 3 -> new float[]{p, q, v};
+            case 4 -> new float[]{t, p, v};
+            default -> new float[]{v, p, q};
         };
-
-        FlowLayout buttonSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
-        buttonSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        ButtonComponent backButton = Components.button(Component.literal("Back"), (btn) -> mc.setScreen(previous));
-        backButton.margins(Insets.right(5));
-        backButton.renderer(Settings.buttonRenderer);
-        ButtonComponent copyButton = Components.button(Component.literal("Copy Color"), (btn) ->
-                mc.keyboardHandler.setClipboard("0x" + Integer.toHexString(setting.value().argb))
-        );
-        copyButton.margins(Insets.right(5));
-        copyButton.renderer(Settings.buttonRenderer);
-        ButtonComponent pasteButton = Components.button(Component.literal("Paste Color"), (btn) -> {
-            Utils.parseHex(mc.keyboardHandler.getClipboard()).ifPresent(integer -> setting.set(RenderColor.fromArgb(integer)));
-            syncValues.run();
-        });
-        pasteButton.renderer(Settings.buttonRenderer);
-        buttonSection.child(backButton);
-        buttonSection.child(copyButton);
-        buttonSection.child(pasteButton);
-
-        argbInput.onChanged().subscribe((value) -> {
-            Utils.parseHex(value).ifPresent(integer -> setting.set(RenderColor.fromArgb(integer)));
-            syncValues.run();
-        });
-
-        redInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withRed(integer / 255.0f)));
-            syncValues.run();
-        });
-        redSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withRed((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        greenInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withGreen(integer / 255.0f)));
-            syncValues.run();
-        });
-        greenSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withGreen((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        blueInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withBlue(integer / 255.0f)));
-            syncValues.run();
-        });
-        blueSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withBlue((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        alphaInput.onChanged().subscribe((value) -> {
-            Utils.parseInt(value).ifPresent(integer -> setting.set(setting.value().withAlpha(integer / 255.0f)));
-            syncValues.run();
-        });
-        alphaSlider.onChanged().subscribe((value) -> {
-            setting.set(setting.value().withAlpha((int) value / 255.0f));
-            syncValues.run();
-        });
-
-        list.add(colorSection);
-        list.add(argbSection);
-        list.add(redSection);
-        list.add(greenSection);
-        list.add(blueSection);
-        list.add(alphaSection);
-        list.add(buttonSection);
-
-        return new ColorPickerScreen(list, previous);
     }
 
-    public static FlowLayout addLabel(String text) {
-        FlowLayout layout = Containers.horizontalFlow(Sizing.fixed(40), Sizing.content());
-        PlainLabel label = new PlainLabel(Component.literal(text));
-        label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.right(5)).sizing(Sizing.content(), Sizing.fixed(20));
-        layout.child(label);
-        return layout;
+    private static float[] rgbToHsv(float r, float g, float b) {
+        float max = Math.max(r, Math.max(g, b));
+        float min = Math.min(r, Math.min(g, b));
+        float delta = max - min;
+        float h = 0f;
+        if (delta == 0f) h = 0f;
+        else if (max == r) h = ((g - b) / delta) % 6f;
+        else if (max == g) h = ((b - r) / delta) + 2f;
+        else h = ((r - g) / delta) + 4f;
+        h /= 6f;
+        if (h < 0) h += 1f;
+        float s = max == 0 ? 0f : (delta / max);
+        float v = max;
+        return new float[]{h, s, v};
+    }
+
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // SV box
+        if (mouseX >= svX && mouseX < svX + svSize && mouseY >= svY && mouseY < svY + svSize) {
+            float s = (float) (mouseX - svX) / (svSize - 1);
+            float v = 1.0f - (float) (mouseY - svY) / (svSize - 1);
+            this.sat = clampFloat(s, 0f, 1f);
+            this.val = clampFloat(v, 0f, 1f);
+            applyHsvToSetting();
+            return true;
+        }
+        // hue strip
+        if (mouseX >= hueX && mouseX < hueX + hueW && mouseY >= hueY && mouseY < hueY + hueH) {
+            float h = (float) (mouseY - hueY) / (hueH - 1);
+            this.hue = clampFloat(h, 0f, 1f) * 360f;
+            applyHsvToSetting();
+            return true;
+        }
+        return true;
+        //return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private static float clampFloat(float v, float a, float b) {
+        return Math.max(a, Math.min(b, v));
+    }
+
+    private void applyHsvToSetting() {
+        float[] rgb = hsvToRgb(hue / 360f, sat, val);
+        RenderColor rc = new RenderColor(rgb[0], rgb[1], rgb[2], setting.value().a);
+        setting.set(rc);
+        updateUiFromSetting();
     }
 
     @Override

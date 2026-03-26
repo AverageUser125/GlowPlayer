@@ -17,15 +17,11 @@ repositories {
         name = "meteor-maven"
         url = "https://maven.meteordev.org/releases"
     }
-    maven {
-        name = "wispforest-maven"
-        url = 'https://maven.wispforest.io/releases/'
-    }
 
-    //maven {
-    //    name = "daqem-maven"
-    //    url = "https://maven.daqem.com/releases"
-    //}
+    maven {
+        name = "daqem-maven"
+        url = "https://maven.daqem.com/releases"
+    }
 }
 
 loom {
@@ -53,11 +49,8 @@ dependencies {
     include "meteordevelopment:orbit:${project.orbit_version}"
 
     // UI Lib Fabric
-    //modImplementation "com.daqem.uilib:uilib-fabric:${project.uilib_version}"
-    //include "com.daqem.uilib:uilib-fabric:${project.uilib_version}"
-
-    modImplementation("io.wispforest:owo-lib:${project.owolib_version}")
-    include "io.wispforest:owo-sentinel:${project.owolib_version}"
+    modImplementation "com.daqem.uilib:uilib-fabric:${project.uilib_version}"
+    include "com.daqem.uilib:uilib-fabric:${project.uilib_version}"
 
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 }

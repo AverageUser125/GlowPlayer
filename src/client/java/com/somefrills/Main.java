@@ -4,24 +4,24 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.somefrills.commands.SomeFrillsCommand;
 import com.somefrills.config.Config;
 import com.somefrills.config.FeatureRegistry;
-import com.somefrills.events.*;
-import com.somefrills.features.solvers.ExperimentSolver;
-import com.somefrills.hud.clickgui.ClickGui;
+import com.somefrills.events.ChatMsgEvent;
+import com.somefrills.events.ClientDisconnectEvent;
+import com.somefrills.events.OverlayMsgEvent;
+import com.somefrills.events.PartyChatMsgEvent;
+import com.somefrills.hud.ClickGui;
 import com.somefrills.misc.EntityCache;
 import com.somefrills.misc.SkyblockData;
 import com.somefrills.misc.Utils;
-import io.wispforest.owo.config.ui.ConfigScreenProviders;
 import meteordevelopment.orbit.EventBus;
 import meteordevelopment.orbit.IEventBus;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,6 @@ public class Main implements ClientModInitializer {
         mc = Minecraft.getInstance();
 
         Config.load();
-        ConfigScreenProviders.register("com.somefrills", screen -> new ClickGui());
         ClientCommandRegistrationCallback.EVENT.register(Main::registerCommands);
 
         ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
@@ -84,6 +83,7 @@ public class Main implements ClientModInitializer {
                         lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
 
         eventBus.subscribe(SkyblockData.class);
+        eventBus.subscribe(ClickGui.class);
         eventBus.subscribe(EntityCache.class);
         FeatureRegistry.init();
         FeatureRegistry.reconcileFeatureSubscriptions();
