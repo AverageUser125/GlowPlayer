@@ -2,7 +2,7 @@ package com.somefrills.config;
 
 import org.lwjgl.glfw.GLFW;
 import com.somefrills.hud.clickgui.components.KeybindButton;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class SettingKeybind extends SettingInt {
     public SettingKeybind(int defaultValue) {
@@ -22,9 +22,9 @@ public class SettingKeybind extends SettingInt {
     }
 
     // Returns a human-readable label for the current binding (never a raw number)
-    public Text getLabel() {
+    public Component getLabel() {
         int k = this.value();
-        if (k == GLFW.GLFW_KEY_UNKNOWN) return Text.literal("Not Bound").formatted(net.minecraft.util.Formatting.WHITE);
+        if (k == GLFW.GLFW_KEY_UNKNOWN) return Component.literal("Not Bound").withStyle(net.minecraft.ChatFormatting.WHITE);
         return KeybindButton.staticGetKeyLabel(k);
     }
 }

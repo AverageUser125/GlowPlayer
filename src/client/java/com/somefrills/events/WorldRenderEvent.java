@@ -3,36 +3,36 @@ package com.somefrills.events;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.RenderStyle;
 import com.somefrills.misc.Rendering;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class WorldRenderEvent {
-    public VertexConsumerProvider.Immediate consumer;
-    public RenderTickCounter tickCounter;
+    public MultiBufferSource.BufferSource consumer;
+    public DeltaTracker tickCounter;
     public Camera camera;
-    public MatrixStack matrices;
+    public PoseStack matrices;
 
-    public WorldRenderEvent(VertexConsumerProvider.Immediate consumer, RenderTickCounter tickCounter, Camera camera, MatrixStack matrices) {
+    public WorldRenderEvent(MultiBufferSource.BufferSource consumer, DeltaTracker tickCounter, Camera camera, PoseStack matrices) {
         this.consumer = consumer;
         this.tickCounter = tickCounter;
         this.camera = camera;
         this.matrices = matrices;
     }
 
-    public void drawFilled(Box box, boolean throughWalls, RenderColor color) {
+    public void drawFilled(AABB box, boolean throughWalls, RenderColor color) {
         Rendering.drawFilled(matrices, consumer, camera, box, throughWalls, color);
     }
 
-    public void drawOutline(Box box, boolean throughWalls, RenderColor color) {
+    public void drawOutline(AABB box, boolean throughWalls, RenderColor color) {
         Rendering.drawOutline(matrices, consumer, camera, box, throughWalls, color);
     }
 
-    public void drawStyled(Box box, RenderStyle style, boolean throughWalls, RenderColor outlineColor, RenderColor filledColor) {
+    public void drawStyled(AABB box, RenderStyle style, boolean throughWalls, RenderColor outlineColor, RenderColor filledColor) {
         if (!style.equals(RenderStyle.Outline)) {
             this.drawFilled(box, throughWalls, filledColor);
         }
@@ -41,21 +41,21 @@ public class WorldRenderEvent {
         }
     }
 
-    public void drawText(Vec3d pos, Text text, float scale, boolean throughWalls, RenderColor color) {
+    public void drawText(Vec3 pos, Component text, float scale, boolean throughWalls, RenderColor color) {
         Rendering.drawText(consumer, camera, pos, text, scale, throughWalls, color);
     }
 
-    public void drawBeam(Vec3d pos, int height, boolean throughWalls, RenderColor color) {
+    public void drawBeam(Vec3 pos, int height, boolean throughWalls, RenderColor color) {
         Rendering.drawBeam(matrices, consumer, camera, pos, height, throughWalls, color);
     }
 
-    public void drawFilledWithBeam(Box box, int height, boolean throughWalls, RenderColor color) {
+    public void drawFilledWithBeam(AABB box, int height, boolean throughWalls, RenderColor color) {
         Rendering.drawFilled(matrices, consumer, camera, box, throughWalls, color);
-        Vec3d center = box.getCenter();
-        Rendering.drawBeam(matrices, consumer, camera, center.add(0, box.maxY - center.getY(), 0), height, throughWalls, color);
+        Vec3 center = box.getCenter();
+        Rendering.drawBeam(matrices, consumer, camera, center.add(0, box.maxY - center.y(), 0), height, throughWalls, color);
     }
 
-    public void drawTracer(Vec3d pos, RenderColor color) {
+    public void drawTracer(Vec3 pos, RenderColor color) {
         Rendering.drawTracer(matrices, consumer, camera, pos, color);
     }
 }
