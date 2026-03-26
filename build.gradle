@@ -89,6 +89,10 @@ jar {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add("-Xlint:deprecation")
+}
+
 // configure the maven publication
 publishing {
     publications {

@@ -89,6 +89,6 @@ public class Main implements ClientModInitializer {
         FeatureRegistry.reconcileFeatureSubscriptions();
 
 
-        LOGGER.info("It's time to get real, NoFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
+        LOGGER.info("It's time to get real, SomeFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
     }
 }

@@ -23,6 +23,6 @@
     "PlayerListHudAccessor",
     "WorldMixin",
     "WorldRendererMixin"
-  ],
+  ]
 }
 

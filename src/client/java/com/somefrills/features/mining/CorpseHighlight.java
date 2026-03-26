@@ -3,6 +3,7 @@ package com.somefrills.features.mining;
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
 import com.somefrills.config.SettingColor;
+import com.somefrills.config.SettingDescription;
 import com.somefrills.events.*;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
@@ -20,10 +21,15 @@ import java.util.HashSet;
 public class CorpseHighlight {
     public static final Feature instance = new Feature("corpseHighlight");
 
+    @SettingDescription("Hide glow on corpses you've already opened")
     public static final SettingBool hideOpened = new SettingBool(true);
+    @SettingDescription("Glow color for Lapis Corpses")
     public static final SettingColor lapisColor = new SettingColor(new RenderColor(85, 85, 255, 255));
+    @SettingDescription("Glow color for Tungsten Corpses")
     public static final SettingColor mineralColor = new SettingColor(new RenderColor(170, 170, 170, 255));
+    @SettingDescription("Glow color for Umber Corpses")
     public static final SettingColor yogColor = new SettingColor(new RenderColor(255, 170, 0, 255));
+    @SettingDescription("Glow color for Vanguard Corpses")
     public static final SettingColor vanguardColor = new SettingColor(new RenderColor(255, 85, 255, 255));
 
     private static final HashSet<Integer> openedCorpses = new HashSet<>();

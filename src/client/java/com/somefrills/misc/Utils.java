@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
 import static com.somefrills.Main.mc;
 
 public class Utils {
-    public static final MessageIndicator noFrillsIndicator = new MessageIndicator(0x5ca0bf, null, Text.of("Message from NoFrills mod."), "NoFrills Mod");    private static final HashSet<String> modernIslands = Sets.newHashSet(
+    public static final MessageIndicator someFrillsIndicator = new MessageIndicator(0x5ca0bf, null, Text.of("Message from SomeFrills mod."), "SomeFrills Mod");    private static final HashSet<String> modernIslands = Sets.newHashSet(
             "Hub",
             "Galatea",
             "Gold Mine",
@@ -241,7 +241,7 @@ public class Utils {
         if (message.getStyle() == null || message.getStyle().getColor() == null) {
             message = message.withColor(0xffffff);
         }
-        mc.inGameHud.getChatHud().addMessage(getTag().append(message), null, noFrillsIndicator);
+        mc.inGameHud.getChatHud().addMessage(getTag().append(message), null, someFrillsIndicator);
     }
 
     public static void infoFormat(String message, Object... values) {
@@ -1033,14 +1033,14 @@ public class Utils {
     }
 
     public static void setGlowing(Entity ent, boolean shouldGlow, RenderColor color) {
-        ((EntityRendering) ent).nofrills_mod$setGlowingColored(shouldGlow, color);
+        ((EntityRendering) ent).somefrills_mod$setGlowingColored(shouldGlow, color);
     }
 
     /**
      * Checks if an entity is drawing the glow effect. Does not account for vanilla/server applied glows.
      */
     public static boolean isGlowing(Entity ent) {
-        return ((EntityRendering) ent).nofrills_mod$getGlowing();
+        return ((EntityRendering) ent).somefrills_mod$getGlowing();
     }
 
 

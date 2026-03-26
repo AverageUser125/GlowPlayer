@@ -1,4 +1,4 @@
-# NoFrills Mod
+# SomeFrills Mod
 
 It's in the name. Simple and effective Hypixel Skyblock mod for modern versions (1.20+) of Minecraft.
 
@@ -79,11 +79,11 @@ It's in the name. Simple and effective Hypixel Skyblock mod for modern versions 
 
 ## Installation
 
-- Head over to the [versions page](https://modrinth.com/mod/nofrills/versions), download the most recent release for
+- Head over to the [versions page](https://github.com/AverageUser125/SomeFrills/releases/), download the most recent release for
   your Minecraft version, and add it to your "mods" folder.
 - Additional dependencies needed to launch the mod:
     - [Fabric API](https://modrinth.com/mod/fabric-api)
-    - [owo-lib](https://modrinth.com/mod/owo-lib) (Prompts you to install if not present)
+    - [ui-lib](https://modrinth.com/mod/ui-lib)
     - [Mod Menu](https://modrinth.com/mod/modmenu) (Optional, settings can be accessed with `/somefrills`, or `/sf`)
 - To finish off, open the mod's settings screen, and configure it to your liking. **Every feature is off by default**.
 
