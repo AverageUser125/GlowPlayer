@@ -13,14 +13,12 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -40,7 +38,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
         Rendering.drawBorder(context, button.getX(), button.getY(), button.getWidth(), button.getHeight(), 0xffffffff);
     };
     public List<FlowLayout> settings;
-    public Text title = Text.empty();
+    public net.minecraft.network.chat.Component title = net.minecraft.network.chat.Component.empty();
     public ScrollContainer<FlowLayout> scroll;
 
     public Settings(List<FlowLayout> settings) {
@@ -57,7 +55,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
     }
 
     private static ButtonComponent buildResetButton(Consumer<ButtonComponent> onPress) {
-        ButtonComponent button = Components.button(Text.literal("Reset").withColor(0xffffff), onPress);
+        ButtonComponent button = Components.button(literal("Reset"), onPress);
         button.positioning(Positioning.relative(100, 0));
         button.renderer(buttonRendererWhite);
         return button;
@@ -77,7 +75,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             };
             height += childHeight;
         }
-        return (int) Math.clamp(height, 30, mc.getWindow().getScaledHeight() * 0.8);
+        return (int) Math.clamp(height, 30, mc.getWindow().getGuiScaledHeight() * 0.8);
     }
 
     private static boolean isBinding(List<FlowLayout> settings, int button) {
@@ -108,7 +106,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         if (isBinding(this.settings, input.key())) {
             return true;
         }
@@ -126,7 +124,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         return super.mouseClicked(click, doubled);
     }
 
@@ -167,16 +165,18 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         Config.saveAsync();
         mc.setScreen(new ClickGui());
     }
 
-    public Settings setTitle(Text title) {
+    public Settings setTitle(net.minecraft.network.chat.Component title) {
         this.title = title;
         return this;
     }
-
+    private static net.minecraft.network.chat.Component literal(String name){
+        return net.minecraft.network.chat.Component.literal(name);
+    }
     public static class Toggle extends FlowLayout {
         public SettingBool setting;
         public ToggleButton toggle;
@@ -186,8 +186,8 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
-            label.tooltip(Text.literal(tooltip));
+            PlainLabel label = new PlainLabel(literal(name));
+            label.tooltip(literal(tooltip));
             this.toggle = new ToggleButton(this.setting.value());
             this.toggle.onToggled().subscribe(value -> this.setting.set(value));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
@@ -208,14 +208,14 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             FlatTextbox text = new FlatTextbox(Sizing.fixed(50));
             FlatSlider slider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
             slider.min(min).max(max).stepSize(step).horizontalSizing(Sizing.fixed(100)).verticalSizing(Sizing.fixed(20));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
+            label.tooltip(literal(tooltip));
             text.onChanged().subscribe(change -> {
-                Optional<Double> value = Utils.parseDouble(text.getText());
+                Optional<Double> value = Utils.parseDouble(text.getValue());
                 if (value.isPresent()) {
                     this.setting.set(value.get());
                     slider.value(value.get());
@@ -225,14 +225,14 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             slider.onChanged().subscribe(change -> {
                 double value = roundDouble(slider.value());
                 this.setting.set(value);
-                text.setText(String.valueOf(value));
+                text.setValue(String.valueOf(value));
             });
             this.child(label);
             this.child(text);
             this.child(slider);
             this.child(buildResetButton(btn -> {
                 this.setting.reset();
-                text.setText(String.valueOf(roundDouble(this.setting.value())));
+                text.setValue(String.valueOf(roundDouble(this.setting.value())));
             }));
         }
     }
@@ -245,14 +245,14 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             FlatTextbox text = new FlatTextbox(Sizing.fixed(50));
             FlatSlider slider = new FlatSlider(0xffdddddd, 0xff5ca0bf);
             slider.min(min).max(max).stepSize(step).horizontalSizing(Sizing.fixed(100)).verticalSizing(Sizing.fixed(20));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
+            label.tooltip(literal(tooltip));
             text.onChanged().subscribe(change -> {
-                Optional<Integer> value = Utils.parseInt(text.getText());
+                Optional<Integer> value = Utils.parseInt(text.getValue());
                 if (value.isPresent()) {
                     this.setting.set(value.get());
                     slider.value(value.get());
@@ -262,14 +262,14 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             slider.onChanged().subscribe(change -> {
                 int value = (int) slider.value();
                 this.setting.set(value);
-                text.setText(String.valueOf(value));
+                text.setValue(String.valueOf(value));
             });
             this.child(label);
             this.child(text);
             this.child(slider);
             this.child(buildResetButton(btn -> {
                 this.setting.reset();
-                text.setText(String.valueOf(this.setting.value()));
+                text.setValue(String.valueOf(this.setting.value()));
             }));
         }
     }
@@ -282,16 +282,16 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             FlatTextbox text = new FlatTextbox(Sizing.fixed(80));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
+            label.tooltip(literal(tooltip));
             text.onChanged().subscribe(change -> {
-                Optional<Double> value = Utils.parseDouble(text.getText());
+                Optional<Double> value = Utils.parseDouble(text.getValue());
                 if (value.isPresent()) {
                     double v = roundDouble(value.get());
                     this.setting.set(v);
-                    text.setText(String.valueOf(v));
+                    text.setValue(String.valueOf(v));
                 }
             });
             text.text(String.valueOf(roundDouble(this.setting.value())));
@@ -299,7 +299,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.child(text);
             this.child(buildResetButton(btn -> {
                 this.setting.reset();
-                text.setText(String.valueOf(roundDouble(this.setting.value())));
+                text.setValue(String.valueOf(roundDouble(this.setting.value())));
             }));
         }
     }
@@ -312,15 +312,15 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             FlatTextbox text = new FlatTextbox(Sizing.fixed(80));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
+            label.tooltip(literal(tooltip));
             text.onChanged().subscribe(change -> {
-                Optional<Integer> value = Utils.parseInt(text.getText());
+                Optional<Integer> value = Utils.parseInt(text.getValue());
                 if (value.isPresent()) {
                     this.setting.set(value.get());
-                    text.setText(String.valueOf(value.get()));
+                    text.setValue(String.valueOf(value.get()));
                 }
             });
             text.text(String.valueOf(this.setting.value()));
@@ -328,7 +328,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.child(text);
             this.child(buildResetButton(btn -> {
                 this.setting.reset();
-                text.setText(String.valueOf(this.setting.value()));
+                text.setValue(String.valueOf(this.setting.value()));
             }));
         }
     }
@@ -341,13 +341,13 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             EnumCollapsible dropdown = new EnumCollapsible(this.setting.value().name());
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
+            label.tooltip(literal(tooltip));
             dropdown.surface(Surface.flat(0xff101010).and(Surface.outline(0xff5ca0bf)));
             for (T value : this.setting.values) {
-                ButtonComponent button = Components.button(Text.of(value.name()), btn -> {
+                ButtonComponent button = Components.button(net.minecraft.network.chat.Component.nullToEmpty(value.name()), btn -> {
                     dropdown.setLabel(value.name());
                     this.setting.set(value);
                     dropdown.toggleExpansion();
@@ -376,15 +376,15 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.verticalAlignment(VerticalAlignment.CENTER);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.right(5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
+            label.tooltip(literal(tooltip));
             FlowLayout colorDisplay = Containers.verticalFlow(Sizing.fixed(20), Sizing.fixed(20));
             colorDisplay.surface((context, component) -> context.fill(component.x(), component.y(), component.x() + component.width(), component.y() + component.height(), this.setting.value().argb)).margins(Insets.right(5));
             this.child(buildResetButton(btn -> this.setting.reset()).positioning(Positioning.relative(100, 50)));
-            ButtonComponent editButton = Components.button(Text.literal("Edit Color"), (btn) -> {
+            ButtonComponent editButton = Components.button(literal("Edit Color"), (btn) -> {
                 ColorPickerScreen pickerScreen = ColorPickerScreen.build(this.setting, this.previous);
-                pickerScreen.setTitle(Text.literal(!Utils.toLower(name).endsWith(" color") ? name + " Color" : name));
+                pickerScreen.setTitle(literal(!Utils.toLower(name).endsWith(" color") ? name + " Color" : name));
                 mc.setScreen(pickerScreen);
             });
             editButton.horizontalSizing(Sizing.fixed(60));
@@ -402,8 +402,8 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.horizontalAlignment(HorizontalAlignment.CENTER);
             this.verticalAlignment(VerticalAlignment.CENTER);
             this.verticalSizing(Sizing.fixed(20));
-            MutableText text = Text.literal(name);
-            int textWidth = mc.textRenderer.getWidth(text) / 2;
+            MutableComponent text = (MutableComponent) literal(name);
+            int textWidth = mc.font.width(text) / 2;
             PlainLabel label = new PlainLabel(text.withColor(0xffffff));
             label.verticalTextAlignment(VerticalAlignment.CENTER).verticalSizing(Sizing.fixed(20));
             this.surface((context, component) -> {
@@ -423,9 +423,9 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.verticalAlignment(VerticalAlignment.CENTER);
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            PlainLabel desc = new PlainLabel(Text.literal(description).withColor(0xffffff));
+            PlainLabel desc = new PlainLabel(literal(description));
             desc.verticalTextAlignment(VerticalAlignment.CENTER).verticalSizing(Sizing.content()).horizontalSizing(Sizing.fixed(200));
             this.child(label);
             this.child(desc);
@@ -440,17 +440,17 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             FlatTextbox text = new FlatTextbox(Sizing.fixed(150));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
-            text.onChanged().subscribe(change -> this.setting.set(text.getText()));
+            label.tooltip(literal(tooltip));
+            text.onChanged().subscribe(change -> this.setting.set(text.getValue()));
             text.text(String.valueOf(this.setting.value()));
             this.child(label);
             this.child(text);
             this.child(buildResetButton(btn -> {
                 this.setting.reset();
-                text.setText(String.valueOf(this.setting.value()));
+                text.setValue(String.valueOf(this.setting.value()));
             }));
         }
     }
@@ -464,8 +464,8 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
-            label.tooltip(Text.literal(tooltip));
+            PlainLabel label = new PlainLabel(literal(name));
+            label.tooltip(literal(tooltip));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
             this.button = new KeybindButton();
             this.button.bind(this.setting.value());
@@ -488,17 +488,17 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
 
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
-            label.tooltip(Text.literal(tooltip));
+            PlainLabel label = new PlainLabel(literal(name));
+            label.tooltip(literal(tooltip));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
             this.child(label);
 
             FlowLayout buttonRow = Containers.horizontalFlow(Sizing.content(), Sizing.content());
-            ButtonComponent addBtn = Components.button(Text.literal("Add Current"), btn -> {
-                if (mc.player != null) setting.add(mc.player.getBlockPos());
+            ButtonComponent addBtn = Components.button(literal("Add Current"), btn -> {
+                if (mc.player != null) setting.add(mc.player.blockPosition());
             });
-            ButtonComponent removeBtn = Components.button(Text.literal("Remove Last"), btn -> setting.removeLast());
-            ButtonComponent clearBtn = Components.button(Text.literal("Clear"), btn -> setting.clearWaypoints());
+            ButtonComponent removeBtn = Components.button(literal("Remove Last"), btn -> setting.removeLast());
+            ButtonComponent clearBtn = Components.button(literal("Clear"), btn -> setting.clearWaypoints());
             addBtn.horizontalSizing(Sizing.fixed(90));
             removeBtn.horizontalSizing(Sizing.fixed(90));
             clearBtn.horizontalSizing(Sizing.fixed(60));
@@ -511,7 +511,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.child(buttonRow);
 
             this.child(new Separator("Waypoints"));
-            for (net.minecraft.util.math.BlockPos pos : setting.valueList()) {
+            for (net.minecraft.core.BlockPos pos : setting.valueList()) {
                 String coord = pos.getX() + "," + pos.getY() + "," + pos.getZ();
                 this.child(new Description(coord, coord));
             }
@@ -525,7 +525,7 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             super(Sizing.content(), Sizing.content(), Algorithm.HORIZONTAL);
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.CENTER);
-            this.button = Components.button(Text.literal(name).withColor(0xffffff), onPress);
+            this.button = Components.button(literal(name), onPress);
             this.button.horizontalSizing(Sizing.fixed(290));
             this.button.renderer(buttonRenderer);
             this.child(this.button);
@@ -540,17 +540,17 @@ public class Settings extends BaseOwoScreen<FlowLayout> {
             this.padding(Insets.of(5));
             this.horizontalAlignment(HorizontalAlignment.LEFT);
             this.setting = setting;
-            PlainLabel label = new PlainLabel(Text.literal(name).withColor(0xffffff));
+            PlainLabel label = new PlainLabel(literal(name));
             FlatTextbox text = new FlatTextbox(Sizing.fixed(150));
             label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.of(0, 0, 0, 5)).verticalSizing(Sizing.fixed(20));
-            label.tooltip(Text.literal(tooltip));
+            label.tooltip(literal(tooltip));
             text.onChanged().subscribe(change -> Utils.parseDouble(change).ifPresent(value -> this.setting.set(value)));
             text.text(String.valueOf(this.setting.value()));
             this.child(label);
             this.child(text);
             this.child(buildResetButton(btn -> {
                 this.setting.reset();
-                text.setText(String.valueOf(this.setting.value()));
+                text.setValue(String.valueOf(this.setting.value()));
             }));
         }
     }

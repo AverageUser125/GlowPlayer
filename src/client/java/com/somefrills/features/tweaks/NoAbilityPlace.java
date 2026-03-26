@@ -3,9 +3,9 @@ package com.somefrills.features.tweaks;
 import com.google.common.collect.Sets;
 import com.somefrills.config.Feature;
 import com.somefrills.misc.Utils;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.HashSet;
 
@@ -22,10 +22,10 @@ public class NoAbilityPlace {
             "SNOW_HOWITZER"
     );
 
-    public static boolean hasAbility(ItemPlacementContext context) {
+    public static boolean hasAbility(BlockPlaceContext context) {
         if (!instance.isActive()) return false;
         if (context == null) return false;
-        ItemStack stack = context.getStack();
+        ItemStack stack = context.getItemInHand();
         String id = Utils.getSkyblockId(stack);
         if (!id.isEmpty()) {
             if (abilityWhitelist.contains(id) || id.startsWith("ABIPHONE")) {

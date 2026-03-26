@@ -12,8 +12,8 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.KeyEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -58,7 +58,7 @@ public class ClickGui extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         if (input.key() != GLFW.GLFW_KEY_LEFT && input.key() != GLFW.GLFW_KEY_RIGHT && input.key() != GLFW.GLFW_KEY_PAGE_DOWN && input.key() != GLFW.GLFW_KEY_PAGE_UP) {
             return super.keyPressed(input);
         } else {
@@ -86,13 +86,13 @@ public class ClickGui extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         this.mouseX = mouseX;
         this.mouseY = mouseY;
-        int height = context.getScaledWindowHeight();
-        context.drawTextWithShadow(this.textRenderer, "Left click a feature to toggle", 1, height - 20, RenderColor.white.argb);
-        context.drawTextWithShadow(this.textRenderer, "Right click a feature open its settings", 1, height - 10, RenderColor.white.argb);
+        int height = context.guiHeight();
+        context.drawString(this.font, "Left click a feature to toggle", 1, height - 20, RenderColor.white.argb);
+        context.drawString(this.font, "Right click a feature open its settings", 1, height - 10, RenderColor.white.argb);
     }
 
     @Override
@@ -230,11 +230,11 @@ public class ClickGui extends BaseOwoScreen<FlowLayout> {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         Config.save();
         if (this.uiAdapter != null) {
             this.uiAdapter.dispose();
         }
-        super.close();
+        super.onClose();
     }
 }

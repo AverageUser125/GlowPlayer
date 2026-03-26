@@ -9,9 +9,9 @@ import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.RenderStyle;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.util.math.Box;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.phys.AABB;
 
 public class GhostVision {
     public static final Feature instance = new Feature("ghostVision");
@@ -31,14 +31,14 @@ public class GhostVision {
 
     private static final EntityCache cache = new EntityCache();
     private static boolean inDwarvenMines = false;
-    public static boolean isGhost(CreeperEntity entity) {
+    public static boolean isGhost(Creeper entity) {
         return instance.isActive() && cache.has(entity);
     }
 
     @EventHandler
     private static void onEntity(EntityUpdatedEvent event) {
-        if (inDwarvenMines&& event.entity instanceof CreeperEntity creeper) {
-            if (creeper.getEntity().getY() < 100) {
+        if (inDwarvenMines&& event.entity instanceof Creeper creeper) {
+            if (creeper.asLivingEntity().getY() < 100) {
                 cache.add(event.entity);
             }
         }
@@ -53,7 +53,7 @@ public class GhostVision {
         if (!inDwarvenMines) return;
         for (Entity ent : cache.get()) {
             if (!ent.isAlive()) continue;
-            Box box = Utils.getLerpedBox(ent, event);
+            AABB box = Utils.getLerpedBox(ent, event);
             event.drawStyled(box, style.value(), false, outline.value(), fill.value());
         }
     }

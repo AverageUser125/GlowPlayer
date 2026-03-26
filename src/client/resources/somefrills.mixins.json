@@ -5,29 +5,28 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockItemMixin",
-    "BossBarHudAccessor",
-    "ClientConnectionMixin",
-    "ClientPlayerInteractionManagerAccessor",
-    "ClientPlayerInteractionManagerMixin",
-    "ClientPlayNetworkHandlerMixin",
-    "ClientWorldMixin",
+    "BossHealthOverlayAccessor",
     "ConnectionMixin",
+    "MultiPlayerGameModeAccessor",
+    "MultiPlayerGameModeMixin",
+    "ClientPacketListenerMixin",
+    "ClientLevelMixin",
     "EntityMixin",
-    "HandledScreenAccessor",
-    "HandledScreenMixin",
-    "InGameHudMixin",
+    "AbstractContainerScreenAccessor",
+    "AbstractContainerScreenMixin",
+    "GuiMixin",
     "ItemStackMixin",
-    "KeyboardMixin",
-    "MinecraftClientMixin",
-    "MouseMixin",
-    "PaneBlockMixin",
-    "PlayerListHudAccessor",
-    "WorldMixin",
-    "WorldRendererMixin"
+    "KeyboardHandlerMixin",
+    "MinecraftMixin",
+    "MouseHandlerMixin",
+    "IronBarsBlockMixin",
+    "PlayerTabOverlayAccessor",
+    "LevelMixin",
+    "LevelRendererMixin"
   ],
   "client": [
-    "CreeperChargeFeatureRendererMixin",
-    "CreeperEntityMixin"
+    "CreeperPowerLayerMixin",
+    "CreeperMixin"
   ]
 }
 

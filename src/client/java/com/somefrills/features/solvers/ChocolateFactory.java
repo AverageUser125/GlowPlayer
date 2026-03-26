@@ -8,12 +8,12 @@ import com.somefrills.events.HudRenderEvent;
 import com.somefrills.events.ScreenRenderEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.network.chat.Component;
 
 /**
  * Fabric 1.21.10 port of the Kotlin ChocolateFactory module.
@@ -30,19 +30,19 @@ public class ChocolateFactory {
 
     @EventHandler
     public static void onHudTick(ScreenRenderEvent event) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client == null || client.player == null) return;
 
         // Check if auto claim is enabled
         if (!claimStray.value()) return;
 
-        ClientPlayerEntity player = client.player;
-        ScreenHandler handler = player.currentScreenHandler;
+        LocalPlayer player = client.player;
+        AbstractContainerMenu handler = player.containerMenu;
         if (handler == null) return;
 
         String title = "";
-        if (client.currentScreen != null) {
-            Text txt = client.currentScreen.getTitle();
+        if (client.screen != null) {
+            Component txt = client.screen.getTitle();
             if (txt != null) title = txt.getString();
         }
 
@@ -52,16 +52,16 @@ public class ChocolateFactory {
 
         // Scan for claimable items
         for (Slot slot : handler.slots) {
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack == null || stack.isEmpty()) continue;
 
-            String displayName = stack.getName().getString();
+            String displayName = stack.getHoverName().getString();
 
             // Check if this is a claimable item (CLICK ME! or Golden Rabbit)
             if (displayName.contains("CLICK ME!")) {
                 // Check click delay
                 if (System.currentTimeMillis() - lastClaimTime < claimDelay.value()) return;
-                Utils.clickSlot(slot.getIndex());
+                Utils.clickSlot(slot.getContainerSlot());
                 lastClaimTime = System.currentTimeMillis();
                 return; // Only click one per tick
             }
@@ -70,7 +70,7 @@ public class ChocolateFactory {
             if (displayName.contains("Golden Rabbit")) {
                 // Check click delay
                 if (System.currentTimeMillis() - lastClaimTime < claimDelay.value() * 100L) return;
-                Utils.clickSlot(slot.getIndex());
+                Utils.clickSlot(slot.getContainerSlot());
                 lastClaimTime = System.currentTimeMillis();
                 return; // Only click one per tick
             }

@@ -13,8 +13,8 @@ import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,29 +97,29 @@ public class ColorPickerScreen extends Settings {
             int blue = (int) (color.b * 255);
             int alpha = (int) (color.a * 255);
             colorDisplay.color(Color.ofArgb(color.argb)).fill(true);
-            argbInput.setText("0x" + Integer.toHexString(color.argb));
-            redInput.setText(String.valueOf(red));
+            argbInput.setValue("0x" + Integer.toHexString(color.argb));
+            redInput.setValue(String.valueOf(red));
             redSlider.value(red);
-            greenInput.setText(String.valueOf(green));
+            greenInput.setValue(String.valueOf(green));
             greenSlider.value(green);
-            blueInput.setText(String.valueOf(blue));
+            blueInput.setValue(String.valueOf(blue));
             blueSlider.value(blue);
-            alphaInput.setText(String.valueOf(alpha));
+            alphaInput.setValue(String.valueOf(alpha));
             alphaSlider.value(alpha);
         };
 
         FlowLayout buttonSection = Containers.horizontalFlow(Sizing.content(), Sizing.fixed(30));
         buttonSection.horizontalAlignment(HorizontalAlignment.LEFT).padding(Insets.of(5));
-        ButtonComponent backButton = Components.button(Text.literal("Back"), (btn) -> mc.setScreen(previous));
+        ButtonComponent backButton = Components.button(Component.literal("Back"), (btn) -> mc.setScreen(previous));
         backButton.margins(Insets.right(5));
         backButton.renderer(Settings.buttonRenderer);
-        ButtonComponent copyButton = Components.button(Text.literal("Copy Color"), (btn) ->
-                mc.keyboard.setClipboard("0x" + Integer.toHexString(setting.value().argb))
+        ButtonComponent copyButton = Components.button(Component.literal("Copy Color"), (btn) ->
+                mc.keyboardHandler.setClipboard("0x" + Integer.toHexString(setting.value().argb))
         );
         copyButton.margins(Insets.right(5));
         copyButton.renderer(Settings.buttonRenderer);
-        ButtonComponent pasteButton = Components.button(Text.literal("Paste Color"), (btn) -> {
-            Utils.parseHex(mc.keyboard.getClipboard()).ifPresent(integer -> setting.set(RenderColor.fromArgb(integer)));
+        ButtonComponent pasteButton = Components.button(Component.literal("Paste Color"), (btn) -> {
+            Utils.parseHex(mc.keyboardHandler.getClipboard()).ifPresent(integer -> setting.set(RenderColor.fromArgb(integer)));
             syncValues.run();
         });
         pasteButton.renderer(Settings.buttonRenderer);
@@ -181,14 +181,14 @@ public class ColorPickerScreen extends Settings {
 
     public static FlowLayout addLabel(String text) {
         FlowLayout layout = Containers.horizontalFlow(Sizing.fixed(40), Sizing.content());
-        PlainLabel label = new PlainLabel(Text.literal(text));
+        PlainLabel label = new PlainLabel(Component.literal(text));
         label.verticalTextAlignment(VerticalAlignment.CENTER).margins(Insets.right(5)).sizing(Sizing.content(), Sizing.fixed(20));
         layout.child(label);
         return layout;
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         mc.setScreen(this.previous);
     }
 }
