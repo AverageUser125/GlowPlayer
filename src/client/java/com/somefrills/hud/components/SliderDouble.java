@@ -13,7 +13,7 @@ public class SliderDouble extends AbstractWidget implements IWidget {
     private final double maxValue;
     private boolean updating = false;
 
-    public SliderDouble(int x, int y, int widthNum, int widthSlider, int height, double min, double max) {
+    public SliderDouble(int x, int y, int widthNum, int widthSlider, int height, double value, double min, double max) {
         super(x, y, widthNum + 5 + widthSlider, height, Component.empty());
         numberBox = new NumberDouble(x, y, widthNum, height, 0);
         slider = new SliderWidget(x + widthNum + 5, y, widthSlider, height);
@@ -21,8 +21,8 @@ public class SliderDouble extends AbstractWidget implements IWidget {
         this.maxValue = max;
         slider.onValueChange(newValue -> {
             updateContext(() -> {
-                double value = newValue * (maxValue - minValue) + minValue;
-                numberBox.setNumber(value);
+                double v = newValue * (maxValue - minValue) + minValue;
+                numberBox.setNumber(v);
             });
         });
 
@@ -33,6 +33,8 @@ public class SliderDouble extends AbstractWidget implements IWidget {
                 slider.setValue(sliderValue);
             });
         });
+
+        numberBox.setNumber(value);
     }
 
     @Override

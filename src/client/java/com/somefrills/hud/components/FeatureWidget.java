@@ -51,8 +51,10 @@ public class FeatureWidget extends ButtonWidget implements IWidget {
     @Override
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
         if (mouseButtonEvent.input() == 1) {
-            mc.setScreen(new SettingsScreen(info));
-            return true;
+            if(!info.settings.isEmpty()) {
+                mc.setScreen(new SettingsScreen(info));
+                return true;
+            }
         }
         return super.mouseClicked(mouseButtonEvent, bl);
     }

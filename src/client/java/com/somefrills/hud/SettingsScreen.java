@@ -2,6 +2,7 @@ package com.somefrills.hud;
 
 import com.daqem.uilib.api.widget.IWidget;
 import com.daqem.uilib.gui.AbstractScreen;
+import com.daqem.uilib.gui.widget.ButtonWidget;
 import com.daqem.uilib.gui.widget.EditBoxWidget;
 import com.daqem.uilib.gui.widget.ScrollContainer2DWidget;
 import com.somefrills.config.*;
@@ -27,8 +28,8 @@ public class SettingsScreen extends AbstractScreen {
         List<SettingWidget> widgets = new ArrayList<>();
         int marginLeft = 10;
         int marginTop = 10;
-        int labelWidth = 140;
-        int controlWidth = 160;
+        int labelWidth = 300;
+        int controlWidth = 200;
         int rowHeight = 22;
         int rowGap = 6;
         int colGap = 12;
@@ -49,42 +50,58 @@ public class SettingsScreen extends AbstractScreen {
             if (w == null) continue;
             SettingWidget sw = new SettingWidget(x, y, labelWidth, rowHeight, entry.name, entry.description, w);
             widgets.add(sw);
-            // add the label/control container to the screen so it renders and receives input
-            this.addRenderableWidget(sw);
             y += rowHeight + rowGap;
         }
+        addWidgets(widgets);
     }
 
-    private static IWidget getWidget(int x, int y, int width, int height, SettingGeneric setting) {
+    private IWidget getWidget(int x, int y, int width, int height, SettingGeneric setting) {
         var clazz = setting.getClass();
         if (clazz.equals(SettingBool.class)) {
             var s = (SettingBool) setting;
             return new ToggleButton(x, y, width, height, s.value());
         }
-        if(clazz.equals(SettingKeybind.class)) {
+        if (clazz.equals(SettingKeybind.class)) {
             var s = (SettingKeybind) setting;
             return new KeybindButton(x, y, width, height, s.value());
-        }  if(clazz.equals(SettingInt.class)) {
+        }
+        if (clazz.equals(SettingInt.class)) {
             var s = (SettingInt) setting;
             return new NumberInt(x, y, width, height, s.value());
-        }  if(clazz.equals(SettingDouble.class)) {
+        }
+        if (clazz.equals(SettingDouble.class)) {
             var s = (SettingDouble) setting;
             return new NumberDouble(x, y, width, height, s.value());
-        }  if(clazz.equals(SettingColor.class)) {
+        }
+        if (clazz.equals(SettingColor.class)) {
+            var s = (SettingColor) setting;
+            return new ButtonWidget(x, y, width, height, Component.literal("Edit Color"), button -> {
+                mc.setScreen(new ColorPickerScreen(s, this));
+            });
+        }
+        if (clazz.equals(SettingEnum.class)) {
             // TODO
-            //var s = (SettingColor) setting;
-            //addRenderableWidget(new ColorPicker(x, y, width, height, s.value()));
-        }  if(clazz.equals(SettingEnum.class)) {
+        }
+        if (clazz.equals(SettingBlockPosList.class)) {
             // TODO
-        }  if(clazz.equals(SettingBlockPosList.class)) {
-            // TODO
-        } if(clazz.equals(SettingString.class)) {
+        }
+        if (clazz.equals(SettingString.class)) {
             var s = (SettingString) setting;
             return new EditBoxWidget(mc.font, x, y, width, height, Component.literal(s.value()));
         }
-        if(clazz.equals(SettingJson.class)) {
+        if (clazz.equals(SettingIntSlider.class)) {
+            var s = (SettingIntSlider) setting;
+            return new SliderInt(x, y, 70, width - 70, height, s.value(), s.min(), s.max());
+        }
+        if (clazz.equals(SettingJson.class)) {
             // TODO
         }
         return null;
+    }
+
+    @Override
+    public void onClose() {
+        Config.save();
+        mc.setScreen(new ClickGui());
     }
 }

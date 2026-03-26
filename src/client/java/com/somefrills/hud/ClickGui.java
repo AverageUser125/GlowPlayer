@@ -47,7 +47,7 @@ public class ClickGui extends AbstractScreen {
         this.refreshSearchResults("");
 
         final int START_FEATURE_Y = 40;
-        final int FEATURE_WIDTH = 100;
+        final int FEATURE_WIDTH = 150;
         final int FEATURE_HEIGHT = 20;
         int startX = 10;
         int startY = START_FEATURE_Y;
