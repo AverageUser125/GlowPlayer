@@ -41,7 +41,7 @@ public class AutoUpdate {
     }
 
     public static void checkUpdate() {
-        if (hasCheckedThisSession) return;
+        if (hasCheckedThisSession || true) return;
         hasCheckedThisSession = true;
         Thread.startVirtualThread(() -> {
             try {

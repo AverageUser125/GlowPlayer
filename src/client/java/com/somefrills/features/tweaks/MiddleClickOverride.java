@@ -98,7 +98,6 @@ public class MiddleClickOverride {
         return switch (ExperimentSolver.getExperimentType()) {
             case Chronomatron -> ExperimentSolver.chronomatron.value();
             case Ultrasequencer -> ExperimentSolver.ultrasequencer.value();
-            case Superpairs -> false; // FIXME
             default -> true;
         };
     }
