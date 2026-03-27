@@ -9,7 +9,7 @@ import meteordevelopment.orbit.EventHandler;
 import java.util.List;
 
 public class AutoWarpHome {
-    public static final Feature instance = new Feature("autoWarpHome");
+    public static final Feature instance = new Feature();
 
     private static PestStatus lastStatus = PestStatus.UNKNOWN; // -1 = unknown
 

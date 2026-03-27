@@ -2,26 +2,25 @@ package com.somefrills.features.tweaks;
 
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingDescription;
 import com.somefrills.events.InteractBlockEvent;
 import com.somefrills.events.InteractItemEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.util.Hand;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.Hand;
 import net.minecraft.util.hit.HitResult;
 
 import static com.somefrills.Main.mc;
 
+// description moved into constructors
+
 public class DoubleUseFix {
-    public static final Feature instance = new Feature("doubleUseFix", true);
+    public static final Feature instance = new Feature(true);
 
-    @SettingDescription("Only enable double-use fix while in Skyblock")
-    public static final SettingBool skyblockCheck = new SettingBool(false);
+    public static final SettingBool skyblockCheck = new SettingBool(false, "Only enable double-use fix while in Skyblock");
 
-    @SettingDescription("Only enable double-use fix on modern islands")
-    public static final SettingBool modernCheck = new SettingBool(false);
+    public static final SettingBool modernCheck = new SettingBool(false, "Only enable double-use fix on modern islands");
 
     private static type getDisableType() {
         ItemStack held = Utils.getHeldItem();

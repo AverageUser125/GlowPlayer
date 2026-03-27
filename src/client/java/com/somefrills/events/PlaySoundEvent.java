@@ -1,7 +1,7 @@
 package com.somefrills.events;
 
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 
 

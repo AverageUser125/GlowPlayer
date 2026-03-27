@@ -10,7 +10,7 @@ import org.lwjgl.glfw.GLFW;
 import static com.somefrills.Main.mc;
 
 public class SpaceFarmer {
-    public static final Feature instance = new Feature("spaceFarmer");
+    public static final Feature instance = new Feature();
     public static boolean spaceHeld = false;
 
     @EventHandler

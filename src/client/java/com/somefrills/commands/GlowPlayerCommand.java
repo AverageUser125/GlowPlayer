@@ -9,8 +9,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.somefrills.features.misc.GlowPlayer;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.util.Formatting;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.util.Formatting;
 
 import java.util.concurrent.CompletableFuture;
 

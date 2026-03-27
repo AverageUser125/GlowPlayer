@@ -9,6 +9,12 @@ public class SettingEnum<T extends Enum<T>> extends SettingGeneric {
         this.values = values.getEnumConstants();
     }
 
+    public SettingEnum(T defaultValue, Class<T> values, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+        this.values = values.getEnumConstants();
+    }
+
     public T value() {
         String name = this.get().getAsString();
         for (T v : this.values) {

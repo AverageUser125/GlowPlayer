@@ -2,7 +2,7 @@ package com.somefrills.features.fishing;
 
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingDescription;
+// description now provided by Setting constructor
 
 import java.util.Random;
 
@@ -10,9 +10,8 @@ import static com.somefrills.Main.LOGGER;
 import static com.somefrills.Main.mc;
 
 final class AutoFishAntiAfk {
-    private static final Feature instance = new Feature("antiAfk");
-    @SettingDescription("Reset player facing when switching away from rod")
-    public static final SettingBool resetFacingWhenNotFishing = new SettingBool(false);
+    private static final Feature instance = new Feature();
+    public static final SettingBool resetFacingWhenNotFishing = new SettingBool(false, "Reset player facing when switching away from rod");
     // Minimal state: last trigger time to debounce
     private static long lastAfkTriggerTime = 0;
 

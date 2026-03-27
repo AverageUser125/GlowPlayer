@@ -9,6 +9,11 @@ public class SettingKeybind extends SettingInt {
         super(defaultValue);
     }
 
+    public SettingKeybind(int defaultValue, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+    }
+
     public int key() {
         return this.value();
     }

@@ -5,6 +5,11 @@ public class SettingString extends SettingGeneric {
         super(defaultValue);
     }
 
+    public SettingString(String defaultValue, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+    }
+
 
     public String value() {
         return this.get().getAsString();

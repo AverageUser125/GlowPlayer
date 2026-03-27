@@ -3,10 +3,9 @@ package com.somefrills.hud.components;
 import com.daqem.uilib.gui.widget.ButtonWidget;
 import com.somefrills.config.SettingKeybind;
 import net.minecraft.client.input.CharInput;
-import net.minecraft.text.Text;
 
 public class KeybindButton extends ButtonWidget {
-    private SettingKeybind key;
+    private final SettingKeybind key;
     private boolean waitingForKey = false;
 
     public KeybindButton(int x, int y, int width, int height, SettingKeybind key) {

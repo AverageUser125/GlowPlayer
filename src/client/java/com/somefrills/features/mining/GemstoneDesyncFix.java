@@ -7,16 +7,17 @@ import com.somefrills.events.BlockUpdateEvent;
 import com.somefrills.misc.SkyblockData;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.block.StainedGlassPaneBlock;
-import net.minecraft.block.BlockState;
 
 import java.util.HashSet;
-import static net.minecraft.block.HorizontalConnectingBlock.*;
+
 import static com.somefrills.Main.mc;
+import static net.minecraft.block.HorizontalConnectingBlock.*;
 
 public class GemstoneDesyncFix {
-    public static final Feature instance = new Feature("gemstoneDesyncFix", true);
+    public static final Feature instance = new Feature(true);
 
     private static final HashSet<String> islands = Sets.newHashSet(
             "Dwarven Mines",

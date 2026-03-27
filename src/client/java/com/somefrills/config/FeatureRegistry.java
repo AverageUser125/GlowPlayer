@@ -42,6 +42,19 @@ public class FeatureRegistry {
                     Feature feat = (Feature) instanceField.get(null);
                     if (feat == null) continue;
 
+                    // Infer and set feature metadata (key, name, description) here —
+                    // keep all reflection/derivation logic inside the registry.
+                    String simpleName = cls.getSimpleName();
+                    if (simpleName.isEmpty()) simpleName = "feature";
+                    // config key: class name with lower-cased first char
+                    String key = Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+                    feat.overrideKey(key);
+                    // display name: humanized class name
+                    feat.setName(Utils.humanize(simpleName));
+                    if (feat.description() == null || feat.description().isEmpty()) {
+                        feat.setDescription(deriveDescriptionFromName(simpleName));
+                    }
+
                     // Validate event handler methods: any method annotated with @EventHandler must be static
                     for (Method m : cls.getDeclaredMethods()) {
                         if (m.isAnnotationPresent(meteordevelopment.orbit.EventHandler.class) && !Modifier.isStatic(m.getModifiers())) {
@@ -57,10 +70,13 @@ public class FeatureRegistry {
                         f.setAccessible(true);
                         SettingGeneric setting = (SettingGeneric) f.get(null);
                         if (setting != null) {
-                            // Enforce @SettingDescription presence
-                            SettingDescription desc = f.getAnnotation(SettingDescription.class);
-                            if (desc == null) {
-                                throw new IllegalStateException("Missing @SettingDescription for setting '" + f.getName() + "' in feature " + cls.getName());
+                            // Previously settings used @SettingDescription; use the description provided
+                            // by the Setting instance itself (last constructor argument) instead.
+                            String descValue = setting.description();
+                            // If description missing, derive one from the field name and
+                            // convert to sentence case (keep acronyms uppercase)
+                            if (descValue == null || descValue.isEmpty()) {
+                                descValue = deriveDescriptionFromName(f.getName());
                             }
                             // override key: use field name as config key
                             setting.overrideKey(f.getName());
@@ -69,7 +85,7 @@ public class FeatureRegistry {
                             if (currentParent == null || currentParent.isEmpty()) {
                                 setting.overrideParent(feat.key());
                             }
-                            info.settings.add(new SettingInfo(Utils.humanize(f.getName()), Utils.humanize(desc.value()), setting));
+                            info.settings.add(new SettingInfo(Utils.humanize(f.getName()), descValue, setting));
                         }
                     }
 
@@ -171,6 +187,38 @@ public class FeatureRegistry {
         return names;
     }
 
+    // Split a CamelCase name into a human-friendly form while keeping consecutive
+    // uppercase acronyms together (e.g., "RGBColor" -> "RGB Color").
+    private static String splitCamelCasePreserveAcronyms(String name) {
+        if (name == null || name.isEmpty()) return "";
+        StringBuilder out = new StringBuilder();
+        int n = name.length();
+        for (int i = 0; i < n; i++) {
+            char c = name.charAt(i);
+            char prev = i > 0 ? name.charAt(i - 1) : 0;
+            char next = i < n - 1 ? name.charAt(i + 1) : 0;
+
+            if (i > 0) {
+                if (Character.isLowerCase(prev) && Character.isUpperCase(c)) {
+                    out.append(' ');
+                } else if (Character.isUpperCase(prev) && Character.isUpperCase(c) && Character.isLowerCase(next)) {
+                    out.append(' ');
+                }
+            }
+            out.append(c);
+        }
+        return out.toString().trim();
+    }
+
+    // Convenience wrapper used by the registry: split the name and then convert to
+    // sentence case (capitalize first letter) while preserving acronyms.
+    private static String deriveDescriptionFromName(String name) {
+        String split = splitCamelCasePreserveAcronyms(name);
+        if (split == null || split.isEmpty()) return "";
+        split = split.trim();
+        return Character.toUpperCase(split.charAt(0)) + (split.length() > 1 ? split.substring(1) : "");
+    }
+
     public static void reconcileFeatureSubscriptions() {
         for (FeatureInfo info : FEATURES) {
             if (info.featureInstance.isActive()) {
@@ -195,11 +243,8 @@ public class FeatureRegistry {
         public FeatureInfo(Class<?> clazz, Feature featureInstance) {
             this.clazz = clazz;
             this.featureInstance = featureInstance;
-            name = Utils.humanize(featureInstance.key());
-            // FIXME: ideally the description should be a separate field,
-            //  but for now we can just reuse the key as the description until
-            //  we have a better system for providing user-friendly descriptions
-            description = Utils.humanize(featureInstance.key());
+            name = featureInstance.name();
+            description = featureInstance.description();
         }
     }
 

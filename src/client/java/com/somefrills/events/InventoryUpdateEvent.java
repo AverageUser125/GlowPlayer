@@ -1,7 +1,7 @@
 package com.somefrills.events;
 
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 
 public class InventoryUpdateEvent {
     public ScreenHandlerSlotUpdateS2CPacket packet;

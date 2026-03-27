@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import static com.somefrills.Main.mc;
 
 public class AutoPestSetHome {
-    public static final Feature instance = new Feature("autoPestSetHome");
+    public static final Feature instance = new Feature();
     private static final long IGNORE_WINDOW_MS = 10_000L;
     private static final Pattern PEST_SPAWN_PATTERN = Pattern.compile(
             "\\bPest[s]?\\b.*?spawn(?:ed)?\\b.*?Plot\\s*-?\\s*\\d+",

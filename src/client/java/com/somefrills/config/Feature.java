@@ -6,19 +6,54 @@ public class Feature {
     private final boolean defaultEnabled;
     public String key;
     private boolean value = false;
+    private String name = "";
+    private String description = "";
 
-    public Feature(String key) {
-        this(key, false);
+    // No-arg constructor: no description provided
+    public Feature() {
+        this(false, "");
     }
 
-    public Feature(String key, boolean defaultEnabled) {
-        this.key = key;
+    public Feature(String description) {
+        this(false, description);
+    }
+
+    public Feature(boolean defaultEnabled) {
+        this(defaultEnabled, "");
+    }
+
+    // Constructors that accept an explicit description
+    // Preferred constructor: defaultEnabled first, then optional description
+    public Feature(boolean defaultEnabled, String description) {
+        this.description = description == null ? "" : description;
         this.defaultEnabled = defaultEnabled;
+        this.key = "";
         this.value = this.isActive();
     }
 
     public String key() {
         return this.key;
+    }
+
+    // Allow the registry to set the machine-readable config key
+    public void overrideKey(String newKey) {
+        this.key = newKey;
+    }
+
+    public String name() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? "" : name;
+    }
+
+    public String description() {
+        return this.description == null ? "" : this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description == null ? "" : description;
     }
 
     /**

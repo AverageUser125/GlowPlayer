@@ -9,7 +9,7 @@ import meteordevelopment.orbit.EventHandler;
 import static com.somefrills.Main.mc;
 
 public class BreakResetFix {
-    public static final Feature instance = new Feature("breakResetFix", true);
+    public static final Feature instance = new Feature(true);
 
     @EventHandler
     public static void onBreakReset(InventoryUpdateEvent event) {

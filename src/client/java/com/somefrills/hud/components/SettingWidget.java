@@ -2,16 +2,14 @@ package com.somefrills.hud.components;
 
 import com.daqem.uilib.api.widget.IWidget;
 import com.daqem.uilib.gui.component.text.TextComponent;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.gui.Click;
 import net.minecraft.text.Text;
-
-import static com.somefrills.Main.mc;
 
 public class SettingWidget extends ClickableWidget implements IWidget {
     private final TextComponent label;

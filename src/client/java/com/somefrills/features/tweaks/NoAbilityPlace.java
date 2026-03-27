@@ -4,13 +4,13 @@ import com.google.common.collect.Sets;
 import com.somefrills.config.Feature;
 import com.somefrills.misc.Utils;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 
 import java.util.HashSet;
 
 public class NoAbilityPlace {
-    public static final Feature instance = new Feature("noAbilityPlace", true);
+    public static final Feature instance = new Feature(true);
     private static final HashSet<String> abilityWhitelist = Sets.newHashSet(
             "ABINGOPHONE",
             "SUPERBOOM_TNT",

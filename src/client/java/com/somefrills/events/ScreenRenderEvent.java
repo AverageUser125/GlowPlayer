@@ -14,7 +14,6 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import org.joml.Matrix3x2f;
 import org.joml.Vector2d;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 

@@ -55,7 +55,7 @@ public class SliderInt extends ClickableWidget implements IWidget {
             function.run();
         } finally {
             updating = false;
-            if(consumer != null) consumer.accept(numberBox.getNumber());
+            if (consumer != null) consumer.accept(numberBox.getNumber());
         }
     }
 

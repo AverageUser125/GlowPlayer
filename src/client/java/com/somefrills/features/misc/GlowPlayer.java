@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GlowPlayer {
-    public static final Feature instance = new Feature("glowPlayer", true);
+    public static final Feature instance = new Feature(true);
     private static final ConcurrentHashMap<String, Formatting> forcedGlows = new ConcurrentHashMap<>();
     private static final Pattern USERNAME_TOKEN = Pattern.compile("[A-Za-z0-9_]{1,16}");
 

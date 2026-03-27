@@ -1,11 +1,11 @@
 package com.somefrills.events;
 
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.item.ItemStack;
 
 public class SlotUpdateEvent {
     public ScreenHandlerSlotUpdateS2CPacket packet;

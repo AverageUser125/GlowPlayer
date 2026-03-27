@@ -3,8 +3,8 @@ package com.somefrills.hud.components;
 import com.daqem.uilib.api.widget.IWidget;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Rendering;
-import net.minecraft.client.MinecraftClient;
 import com.somefrills.misc.Utils;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -12,8 +12,9 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.util.Identifier;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+
 import java.util.function.Consumer;
 
 public class ColorSquare extends ClickableWidget implements IWidget {
@@ -132,7 +133,9 @@ public class ColorSquare extends ClickableWidget implements IWidget {
         dirty = true;
     }
 
-    public float getHue() { return hue; }
+    public float getHue() {
+        return hue;
+    }
 
     public void setSelection(float saturation, float value) {
         this.selectionSaturation = Math.max(0f, Math.min(1f, saturation));
@@ -140,8 +143,13 @@ public class ColorSquare extends ClickableWidget implements IWidget {
         dirty = true;
     }
 
-    public float getSelectionSaturation() { return selectionSaturation; }
-    public float getSelectionValue() { return selectionValue; }
+    public float getSelectionSaturation() {
+        return selectionSaturation;
+    }
+
+    public float getSelectionValue() {
+        return selectionValue;
+    }
 
     public int getSelectedColor() {
         return hsvToRgb(hue, selectionSaturation, selectionValue);
@@ -160,27 +168,51 @@ public class ColorSquare extends ClickableWidget implements IWidget {
     // =========================
 
     public static int hsvToRgb(float h, float s, float v) {
-        h = h - (float)Math.floor(h);
+        h = h - (float) Math.floor(h);
         float r, g, b;
-        float i = (float)Math.floor(h * 6f);
+        float i = (float) Math.floor(h * 6f);
         float f = h * 6f - i;
         float p = v * (1 - s);
         float q = v * (1 - f * s);
         float t = v * (1 - (1 - f) * s);
 
-        switch ((int)i % 6) {
-            case 0 -> { r = v; g = t; b = p; }
-            case 1 -> { r = q; g = v; b = p; }
-            case 2 -> { r = p; g = v; b = t; }
-            case 3 -> { r = p; g = q; b = v; }
-            case 4 -> { r = t; g = p; b = v; }
-            case 5 -> { r = v; g = p; b = q; }
+        switch ((int) i % 6) {
+            case 0 -> {
+                r = v;
+                g = t;
+                b = p;
+            }
+            case 1 -> {
+                r = q;
+                g = v;
+                b = p;
+            }
+            case 2 -> {
+                r = p;
+                g = v;
+                b = t;
+            }
+            case 3 -> {
+                r = p;
+                g = q;
+                b = v;
+            }
+            case 4 -> {
+                r = t;
+                g = p;
+                b = v;
+            }
+            case 5 -> {
+                r = v;
+                g = p;
+                b = q;
+            }
             default -> r = g = b = 0;
         }
 
-        int ri = (int)(r * 255f);
-        int gi = (int)(g * 255f);
-        int bi = (int)(b * 255f);
+        int ri = (int) (r * 255f);
+        int gi = (int) (g * 255f);
+        int bi = (int) (b * 255f);
         return (0xFF << 24) | (ri << 16) | (gi << 8) | bi;
     }
 
@@ -235,7 +267,8 @@ public class ColorSquare extends ClickableWidget implements IWidget {
     }
 
     @Override
-    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+    }
 
     public void dispose() {
         if (texture != null) texture.close();

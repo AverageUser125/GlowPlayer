@@ -2,7 +2,6 @@ package com.somefrills.features.solvers;
 
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingDescription;
 import com.somefrills.config.SettingInt;
 import com.somefrills.events.ScreenOpenEvent;
 import com.somefrills.events.SlotUpdateEvent;
@@ -16,20 +15,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.slot.Slot;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.somefrills.Main.LOGGER;
 import static com.somefrills.Main.mc;
 
-public class ExperimentSolver {
-    public static final Feature instance = new Feature("experimentSolver");
+// descriptions now provided in constructors
 
-    @SettingDescription("Automatically solve the Chronomatron")
-    public static final SettingBool chronomatron = new SettingBool(true);
-    @SettingDescription("Automatically solve the Ultrasequencer")
-    public static final SettingBool ultrasequencer = new SettingBool(true);
-    @SettingDescription("Click delay")
-    public static final SettingInt clickDelay = new SettingInt(300);
+public class ExperimentSolver {
+    public static final Feature instance = new Feature();
+
+    public static final SettingBool chronomatron = new SettingBool(true, "Automatically solve the Chronomatron");
+    public static final SettingBool ultrasequencer = new SettingBool(true, "Automatically solve the Ultrasequencer");
+    public static final SettingInt clickDelay = new SettingInt(300, "Click delay");
 
     // --- Chronomatron state ---
     private static final List<Slot> chronoSequence = new ArrayList<>();

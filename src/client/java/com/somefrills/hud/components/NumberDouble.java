@@ -17,7 +17,7 @@ import static com.somefrills.Main.mc;
  * getNumber/setNumber and validates input to ensure only integers are accepted.
  */
 public class NumberDouble extends EditBoxWidget {
-    private SettingDouble num;
+    private final SettingDouble num;
 
     public NumberDouble(SettingDouble number) {
         this(0, 0, number);
@@ -42,7 +42,7 @@ public class NumberDouble extends EditBoxWidget {
     }
 
     public void setNumber(double number) {
-        this.num.set( number);
+        this.num.set(number);
         this.setText(Double.toString(number));
     }
 

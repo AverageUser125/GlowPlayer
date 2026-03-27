@@ -9,9 +9,9 @@ import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashSet;
@@ -19,7 +19,7 @@ import java.util.HashSet;
 import static com.somefrills.Main.mc;
 
 public class MiddleClickOverride {
-    public static final Feature instance = new Feature("middleClickOverride", true);
+    public static final Feature instance = new Feature(true);
     private static final HashSet<String> matchBlacklist = Sets.newHashSet(
             "Attribute Fusion",
             "Beacon",
@@ -94,6 +94,7 @@ public class MiddleClickOverride {
         }
         return false;
     }
+
     private static boolean experimentCheck() {
         return switch (ExperimentSolver.getExperimentType()) {
             case Chronomatron -> ExperimentSolver.chronomatron.value();

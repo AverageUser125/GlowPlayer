@@ -3,14 +3,12 @@ package com.somefrills.features.mining;
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
 import com.somefrills.config.SettingColor;
-import com.somefrills.config.SettingDescription;
-import com.somefrills.events.*;
+import com.somefrills.events.InteractEntityEvent;
+import com.somefrills.events.ServerJoinEvent;
+import com.somefrills.events.WorldTickEvent;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
-
-import static com.somefrills.Main.mc;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -18,19 +16,18 @@ import net.minecraft.item.ItemStack;
 
 import java.util.HashSet;
 
-public class CorpseHighlight {
-    public static final Feature instance = new Feature("corpseHighlight");
+import static com.somefrills.Main.mc;
 
-    @SettingDescription("Hide glow on corpses you've already opened")
-    public static final SettingBool hideOpened = new SettingBool(true);
-    @SettingDescription("Glow color for Lapis Corpses")
-    public static final SettingColor lapisColor = new SettingColor(new RenderColor(85, 85, 255, 255));
-    @SettingDescription("Glow color for Tungsten Corpses")
-    public static final SettingColor mineralColor = new SettingColor(new RenderColor(170, 170, 170, 255));
-    @SettingDescription("Glow color for Umber Corpses")
-    public static final SettingColor yogColor = new SettingColor(new RenderColor(255, 170, 0, 255));
-    @SettingDescription("Glow color for Vanguard Corpses")
-    public static final SettingColor vanguardColor = new SettingColor(new RenderColor(255, 85, 255, 255));
+// descriptions moved into constructors
+
+public class CorpseHighlight {
+    public static final Feature instance = new Feature();
+
+    public static final SettingBool hideOpened = new SettingBool(true, "Hide glow on corpses you've already opened");
+    public static final SettingColor lapisColor = new SettingColor(new RenderColor(85, 85, 255, 255), "Glow color for Lapis Corpses");
+    public static final SettingColor mineralColor = new SettingColor(new RenderColor(170, 170, 170, 255), "Glow color for Tungsten Corpses");
+    public static final SettingColor yogColor = new SettingColor(new RenderColor(255, 170, 0, 255), "Glow color for Umber Corpses");
+    public static final SettingColor vanguardColor = new SettingColor(new RenderColor(255, 85, 255, 255), "Glow color for Vanguard Corpses");
 
     private static final HashSet<Integer> openedCorpses = new HashSet<>();
 

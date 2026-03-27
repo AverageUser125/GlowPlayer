@@ -17,6 +17,11 @@ public class SettingBlockPosList extends SettingJson {
         super(defaultValue);
     }
 
+    public SettingBlockPosList(JsonObject defaultValue, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+    }
+
     public List<BlockPos> valueList() {
         JsonObject obj = this.value();
         List<BlockPos> res = new ArrayList<>();

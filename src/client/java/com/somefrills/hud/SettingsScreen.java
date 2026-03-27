@@ -4,7 +4,6 @@ import com.daqem.uilib.api.widget.IWidget;
 import com.daqem.uilib.gui.AbstractScreen;
 import com.daqem.uilib.gui.background.BlurredBackground;
 import com.daqem.uilib.gui.widget.ButtonWidget;
-import com.daqem.uilib.gui.widget.EditBoxWidget;
 import com.somefrills.config.*;
 import com.somefrills.hud.components.*;
 import net.minecraft.text.Text;
@@ -64,7 +63,7 @@ public class SettingsScreen extends AbstractScreen {
         if (clazz.equals(SettingKeybind.class)) {
             return new KeybindButton(x, y, width, height, (SettingKeybind) setting);
         }
-        if(clazz.equals(SettingEnum.class)) {
+        if (clazz.equals(SettingEnum.class)) {
             return new EnumButton<>(x, y, width, height, (SettingEnum<?>) setting);
         }
         if (clazz.equals(SettingInt.class)) {

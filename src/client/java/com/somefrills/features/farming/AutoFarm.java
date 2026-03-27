@@ -1,7 +1,6 @@
 package com.somefrills.features.farming;
 
 import com.somefrills.config.Feature;
-import com.somefrills.config.SettingDescription;
 import com.somefrills.config.SettingKeybind;
 import com.somefrills.events.InputEvent;
 import com.somefrills.events.ScreenOpenEvent;
@@ -16,10 +15,9 @@ import org.lwjgl.glfw.GLFW;
 import static com.somefrills.Main.mc;
 
 public class AutoFarm {
-    public static final Feature instance = new Feature("autoFarm");
+    public static final Feature instance = new Feature();
 
-    @SettingDescription("Toggle AutoFarm on/off")
-    public static SettingKeybind toggleKey = new SettingKeybind(GLFW.GLFW_KEY_GRAVE_ACCENT);
+    public static SettingKeybind toggleKey = new SettingKeybind(GLFW.GLFW_KEY_GRAVE_ACCENT, "Toggle AutoFarm on/off");
 
     private static final float MIN_YAW_SPEED = 2.0f;
     private static final float MAX_YAW_SPEED = 10.0f;

@@ -2,48 +2,35 @@ package com.somefrills.features.fishing;
 
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingDescription;
 import com.somefrills.config.SettingInt;
 import com.somefrills.events.*;
 import com.somefrills.misc.Clock;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.util.Hand;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 
 import static com.somefrills.Main.mc;
 
 public final class AutoFish {
-    public static final Feature instance = new Feature("autoFish");
+    public static final Feature instance = new Feature();
 
-    @SettingDescription("Use fish timer checks from armor stand names")
-    public static final SettingBool useFishTimerCheck = new SettingBool(true);
-    @SettingDescription("Automatically catch fish")
-    public static final SettingBool autoCatch = new SettingBool(true);
-    @SettingDescription("Delay before auto catching (ms)")
-    public static final SettingInt autoCatchDelay = new SettingInt(0);
-    @SettingDescription("Automatically throw the rod after catch")
-    public static final SettingBool autoThrow = new SettingBool(true);
-    @SettingDescription("Delay before auto throwing (ms)")
-    public static final SettingInt autoThrowDelay = new SettingInt(100);
-    @SettingDescription("Initial delay before first auto throw (ms)")
-    public static final SettingInt autoThrowFirstDelay = new SettingInt(500);
-    @SettingDescription("Do not wait for hook dead when auto throwing")
-    public static final SettingBool doNotWaitHookDead = new SettingBool(false);
+    public static final SettingBool useFishTimerCheck = new SettingBool(true, "Use fish timer checks from armor stand names");
+    public static final SettingBool autoCatch = new SettingBool(true, "Automatically catch fish");
+    public static final SettingInt autoCatchDelay = new SettingInt(0, "Delay before auto catching (ms)");
+    public static final SettingBool autoThrow = new SettingBool(true, "Automatically throw the rod after catch");
+    public static final SettingInt autoThrowDelay = new SettingInt(100, "Delay before auto throwing (ms)");
+    public static final SettingInt autoThrowFirstDelay = new SettingInt(500, "Initial delay before first auto throw (ms)");
+    public static final SettingBool doNotWaitHookDead = new SettingBool(false, "Do not wait for hook dead when auto throwing");
 
     // Fault-detection settings (made configurable)
-    @SettingDescription("Enable AutoFish fault detection (prevents infinite recast loops)")
-    public static final SettingBool faultDetectionEnabled = new SettingBool(true);
-    @SettingDescription("How many milliseconds to wait for the bobber to appear before auto-recasting")
-    public static final SettingInt hookWaitTimeoutMs = new SettingInt(1500);
-    @SettingDescription("Maximum automatic recast attempts before giving up")
-    public static final SettingInt maxRecastAttempts = new SettingInt(3);
-    @SettingDescription("Cooldown in milliseconds between automatic recasts")
-    public static final SettingInt recastCooldownMs = new SettingInt(500);
+    public static final SettingBool faultDetectionEnabled = new SettingBool(true, "Enable AutoFish fault detection (prevents infinite recast loops)");
+    public static final SettingInt hookWaitTimeoutMs = new SettingInt(1500, "How many milliseconds to wait for the bobber to appear before auto-recasting");
+    public static final SettingInt maxRecastAttempts = new SettingInt(3, "Maximum automatic recast attempts before giving up");
+    public static final SettingInt recastCooldownMs = new SettingInt(500, "Cooldown in milliseconds between automatic recasts");
 
-    @SettingDescription("Verbose logging for AutoFish")
-    public static final SettingBool verbose = new SettingBool(false);
+    public static final SettingBool verbose = new SettingBool(false, "Verbose logging for AutoFish");
 
     public static int counter = 0;
     // runtime state (moved to top)

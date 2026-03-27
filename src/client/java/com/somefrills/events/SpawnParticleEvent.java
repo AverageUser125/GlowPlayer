@@ -1,7 +1,7 @@
 package com.somefrills.events;
 
-import net.minecraft.particle.ParticleType;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
+import net.minecraft.particle.ParticleType;
 import net.minecraft.util.math.Vec3d;
 
 public class SpawnParticleEvent extends Cancellable {

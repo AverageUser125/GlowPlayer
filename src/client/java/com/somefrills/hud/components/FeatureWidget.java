@@ -5,13 +5,11 @@ import com.daqem.uilib.gui.widget.ButtonWidget;
 import com.somefrills.Main;
 import com.somefrills.config.FeatureRegistry;
 import com.somefrills.hud.SettingsScreen;
-import net.minecraft.util.Formatting;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.Click;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.tooltip.Tooltip;
+import net.minecraft.util.Formatting;
 
 import static com.somefrills.Main.mc;
-import net.minecraft.text.Text;
 
 public class FeatureWidget extends ButtonWidget implements IWidget {
     private final FeatureRegistry.FeatureInfo info;

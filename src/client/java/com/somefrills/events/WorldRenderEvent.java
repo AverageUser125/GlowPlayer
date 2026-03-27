@@ -3,6 +3,7 @@ package com.somefrills.events;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.somefrills.misc.RenderColor;
+import com.somefrills.misc.RenderStyle;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.*;
@@ -14,9 +15,9 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
-import com.somefrills.misc.RenderStyle;
 
 import static com.somefrills.Main.mc;
+
 public class WorldRenderEvent {
     public static final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferAllocator(2048));
 

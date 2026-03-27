@@ -1,8 +1,8 @@
 package com.somefrills.events;
 
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 
 public class SlotClickEvent extends Cancellable {
     public Slot slot;

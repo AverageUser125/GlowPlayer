@@ -6,6 +6,11 @@ public class SettingInt extends SettingGeneric {
         super(defaultValue);
     }
 
+    public SettingInt(int defaultValue, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+    }
+
 
     public int value() {
         return this.get().getAsInt();

@@ -3,10 +3,8 @@ package com.somefrills.features.farming;
 import com.google.gson.JsonObject;
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBlockPosList;
-import com.somefrills.config.SettingDescription;
 import com.somefrills.events.WorldRenderEvent;
 import com.somefrills.misc.RenderColor;
-import com.somefrills.misc.Rendering;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.math.BlockPos;
@@ -17,11 +15,12 @@ import java.util.List;
 
 import static com.somefrills.Main.mc;
 
+// description moved into constructor
+
 public class Rewarp {
-    public static final Feature instance = new Feature("rewarp");
+    public static final Feature instance = new Feature();
     // Use the feature key as the parent so settings are grouped under the feature
-    @SettingDescription("Stored rewarp points (edited with commands)")
-    public static SettingBlockPosList warps = new SettingBlockPosList(new JsonObject());
+    public static SettingBlockPosList warps = new SettingBlockPosList(new JsonObject(), "Stored rewarp points (edited with commands)");
 
     // Add current player position as a waypoint (x,y,z)
     public static void addWaypoint() {

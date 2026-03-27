@@ -1,7 +1,6 @@
 package com.somefrills.misc;
 
 import com.somefrills.events.*;
-import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
 import net.minecraft.client.network.PlayerListEntry;
@@ -190,8 +189,8 @@ public class SkyblockData {
 
     @EventHandler
     private static void onPing(ReceivePacketEvent event) {
-        if (showPing && event.packet instanceof PingResultS2CPacket pingPacket) {
-            Utils.infoFormat("§aPing: §f{}ms", Util.getMeasuringTimeMs() - pingPacket.startTime());
+        if (showPing && event.packet instanceof PingResultS2CPacket(long startTime)) {
+            Utils.infoFormat("§aPing: §f{}ms", Util.getMeasuringTimeMs() - startTime);
             showPing = false;
         }
     }

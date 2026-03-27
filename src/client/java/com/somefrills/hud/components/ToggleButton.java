@@ -2,10 +2,9 @@ package com.somefrills.hud.components;
 
 import com.daqem.uilib.gui.widget.ButtonWidget;
 import com.somefrills.config.SettingBool;
-import net.minecraft.text.Text;
 
 public class ToggleButton extends ButtonWidget {
-    private SettingBool state;
+    private final SettingBool state;
 
     public ToggleButton(int x, int y, int width, int height, SettingBool state) {
         super(x, y, width, height, boolToStr(state.value()), button -> {

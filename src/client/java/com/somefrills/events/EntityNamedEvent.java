@@ -1,8 +1,8 @@
 package com.somefrills.events;
 
 import com.somefrills.misc.Utils;
-import net.minecraft.text.Text;
 import net.minecraft.entity.Entity;
+import net.minecraft.text.Text;
 
 public class EntityNamedEvent {
     public Entity entity;

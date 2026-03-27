@@ -11,13 +11,20 @@ public class SettingGeneric {
     private String key;
     private String parent;
     private JsonElement value;
+    private String description;
 
     // Only default constructor: keys/parents are assigned by the registry using reflection
     public SettingGeneric(Object defaultValue) {
+        this(defaultValue, "");
+    }
+
+    // New constructor that accepts a human-readable description as the last argument
+    public SettingGeneric(Object defaultValue, String description) {
         this.key = "";
         this.parent = "";
         this.defaultValue = this.parse(defaultValue);
         this.value = this.get();
+        this.description = description == null ? "" : description;
     }
 
     public JsonElement parse(Object value) {
@@ -78,5 +85,15 @@ public class SettingGeneric {
 
     public String getParent() {
         return this.parent;
+    }
+
+    // Human-readable description for UI / documentation
+    public String description() {
+        return this.description == null ? "" : this.description;
+    }
+
+    // Allow subclasses to set description when they provide alternative constructors
+    public void setDescription(String description) {
+        this.description = description == null ? "" : description;
     }
 }

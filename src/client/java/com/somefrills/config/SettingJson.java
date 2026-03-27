@@ -8,6 +8,11 @@ public class SettingJson extends SettingGeneric {
         super(defaultValue);
     }
 
+    public SettingJson(JsonObject defaultValue, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+    }
+
     public JsonObject value() {
         JsonElement e = this.get();
         return e == null || e.isJsonNull() ? null : e.getAsJsonObject();

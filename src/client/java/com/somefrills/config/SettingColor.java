@@ -7,6 +7,11 @@ public class SettingColor extends SettingGeneric {
         super(defaultValue);
     }
 
+    public SettingColor(RenderColor defaultValue, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+    }
+
 
     public RenderColor value() {
         int argb = this.get().getAsInt();

@@ -2,13 +2,12 @@ package com.somefrills.hud.components;
 
 import com.daqem.uilib.api.widget.IWidget;
 import com.somefrills.misc.Utils;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.Click;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.screen.narration.NarrationPart;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2d;
 
 import java.util.function.Consumer;
@@ -24,22 +23,33 @@ public class SliderWidget extends ClickableWidget implements IWidget {
         super(x, y, width, height, Text.empty());
     }
 
-    public double getValue() { return value; }
+    public double getValue() {
+        return value;
+    }
 
-    public void setValue(double v) { this.value = Math.max(0.0, Math.min(1.0, v)); }
+    public void setValue(double v) {
+        this.value = Math.max(0.0, Math.min(1.0, v));
+    }
 
-    public void onValueChange(Consumer<Double> cb) { this.onValueChange = cb; }
+    public void onValueChange(Consumer<Double> cb) {
+        this.onValueChange = cb;
+    }
 
     private void notifyIfChanged() {
         if (onValueChange == null) return;
         if (Double.isNaN(lastNotified) || Math.abs(value - lastNotified) > 1e-6) {
             lastNotified = value;
-            try { onValueChange.accept(value); } catch (Throwable ignored) {}
+            try {
+                onValueChange.accept(value);
+            } catch (Throwable ignored) {
+            }
         }
     }
 
     // determine if the slider should be vertical
-    private boolean isVertical() { return this.height > this.width; }
+    private boolean isVertical() {
+        return this.height > this.width;
+    }
 
     // compute normalized value from mouse position
     private double valueFromMouse(double mx, double my) {
@@ -63,7 +73,8 @@ public class SliderWidget extends ClickableWidget implements IWidget {
             this.dragging = true;
             notifyIfChanged();
             return true;
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return false;
     }
 
@@ -75,7 +86,8 @@ public class SliderWidget extends ClickableWidget implements IWidget {
             this.value = valueFromMouse(pos.x, pos.y);
             notifyIfChanged();
             return true;
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return false;
     }
 

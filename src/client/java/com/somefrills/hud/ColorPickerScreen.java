@@ -40,9 +40,9 @@ public class ColorPickerScreen extends AbstractScreen {
                 int rgb = square.getSelectedColor();
                 RenderColor rColor = RenderColor.fromArgb(rgb);
                 // update R/G/B sliders to match new hue selection
-                sliderR.setNumber((int) Math.round(rColor.r * 255f));
-                sliderG.setNumber((int) Math.round(rColor.g * 255f));
-                sliderB.setNumber((int) Math.round(rColor.b * 255f));
+                sliderR.setNumber(Math.round(rColor.r * 255f));
+                sliderG.setNumber(Math.round(rColor.g * 255f));
+                sliderB.setNumber(Math.round(rColor.b * 255f));
             });
         });
 
@@ -92,9 +92,9 @@ public class ColorPickerScreen extends AbstractScreen {
             // ensure the square and sliders reflect the selected color
             square.setHuePercentage(hsv[0]);
             square.setSelection(hsv[1], hsv[2]);
-            sliderR.setNumber((int) Math.round(rColor.r * 255f));
-            sliderG.setNumber((int) Math.round(rColor.g * 255f));
-            sliderB.setNumber((int) Math.round(rColor.b * 255f));
+            sliderR.setNumber(Math.round(rColor.r * 255f));
+            sliderG.setNumber(Math.round(rColor.g * 255f));
+            sliderB.setNumber(Math.round(rColor.b * 255f));
         }));
 
         addWidget(sliderR);

@@ -3,10 +3,10 @@ package com.somefrills.misc;
 import com.somefrills.events.ScreenOpenEvent;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.text.Text;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.text.Text;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

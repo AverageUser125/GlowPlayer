@@ -2,29 +2,28 @@ package com.somefrills.features.solvers;
 
 import com.somefrills.config.Feature;
 import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingDescription;
 import com.somefrills.config.SettingInt;
 import com.somefrills.events.ScreenRenderEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+
+// descriptions moved into constructors
 
 /**
  * Fabric 1.21.10 port of the Kotlin ChocolateFactory module.
  * Automatically claims stray rabbits in the Chocolate Factory menu.
  */
 public class ChocolateFactory {
-    public static final Feature instance = new Feature("chocolateFactory");
+    public static final Feature instance = new Feature();
     private static final String CHOCOLATE_FACTORY_TITLE = "Chocolate Factory";
-    @SettingDescription("Automatically claim stray items in Chocolate Factory menu")
-    public static SettingBool claimStray = new SettingBool(true);
-    @SettingDescription("Delay between claim attempts in milliseconds")
-    public static SettingInt claimDelay = new SettingInt(100);
+    public static SettingBool claimStray = new SettingBool(true, "Automatically claim stray items in Chocolate Factory menu");
+    public static SettingInt claimDelay = new SettingInt(100, "Delay between claim attempts in milliseconds");
     private static long lastClaimTime = 0;
 
     @EventHandler

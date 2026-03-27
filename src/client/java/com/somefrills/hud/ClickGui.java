@@ -2,19 +2,21 @@ package com.somefrills.hud;
 
 import com.daqem.uilib.gui.AbstractScreen;
 import com.daqem.uilib.gui.background.BlurredBackground;
-import com.daqem.uilib.gui.widget.EditBoxWidget;
 import com.somefrills.config.Config;
 import com.somefrills.config.FeatureRegistry;
 import com.somefrills.config.FeatureRegistry.FeatureInfo;
 import com.somefrills.hud.components.FeatureWidget;
 import com.somefrills.misc.Utils;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ClickGui extends AbstractScreen {
     private final List<CategoryData> categories = new ArrayList<>();
+
     public ClickGui() {
         super(Text.literal("SomeFrills - Click GUI"));
     }

@@ -5,6 +5,11 @@ public class SettingBool extends SettingGeneric {
         super(defaultValue);
     }
 
+    public SettingBool(boolean defaultValue, String description) {
+        super(defaultValue);
+        this.setDescription(description);
+    }
+
 
     public boolean value() {
         return this.get().getAsBoolean();
