@@ -67,7 +67,8 @@ public class NumberDouble extends EditBoxWidget {
             return errors;
         }
         try {
-            Double.parseDouble(input.trim());
+            double number = Double.parseDouble(input.trim());
+            num.set(number);
         } catch (NumberFormatException ex) {
             errors.add(Text.literal("Not a valid integer"));
         }

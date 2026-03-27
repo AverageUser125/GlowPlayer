@@ -17,7 +17,7 @@ import static com.somefrills.Main.mc;
  * getNumber/setNumber and validates input to ensure only integers are accepted.
  */
 public class NumberInt extends EditBoxWidget {
-    private SettingInt num;
+    private final SettingInt num;
 
     public NumberInt(SettingInt number) {
         this(0, 0, number);
@@ -42,7 +42,7 @@ public class NumberInt extends EditBoxWidget {
     }
 
     public void setNumber(int number) {
-        this.num .set(number);
+        this.num.set(number);
         this.setText(Integer.toString(number));
     }
 
@@ -63,7 +63,8 @@ public class NumberInt extends EditBoxWidget {
             return errors;
         }
         try {
-            Integer.parseInt(input.trim());
+            int number = Integer.parseInt(input.trim());
+            num.set(number);
         } catch (NumberFormatException ex) {
             errors.add(Text.literal("Not a valid integer"));
         }
