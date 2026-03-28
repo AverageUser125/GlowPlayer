@@ -36,10 +36,10 @@ public class FeatureWidget extends ButtonWidget implements IWidget {
         info.featureInstance.setActive(!info.featureInstance.isActive());
         if (info.featureInstance.isActive()) {
             setMessage(net.minecraft.text.Text.literal(info.name).formatted(Formatting.GREEN));
-            Main.eventBus.subscribe(info.featureInstance);
+            Main.eventBus.subscribe(info.clazz);
         } else {
             setMessage(net.minecraft.text.Text.literal(info.name).formatted(Formatting.RED));
-            Main.eventBus.unsubscribe(info.featureInstance);
+            Main.eventBus.unsubscribe(info.clazz);
         }
     }
 

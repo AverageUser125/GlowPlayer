@@ -175,11 +175,46 @@ public class Utils {
             }
         }
     }
-
     public static Formatting parseColor(String input) {
         if (input == null) return null;
-        Formatting f = Formatting.valueOf(input.toLowerCase());
-        return f.isColor() ? f : null;
+
+        input = input.toLowerCase().replace(" ", "_");
+
+        switch (input) {
+            case "black": return Formatting.BLACK;
+            case "dark_blue":
+            case "navy": return Formatting.DARK_BLUE;
+            case "dark_green": return Formatting.DARK_GREEN;
+            case "dark_aqua":
+            case "cyan": return Formatting.DARK_AQUA;
+            case "dark_red": return Formatting.DARK_RED;
+            case "dark_purple":
+            case "purple": return Formatting.DARK_PURPLE;
+            case "gold":
+            case "orange": return Formatting.GOLD;
+            case "gray":
+            case "grey": return Formatting.GRAY;
+            case "dark_gray":
+            case "dark_grey": return Formatting.DARK_GRAY;
+            case "blue": return Formatting.BLUE;
+            case "green":
+            case "lime": return Formatting.GREEN;
+            case "aqua":
+            case "light_aqua": return Formatting.AQUA;
+            case "red": return Formatting.RED;
+            case "light_purple":
+            case "pink": return Formatting.LIGHT_PURPLE;
+            case "yellow": return Formatting.YELLOW;
+            case "white": return Formatting.WHITE;
+        }
+
+        // fallback: try enum directly (only return if it's actually a color)
+        try {
+            Formatting f = Formatting.valueOf(input.toUpperCase());
+            return f.isColor() ? f : null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     /**

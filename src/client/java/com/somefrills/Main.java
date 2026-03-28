@@ -69,9 +69,7 @@ public class Main implements ClientModInitializer {
             Config.save();
         });
 
-        ClientSendMessageEvents.MODIFY_COMMAND.register(message -> {
-            return Aliases.convertCommand(message);
-        });
+        ClientSendMessageEvents.MODIFY_COMMAND.register(Aliases::convertCommand);
 
         // Save config on JVM shutdown (game close)
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -82,13 +80,25 @@ public class Main implements ClientModInitializer {
             }
         }));
 
-        eventBus.registerLambdaFactory("com.somefrills",
-                (lookupInMethod, klass) -> (MethodHandles.Lookup)
-                        lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
+        try {
+            eventBus.registerLambdaFactory("com.somefrills",
+                    (lookupInMethod, klass) -> (MethodHandles.Lookup)
+                            lookupInMethod.invoke(null, klass, MethodHandles.lookup()));
+        } catch (Throwable t) {
+            LOGGER.error("Failed to register Orbit lambda factory for com.somefrills", t);
+        }
 
-        eventBus.subscribe(SkyblockData.class);
-        eventBus.subscribe(ClickGui.class);
-        eventBus.subscribe(EntityCache.class);
+        try {
+            eventBus.subscribe(SkyblockData.class);
+        } catch (Throwable t) {
+            LOGGER.error("Failed to subscribe SkyblockData class to event bus", t);
+        }
+
+        try {
+            eventBus.subscribe(EntityCache.class);
+        } catch (Throwable t) {
+            LOGGER.error("Failed to subscribe EntityCache class to event bus", t);
+        }
         FeatureRegistry.init();
         FeatureRegistry.reconcileFeatureSubscriptions();
 

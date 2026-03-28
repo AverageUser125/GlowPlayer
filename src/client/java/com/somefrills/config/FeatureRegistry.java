@@ -62,6 +62,13 @@ public class FeatureRegistry {
                         }
                     }
 
+                    // Log detected event handler methods for diagnostics
+                    for (Method m : cls.getDeclaredMethods()) {
+                        if (m.isAnnotationPresent(meteordevelopment.orbit.EventHandler.class)) {
+                            Main.LOGGER.debug("Feature class {} has @EventHandler method {} (static={})", cls.getName(), m.getName(), Modifier.isStatic(m.getModifiers()));
+                        }
+                    }
+
                     FeatureInfo info = new FeatureInfo(cls, feat);
 
                     for (Field f : cls.getDeclaredFields()) {
@@ -114,23 +121,6 @@ public class FeatureRegistry {
             if (info.featureInstance == feature) return info;
         }
         return null;
-    }
-
-    // Subscribe a single feature's class on the event bus
-    public static void subscribeFeature(Feature feature) {
-        FeatureInfo info = getInfoForFeature(feature);
-        if (info == null) return;
-        try {
-            Main.eventBus.subscribe(info.clazz);
-        } catch (Throwable t) {
-            Main.LOGGER.debug("Failed to subscribe feature class {}: {}", info.clazz.getName(), t.toString());
-        }
-    }
-
-    public static void unsubscribeFeature(Feature feature) {
-        FeatureInfo info = getInfoForFeature(feature);
-        if (info == null) return;
-        Main.eventBus.unsubscribe(info.clazz);
     }
 
     private static List<Class<?>> getClasses(String packageName) throws IOException {
@@ -222,7 +212,12 @@ public class FeatureRegistry {
     public static void reconcileFeatureSubscriptions() {
         for (FeatureInfo info : FEATURES) {
             if (info.featureInstance.isActive()) {
-                Main.eventBus.subscribe(info.clazz);
+                try {
+                    Main.LOGGER.info("Subscribing feature class {} to event", info.clazz.getName());
+                    Main.eventBus.subscribe(info.clazz);
+                } catch (Throwable t) {
+                    Main.LOGGER.error("Failed to subscribe feature class {} during reconciliation", info.clazz.getName(), t);
+                }
             } else {
                 Main.eventBus.unsubscribe(info.clazz);
             }
