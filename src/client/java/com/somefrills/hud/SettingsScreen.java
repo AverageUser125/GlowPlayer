@@ -77,9 +77,7 @@ public class SettingsScreen extends AbstractScreen {
             return new ButtonWidget(x, y, width, height, Text.literal("Edit Color"), button -> mc.setScreen(new ColorPickerScreen(s, this)));
         }
         if (clazz.equals(SettingBlockPosList.class)) {
-            // BlockPos lists are stored as JSON under the setting; provide a JSON editor for them.
-            var sj = (SettingJson) setting;
-            return new ButtonWidget(x, y, width, height, Text.literal("Edit Waypoints"), button -> mc.setScreen(new JsonEditorScreen(sj, this)));
+            return new EditJsonWidget(x, y, width, height, (SettingJson) setting);
         }
         if (clazz.equals(SettingString.class)) {
             return new StringButton(x, y, width, height, (SettingString) setting);
@@ -88,8 +86,7 @@ public class SettingsScreen extends AbstractScreen {
             return new SliderInt(x, y, 70, width - 70, height, (SettingIntSlider) setting);
         }
         if (clazz.equals(SettingJson.class)) {
-            var sjson = (SettingJson) setting;
-            return new ButtonWidget(x, y, width, height, Text.literal("Edit JSON"), button -> mc.setScreen(new JsonEditorScreen(sjson, this)));
+            return new EditJsonWidget(x, y, width, height, (SettingJson) setting);
         }
         return null;
     }
