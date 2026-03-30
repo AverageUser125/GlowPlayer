@@ -22,7 +22,7 @@ public class SolverCategory {
 
             @ConfigOption(name = "Ultrasequencer", desc = "Automatically solve the Ultrasequencer")
             @ConfigEditorBoolean
-            public boolean ultrasequencer = false;
+            public boolean ultrasequencer = true;
 
             @ConfigOption(name = "Click Delay", desc = "Click delay")
             @ConfigEditorSlider(minValue = 0, maxValue = 1000, minStep = 50)
