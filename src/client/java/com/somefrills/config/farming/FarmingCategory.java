@@ -1,0 +1,35 @@
+package com.somefrills.config.farming;
+
+import io.github.notenoughupdates.moulconfig.annotations.Accordion;
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean;
+import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorKeybind;
+import io.github.notenoughupdates.moulconfig.annotations.ConfigOption;
+import io.github.notenoughupdates.moulconfig.observer.Property;
+import org.lwjgl.glfw.GLFW;
+
+public class FarmingCategory {
+    @ConfigOption(name = "Auto warp home", desc = "Automatically warp home when taking fatal damage")
+    @ConfigEditorBoolean
+    public Property<Boolean> autoWarpHomeEnabled;
+
+    @ConfigOption(name = "Auto pest set home", desc = "Automatically set home when pests spawn")
+    @ConfigEditorBoolean
+    public Property<Boolean> autoPestSetHomeEnabled;
+
+    @ConfigOption(name = "Space farmer", desc = "Farm with space bar while holding shift ")
+    @ConfigEditorBoolean
+    public Property<Boolean> spaceFarmerEnabled;
+
+    @Accordion
+    @ConfigOption(name = "Auto Farm", desc = "Automatically farm wheat")
+    public AutoFarmConfig autoFarm = new AutoFarmConfig();
+    public static class AutoFarmConfig {
+        @ConfigOption(name = "Enabled", desc = "Automatically farm wheat")
+        @ConfigEditorBoolean
+        public Property<Boolean> enabled;
+
+        @ConfigOption(name = "Toggle Key", desc = "Key to toggle AutoFarm on/off")
+        @ConfigEditorKeybind(defaultKey = GLFW.GLFW_KEY_GRAVE_ACCENT)
+        public int toggleKey;
+    }
+}

@@ -1,8 +1,7 @@
 package com.somefrills.features.solvers;
 
+import com.somefrills.config.solvers.ExperimentSolverConfig;
 import com.somefrills.config.Feature;
-import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingInt;
 import com.somefrills.events.ScreenOpenEvent;
 import com.somefrills.events.SlotUpdateEvent;
 import com.somefrills.events.WorldTickEvent;
@@ -22,33 +21,26 @@ import java.util.List;
 import static com.somefrills.Main.LOGGER;
 import static com.somefrills.Main.mc;
 
-// descriptions now provided in constructors
-
-public class ExperimentSolver {
-    public static final Feature instance = new Feature();
-
-    public static final SettingBool chronomatron = new SettingBool(true, "Automatically solve the Chronomatron");
-    public static final SettingBool ultrasequencer = new SettingBool(true, "Automatically solve the Ultrasequencer");
-    public static final SettingInt clickDelay = new SettingInt(400, "Click delay");
-    // Close menu settings: enable automatic closing and configurable thresholds.
-    // The numeric threshold means "N" where closing occurs after N-1 clicks have been completed.
-    public static final SettingBool closeOnChronomatronThreshold = new SettingBool(true, "Close menu when Chronomatron reaches threshold");
-    public static final SettingInt chronomatronThreshold = new SettingInt(10, "Chronomatron close threshold (N means close after N-1 clicks)");
-    public static final SettingBool closeOnUltrasequencerThreshold = new SettingBool(true, "Close menu when Ultrasequencer reaches threshold");
-    public static final SettingInt ultrasequencerThreshold = new SettingInt(7, "Ultrasequencer close threshold (N means close after N-1 clicks)");
+public class ExperimentSolver extends Feature {
+    private final ExperimentSolverConfig config;
 
     // --- Chronomatron state ---
-    private static final List<Slot> chronoSequence = new ArrayList<>();
-    private static int nextClickIndex = 0;
-    private static boolean rememberPhase = true;
-    private static int currentRoundProgress = 0;
+    private final List<Slot> chronoSequence = new ArrayList<>();
+    private int nextClickIndex = 0;
+    private boolean rememberPhase = true;
+    private int currentRoundProgress = 0;
 
     // --- Ultrasequencer state ---
-    private static final List<Solution> ultraSolution = new ArrayList<>();
-    private static long lastClickTime = 0;
-    private static int ultraSolutionInitialSize = 0;
+    private final List<Solution> ultraSolution = new ArrayList<>();
+    private long lastClickTime = 0;
+    private int ultraSolutionInitialSize = 0;
 
-    private static void updatePhase(ItemStack stack) {
+    public ExperimentSolver(ExperimentSolverConfig cfg) {
+        super(cfg.enabled);
+        config = cfg;
+    }
+
+    private void updatePhase(ItemStack stack) {
         Item item = stack.getItem();
 
         if (!rememberPhase && item.equals(Items.GLOWSTONE)) {
@@ -96,16 +88,16 @@ public class ExperimentSolver {
     }
 
     @EventHandler
-    private static void onTick(WorldTickEvent event) {
-        if (!instance.isActive() || rememberPhase) return;
+    private void onTick(WorldTickEvent event) {
+        if (!isActive() || rememberPhase) return;
 
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastClickTime < clickDelay.value()) return;
+        if (currentTime - lastClickTime < config.clickDelay) return;
 
         ExperimentType type = getExperimentType();
 
         // --- Chronomatron solver ---
-        if (chronomatron.value() && type == ExperimentType.Chronomatron && !chronoSequence.isEmpty()) {
+        if (config.chronomatron && type == ExperimentType.Chronomatron && !chronoSequence.isEmpty()) {
             if (nextClickIndex < chronoSequence.size()) {
                 Slot slotToClick = chronoSequence.get(nextClickIndex);
                 Utils.clickSlot(slotToClick.id);
@@ -118,8 +110,8 @@ public class ExperimentSolver {
                 // If configured, close the menu when we have reached the configured amount
                 // (user provides N meaning close after N-1 clicks)
                 try {
-                    if (closeOnChronomatronThreshold.value()) {
-                        int threshold = Math.max(1, chronomatronThreshold.value());
+                    if (config.closeOnChronomatronThreshold) {
+                        int threshold = Math.max(1, config.chronomatronThreshold);
                         if (nextClickIndex >= threshold - 1) {
                             if (mc.player != null) mc.player.closeHandledScreen();
                         }
@@ -130,7 +122,7 @@ public class ExperimentSolver {
         }
 
         // --- Ultrasequencer solver ---
-        if (ultrasequencer.value() && type == ExperimentType.Ultrasequencer && !ultraSolution.isEmpty()) {
+        if (config.ultrasequencer && type == ExperimentType.Ultrasequencer && !ultraSolution.isEmpty()) {
             Slot slotToClick = ultraSolution.getFirst().slot;
             Utils.clickSlot(slotToClick.id);
             ultraSolution.removeFirst();
@@ -140,8 +132,8 @@ public class ExperimentSolver {
             int clicksDone = ultraSolutionInitialSize - ultraSolution.size();
             // If configured, close the menu once we've clicked enough items
             try {
-                if (closeOnUltrasequencerThreshold.value()) {
-                    int threshold = Math.max(1, ultrasequencerThreshold.value());
+                if (config.closeOnUltrasequencerThreshold) {
+                    int threshold = Math.max(1, config.ultrasequencerThreshold);
                     if (clicksDone >= threshold - 1) {
                         if (mc.player != null) mc.player.closeHandledScreen();
                         ultraSolutionInitialSize = 0;
@@ -154,8 +146,8 @@ public class ExperimentSolver {
     }
 
     @EventHandler
-    private static void onSlotUpdate(SlotUpdateEvent event) {
-        if (!instance.isActive() || event.isInventory || event.slot == null) return;
+    private void onSlotUpdate(SlotUpdateEvent event) {
+        if (!isActive() || event.isInventory || event.slot == null) return;
 
         ExperimentType experimentType = getExperimentType();
         if (experimentType == ExperimentType.None) return;
@@ -163,7 +155,7 @@ public class ExperimentSolver {
         updatePhase(event.stack);
 
         // --- Chronomatron recording ---
-        if (chronomatron.value() && experimentType == ExperimentType.Chronomatron && rememberPhase) {
+        if (config.chronomatron && experimentType == ExperimentType.Chronomatron && rememberPhase) {
 
             if (isTerracotta(event.stack) && isValidChronoSlot(event.slot.id)) {
 
@@ -192,7 +184,7 @@ public class ExperimentSolver {
         }
 
         // --- Ultrasequencer recording ---
-        if (ultrasequencer.value() && experimentType == ExperimentType.Ultrasequencer) {
+        if (config.ultrasequencer && experimentType == ExperimentType.Ultrasequencer) {
             if (isGlowstone(event.stack)) {
                 List<Solution> tempSolution = new ArrayList<>();
                 for (Slot slot : Utils.getContainerSlots(event.handler)) {
@@ -210,8 +202,8 @@ public class ExperimentSolver {
     }
 
     @EventHandler
-    private static void onScreen(ScreenOpenEvent event) {
-        if (instance.isActive()) {
+    private void onScreen(ScreenOpenEvent event) {
+        if (isActive()) {
             rememberPhase = true;
             chronoSequence.clear();
             nextClickIndex = 0;

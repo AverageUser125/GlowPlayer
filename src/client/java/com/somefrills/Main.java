@@ -2,11 +2,11 @@ package com.somefrills;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.somefrills.commands.SomeFrillsCommand;
-import com.somefrills.config.Config;
-import com.somefrills.config.FeatureRegistry;
-import com.somefrills.events.*;
+import com.somefrills.events.ChatMsgEvent;
+import com.somefrills.events.ClientDisconnectEvent;
+import com.somefrills.events.OverlayMsgEvent;
+import com.somefrills.events.PartyChatMsgEvent;
 import com.somefrills.features.misc.Aliases;
-import com.somefrills.hud.ClickGui;
 import com.somefrills.misc.EntityCache;
 import com.somefrills.misc.SkyblockData;
 import com.somefrills.misc.Utils;
@@ -42,7 +42,6 @@ public class Main implements ClientModInitializer {
         long start = Util.getMeasuringTimeMs();
         mc = MinecraftClient.getInstance();
 
-        Config.load();
         ClientCommandRegistrationCallback.EVENT.register(Main::registerCommands);
 
         ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
@@ -65,14 +64,9 @@ public class Main implements ClientModInitializer {
         // Post ClientDisconnectEvent on Fabric disconnect and save config
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             eventBus.post(new ClientDisconnectEvent());
-            // ensure config persists on disconnect
-            Config.save();
         });
 
         ClientSendMessageEvents.MODIFY_COMMAND.register(Aliases::convertCommand);
-
-        // Save config on JVM shutdown (game close)
-        Runtime.getRuntime().addShutdownHook(new Thread(Config::save));
 
         eventBus.registerLambdaFactory("com.somefrills",
                 (lookupInMethod, klass) -> (MethodHandles.Lookup)
@@ -81,7 +75,6 @@ public class Main implements ClientModInitializer {
         eventBus.subscribe(SkyblockData.class);
         eventBus.subscribe(EntityCache.class);
         FeatureRegistry.init();
-        FeatureRegistry.reconcileFeatureSubscriptions();
 
         LOGGER.info("It's time to get real, SomeFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
     }

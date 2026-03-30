@@ -1,13 +1,15 @@
 package com.somefrills.features.mining;
 
 import com.somefrills.config.Feature;
-import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingColor;
+import com.somefrills.config.FrillsConfig;
+import com.somefrills.config.mining.MiningCategory.CorpseHighlightConfig;
 import com.somefrills.events.InteractEntityEvent;
 import com.somefrills.events.ServerJoinEvent;
 import com.somefrills.events.WorldTickEvent;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
+import io.github.notenoughupdates.moulconfig.ChromaColour;
+import io.github.notenoughupdates.moulconfig.observer.Property;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -20,19 +22,17 @@ import static com.somefrills.Main.mc;
 
 // descriptions moved into constructors
 
-public class CorpseHighlight {
-    public static final Feature instance = new Feature();
+public class CorpseHighlight extends Feature {
+    private final HashSet<Integer> openedCorpses = new HashSet<>();
+    private final CorpseHighlightConfig config;
 
-    public static final SettingBool hideOpened = new SettingBool(true, "Hide glow on corpses you've already opened");
-    public static final SettingColor lapisColor = new SettingColor(new RenderColor(85, 85, 255, 255), "Glow color for Lapis Corpses");
-    public static final SettingColor mineralColor = new SettingColor(new RenderColor(170, 170, 170, 255), "Glow color for Tungsten Corpses");
-    public static final SettingColor yogColor = new SettingColor(new RenderColor(255, 170, 0, 255), "Glow color for Umber Corpses");
-    public static final SettingColor vanguardColor = new SettingColor(new RenderColor(255, 85, 255, 255), "Glow color for Vanguard Corpses");
+    public CorpseHighlight() {
+        super(FrillsConfig.instance.mining.corpseHighlight.enabled);
+        config = FrillsConfig.instance.mining.corpseHighlight;
+    }
 
-    private static final HashSet<Integer> openedCorpses = new HashSet<>();
-
-    private static boolean active() {
-        return instance.isActive() && Utils.isInArea("Mineshaft");
+    private boolean active() {
+        return isActive() && Utils.isInArea("Mineshaft");
     }
 
     private static CorpseType getCorpseType(ArmorStandEntity ent) {
@@ -49,12 +49,12 @@ public class CorpseHighlight {
         return CorpseType.None;
     }
 
-    private static RenderColor getCorpseColor(CorpseType type) {
+    private ChromaColour getCorpseColor(CorpseType type) {
         return switch (type) {
-            case Lapis -> lapisColor.value();
-            case Tungsten -> mineralColor.value();
-            case Umber -> yogColor.value();
-            case Vanguard -> vanguardColor.value();
+            case Lapis -> config.lapisColor;
+            case Tungsten -> config.mineralColor;
+            case Umber -> config.yogColor;
+            case Vanguard -> config.vanguardColor;
             default -> null;
         };
     }
@@ -80,14 +80,14 @@ public class CorpseHighlight {
     }
 
     @EventHandler
-    private static void onTick(WorldTickEvent event) {
+    private void onTick(WorldTickEvent event) {
         if (active()) {
             for (Entity ent : Utils.getEntities()) {
                 if (ent instanceof ArmorStandEntity stand && !stand.isInvisible()) {
                     if (openedCorpses.contains(stand.getId()) || Utils.isGlowing(stand)) {
                         continue;
                     }
-                    RenderColor color = getCorpseColor(getCorpseType(stand));
+                    RenderColor color = RenderColor.fromChroma(getCorpseColor(getCorpseType(stand)));
                     if (color != null) Utils.setGlowing(stand, true, color);
                 }
             }
@@ -95,8 +95,8 @@ public class CorpseHighlight {
     }
 
     @EventHandler
-    private static void onInteractEntity(InteractEntityEvent event) {
-        if (active() && hideOpened.value() && event.entity instanceof ArmorStandEntity stand) {
+    private void onInteractEntity(InteractEntityEvent event) {
+        if (active() && config.hideOpened && event.entity instanceof ArmorStandEntity stand) {
             CorpseType type = getCorpseType(stand);
             if (!type.equals(CorpseType.None) && hasKeyForCorpse(type)) {
                 openedCorpses.add(stand.getId());
@@ -106,7 +106,7 @@ public class CorpseHighlight {
     }
 
     @EventHandler
-    private static void onJoin(ServerJoinEvent event) {
+    private void onJoin(ServerJoinEvent event) {
         openedCorpses.clear();
     }
 

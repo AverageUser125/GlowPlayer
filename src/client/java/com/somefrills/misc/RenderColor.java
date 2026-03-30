@@ -1,5 +1,6 @@
 package com.somefrills.misc;
 
+import io.github.notenoughupdates.moulconfig.ChromaColour;
 import net.minecraft.util.math.ColorHelper;
 
 public class RenderColor {
@@ -61,6 +62,10 @@ public class RenderColor {
                 (argb & 0xFF) / 255.0f,
                 ((argb >> 24) & 0xFF) / 255.0f
         );
+    }
+
+    public static RenderColor fromChroma(ChromaColour colour) {
+        return RenderColor.ofArgb(colour.getEffectiveColourRGB()).withAlpha(colour.getAlpha() / 255.0f);
     }
 
     public RenderColor withRed(float red) {

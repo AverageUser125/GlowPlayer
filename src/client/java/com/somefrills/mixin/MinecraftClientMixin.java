@@ -1,7 +1,7 @@
 package com.somefrills.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.somefrills.config.Config;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.*;
 import com.somefrills.features.misc.GlowPlayer;
 import net.minecraft.client.MinecraftClient;
@@ -33,7 +33,7 @@ public abstract class MinecraftClientMixin {
 
     @Inject(method = "hasOutline", at = @At("HEAD"), cancellable = true)
     private void glowSpecificPlayers(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (!GlowPlayer.instance.isActive()) return;
+        if (!FrillsConfig.instance.misc.glowPlayer.enabled.get()) return;
         if (entity instanceof AbstractClientPlayerEntity player) {
             String pure = GlowPlayer.convertToPureName(player.getName().getString());
             if (GlowPlayer.hasPlayer(pure)) {
@@ -76,10 +76,5 @@ public abstract class MinecraftClientMixin {
     @Inject(method = "doAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;attackBlock(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)Z"))
     private void onAttackBlock(CallbackInfoReturnable<Boolean> cir, @Local BlockHitResult blockHitResult, @Local BlockPos blockPos) {
         eventBus.post(new AttackBlockEvent(blockHitResult, blockPos));
-    }
-
-    @Inject(method = "stop", at = @At("HEAD"))
-    private void beforeStop(CallbackInfo ci) {
-        Config.save();
     }
 }

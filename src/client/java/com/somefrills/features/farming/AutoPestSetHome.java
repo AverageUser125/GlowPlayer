@@ -1,6 +1,7 @@
 package com.somefrills.features.farming;
 
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.ChatMsgEvent;
 import com.somefrills.events.ServerJoinEvent;
 import com.somefrills.misc.Utils;
@@ -12,8 +13,7 @@ import java.util.regex.Pattern;
 
 import static com.somefrills.Main.mc;
 
-public class AutoPestSetHome {
-    public static final Feature instance = new Feature();
+public class AutoPestSetHome extends Feature {
     private static final long IGNORE_WINDOW_MS = 10_000L;
     private static final Pattern PEST_SPAWN_PATTERN = Pattern.compile(
             "\\bPest[s]?\\b.*?spawn(?:ed)?\\b.*?Plot\\s*-?\\s*\\d+",
@@ -21,14 +21,18 @@ public class AutoPestSetHome {
     );
     private static long lastServerJoinTime = 0L;
 
+    public AutoPestSetHome() {
+        super(FrillsConfig.instance.farming.autoPestSetHomeEnabled);
+    }
+
     @EventHandler
-    private static void onServerJoin(ServerJoinEvent event) {
+    private void onServerJoin(ServerJoinEvent event) {
         lastServerJoinTime = System.currentTimeMillis();
     }
 
     @EventHandler
-    private static void onChatMessage(ChatMsgEvent event) {
-        if (!instance.isActive()) return;
+    private void onChatMessage(ChatMsgEvent event) {
+        if (!isActive()) return;
         if (!Utils.isOnGardenPlot()) return;
         if (event.messagePlain == null || event.messagePlain.isEmpty()) return;
 

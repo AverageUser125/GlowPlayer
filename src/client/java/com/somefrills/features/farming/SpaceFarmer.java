@@ -1,6 +1,7 @@
 package com.somefrills.features.farming;
 
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.InputEvent;
 import com.somefrills.events.ScreenOpenEvent;
 import com.somefrills.misc.Utils;
@@ -9,13 +10,16 @@ import org.lwjgl.glfw.GLFW;
 
 import static com.somefrills.Main.mc;
 
-public class SpaceFarmer {
-    public static final Feature instance = new Feature();
+public class SpaceFarmer extends Feature {
     public static boolean spaceHeld = false;
 
+    public SpaceFarmer() {
+        super(FrillsConfig.instance.farming.spaceFarmerEnabled);
+    }
+
     @EventHandler
-    public static void onKey(InputEvent event) {
-        if (!instance.isActive() || event.key != GLFW.GLFW_KEY_SPACE) {
+    public void onKey(InputEvent event) {
+        if (!isActive() || event.key != GLFW.GLFW_KEY_SPACE) {
             return;
         }
         if (mc.currentScreen != null && spaceHeld) {
@@ -39,8 +43,8 @@ public class SpaceFarmer {
     }
 
     @EventHandler
-    public static void onScreen(ScreenOpenEvent event) {
-        if (instance.isActive() && spaceHeld) {
+    public void onScreen(ScreenOpenEvent event) {
+        if (isActive() && spaceHeld) {
             spaceHeld = false;
             mc.options.attackKey.setPressed(false);
         }

@@ -1,9 +1,10 @@
 package com.somefrills.features.misc;
 
-import com.somefrills.config.Feature;
-import com.somefrills.config.SettingBool;
 // description moved to constructor
+import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.ServerJoinEvent;
+import io.github.notenoughupdates.moulconfig.observer.Property;
 import meteordevelopment.orbit.EventHandler;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.IOUtils;
@@ -17,18 +18,16 @@ import static com.somefrills.Main.LOGGER;
 import static com.somefrills.misc.Utils.*;
 import static net.fabricmc.loader.impl.FabricLoaderImpl.MOD_ID;
 
-public class AutoUpdate {
-    public static final Feature instance = new Feature(true);
-
-    public static final SettingBool checkOnJoin = new SettingBool(true, "Check for updates when joining a server.");
+public class AutoUpdate extends Feature {
 
     private static boolean hasCheckedThisSession = false;
+    public AutoUpdate() {
+        super(FrillsConfig.instance.misc.autoUpdate.enabled);
+    }
 
     @EventHandler
-    public static void onServerJoin(ServerJoinEvent event) {
-        if (checkOnJoin.value()) {
-            checkUpdate();
-        }
+    public void onServerJoin(ServerJoinEvent event) {
+        checkUpdate();
     }
 
     private static int getVersionNumber(String version) {
@@ -40,7 +39,7 @@ public class AutoUpdate {
     }
 
     public static void checkUpdate() {
-        if (true) return;
+        if(hasCheckedThisSession) return;
         hasCheckedThisSession = true;
         Thread.startVirtualThread(() -> {
             try {

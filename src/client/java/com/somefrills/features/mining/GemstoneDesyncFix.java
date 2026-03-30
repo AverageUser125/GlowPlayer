@@ -3,6 +3,7 @@ package com.somefrills.features.mining;
 
 import com.google.common.collect.Sets;
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.BlockUpdateEvent;
 import com.somefrills.misc.SkyblockData;
 import meteordevelopment.orbit.EventHandler;
@@ -16,8 +17,7 @@ import java.util.HashSet;
 import static com.somefrills.Main.mc;
 import static net.minecraft.block.HorizontalConnectingBlock.*;
 
-public class GemstoneDesyncFix {
-    public static final Feature instance = new Feature(true);
+public class GemstoneDesyncFix extends Feature {
 
     private static final HashSet<String> islands = Sets.newHashSet(
             "Dwarven Mines",
@@ -27,8 +27,12 @@ public class GemstoneDesyncFix {
             "The Rift"
     );
 
-    public static boolean active() {
-        return instance.isActive() && islands.contains(SkyblockData.getArea());
+    public GemstoneDesyncFix() {
+        super(FrillsConfig.instance.mining.gemstoneDesyncFixEnabled);
+    }
+
+    public boolean active() {
+        return isActive() && islands.contains(SkyblockData.getArea());
     }
 
     public static boolean isStainedGlass(BlockState state) {
@@ -49,7 +53,7 @@ public class GemstoneDesyncFix {
     }
 
     @EventHandler
-    private static void onBlock(BlockUpdateEvent event) {
+    private void onBlock(BlockUpdateEvent event) {
         if (active() && event.newState.isAir() && isStainedGlass(event.oldState)) {
             event.newState.updateNeighbors(mc.world, event.pos, Block.NOTIFY_ALL);
         }

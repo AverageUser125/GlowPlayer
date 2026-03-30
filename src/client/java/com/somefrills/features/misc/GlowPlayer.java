@@ -1,7 +1,9 @@
 package com.somefrills.features.misc;
 
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.ClientDisconnectEvent;
+import io.github.notenoughupdates.moulconfig.observer.Property;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.ColorHelper;
 
@@ -9,10 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GlowPlayer {
-    public static final Feature instance = new Feature(true);
+public class GlowPlayer extends Feature  {
     private static final ConcurrentHashMap<String, Formatting> forcedGlows = new ConcurrentHashMap<>();
     private static final Pattern USERNAME_TOKEN = Pattern.compile("[A-Za-z0-9_]{1,16}");
+
+    public GlowPlayer() {
+        super(FrillsConfig.instance.misc.glowPlayer.enabled);
+    }
 
     /**
      * Normalize an arbitrary string to a likely pure username. Strips formatting codes and attempts
@@ -38,8 +43,8 @@ public class GlowPlayer {
         return stripped;
     }
 
-    public static void onDisconnect(ClientDisconnectEvent event) {
-        if (!instance.isActive()) return;
+    public void onDisconnect(ClientDisconnectEvent event) {
+        if (!isActive()) return;
         clear();
     }
 

@@ -1,21 +1,23 @@
 package com.somefrills.features.misc;
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.ChatMsgEvent;
-import com.somefrills.events.OverlayMsgEvent;
+import io.github.notenoughupdates.moulconfig.observer.Property;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.util.Formatting;
 
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
-public class FilterMessages {
-    public static final Feature instance = new Feature();
+public class FilterMessages extends Feature {
 
     private static final Pattern IMPLOSION_PATTERN =
             Pattern.compile("Your Implosion hit (\\d+) enem(?:y|ies) for ([\\d,.]+) damage\\.");
 
+    public FilterMessages(){
+        super(FrillsConfig.instance.misc.chatFilter.enabled);
+    }
+
     @EventHandler
-    private static void onChatMessage(ChatMsgEvent event) {
+    private void onChatMessage(ChatMsgEvent event) {
         if (shouldFilter(event.messagePlain)) {
             event.cancel();
         }

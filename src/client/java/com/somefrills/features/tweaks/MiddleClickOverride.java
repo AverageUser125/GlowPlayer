@@ -2,6 +2,7 @@ package com.somefrills.features.tweaks;
 
 import com.google.common.collect.Sets;
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.SlotClickEvent;
 import com.somefrills.features.solvers.ExperimentSolver;
 import com.somefrills.misc.SlotOptions;
@@ -18,8 +19,7 @@ import java.util.HashSet;
 
 import static com.somefrills.Main.mc;
 
-public class MiddleClickOverride {
-    public static final Feature instance = new Feature(true);
+public class MiddleClickOverride extends Feature {
     private static final HashSet<String> matchBlacklist = Sets.newHashSet(
             "Attribute Fusion",
             "Beacon",
@@ -68,6 +68,10 @@ public class MiddleClickOverride {
             "Bits Shop"
     );
 
+    public MiddleClickOverride() {
+        super(FrillsConfig.instance.tweaks.middleClickOverrideEnabled);
+    }
+
 
     private static boolean isBlacklisted(String title) {
         return matchBlacklist.contains(title) || containBlacklist.stream().anyMatch(title::contains);
@@ -81,8 +85,8 @@ public class MiddleClickOverride {
         return Utils.getLoreLines(stack).stream().anyMatch(line -> line.equals("Cost") || line.equals("Sell Price") || line.equals("Bazaar Price"));
     }
 
-    public static boolean shouldOverride(Slot slot, int button, SlotActionType actionType) {
-        if (instance.isActive() && mc.currentScreen instanceof GenericContainerScreen container) {
+    public boolean shouldOverride(Slot slot, int button, SlotActionType actionType) {
+        if (isActive() && mc.currentScreen instanceof GenericContainerScreen container) {
             if (slot != null && button == GLFW.GLFW_MOUSE_BUTTON_LEFT && actionType.equals(SlotActionType.PICKUP)) {
                 String title = container.getTitle().getString();
                 ItemStack stack = slot.getStack();
@@ -97,15 +101,15 @@ public class MiddleClickOverride {
 
     private static boolean experimentCheck() {
         return switch (ExperimentSolver.getExperimentType()) {
-            case Chronomatron -> ExperimentSolver.chronomatron.value();
-            case Ultrasequencer -> ExperimentSolver.ultrasequencer.value();
+            case Chronomatron -> FrillsConfig.instance.solvers.experimentSolver.chronomatron;
+            case Ultrasequencer -> FrillsConfig.instance.solvers.experimentSolver.ultrasequencer;
             default -> true;
         };
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    private static void onClick(SlotClickEvent event) {
-        if (instance.isActive() && Utils.isInSkyblock() && mc.currentScreen instanceof GenericContainerScreen container) {
+    private void onClick(SlotClickEvent event) {
+        if (isActive() && Utils.isInSkyblock() && mc.currentScreen instanceof GenericContainerScreen container) {
             if (event.slot != null && event.button == GLFW.GLFW_MOUSE_BUTTON_LEFT && event.actionType.equals(SlotActionType.PICKUP)) {
                 String title = container.getTitle().getString();
                 ItemStack stack = event.slot.getStack();

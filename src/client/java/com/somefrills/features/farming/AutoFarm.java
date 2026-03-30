@@ -1,7 +1,8 @@
 package com.somefrills.features.farming;
 
 import com.somefrills.config.Feature;
-import com.somefrills.config.SettingKeybind;
+import com.somefrills.config.FrillsConfig;
+import com.somefrills.config.farming.FarmingCategory.AutoFarmConfig;
 import com.somefrills.events.InputEvent;
 import com.somefrills.events.ScreenOpenEvent;
 import com.somefrills.events.ServerJoinEvent;
@@ -13,11 +14,13 @@ import net.minecraft.util.math.BlockPos;
 import org.lwjgl.glfw.GLFW;
 
 import static com.somefrills.Main.mc;
+public class AutoFarm extends Feature {
+    private final AutoFarmConfig config;
 
-public class AutoFarm {
-    public static final Feature instance = new Feature();
-
-    public static SettingKeybind toggleKey = new SettingKeybind(GLFW.GLFW_KEY_GRAVE_ACCENT, "Toggle AutoFarm on/off");
+    public AutoFarm() {
+        super(FrillsConfig.instance.farming.autoFarm.enabled);
+        config = FrillsConfig.instance.farming.autoFarm;
+    }
 
     private static final float MIN_YAW_SPEED = 2.0f;
     private static final float MAX_YAW_SPEED = 10.0f;
@@ -39,13 +42,13 @@ public class AutoFarm {
     private static Direction lastExit = Direction.NONE;
 
     @EventHandler
-    private static void onServerJoin(ServerJoinEvent event) {
+    private void onServerJoin(ServerJoinEvent event) {
         applied = false;
         lastTargetYaw = Float.NaN;
     }
 
     @EventHandler
-    public static void onWorldTick(WorldTickEvent event) {
+    public void onWorldTick(WorldTickEvent event) {
         ClientPlayerEntity player = mc.player;
         if (player == null || !isActive || mc.world == null) return;
         if (!Utils.isOnGardenPlot()) return;
@@ -255,13 +258,13 @@ public class AutoFarm {
     }
 
     @EventHandler
-    public static void onScreenOpen(ScreenOpenEvent event) {
+    public void onScreenOpen(ScreenOpenEvent event) {
         reset();
     }
 
     @EventHandler
-    public static void onKey(InputEvent event) {
-        if (!(event.isKeyboard && toggleKey.isKey(event.key) && event.action == GLFW.GLFW_PRESS)) return;
+    public void onKey(InputEvent event) {
+        if (!(event.isKeyboard && config.toggleKey == event.key && event.action == GLFW.GLFW_PRESS)) return;
         if (!isHoldingHoe()) {
             Utils.infoFormat("AutoFarm can only be toggled while holding a hoe");
             return;

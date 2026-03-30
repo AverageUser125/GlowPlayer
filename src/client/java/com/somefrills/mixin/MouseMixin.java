@@ -1,5 +1,6 @@
 package com.somefrills.mixin;
 
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.InputEvent;
 import com.somefrills.features.farming.SpaceFarmer;
 import net.minecraft.client.Mouse;
@@ -29,7 +30,7 @@ public abstract class MouseMixin {
 
     @Inject(method = "updateMouse", at = @At("HEAD"), cancellable = true)
     private void onMouseMove(double timeDelta, CallbackInfo ci) {
-        if (SpaceFarmer.instance.isActive() && SpaceFarmer.spaceHeld && mc.options.attackKey.isPressed()) {
+        if (FrillsConfig.instance.farming.spaceFarmerEnabled.get() && SpaceFarmer.spaceHeld && mc.options.attackKey.isPressed()) {
             ci.cancel();
         }
     }

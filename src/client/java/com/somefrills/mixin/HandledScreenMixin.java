@@ -2,6 +2,7 @@ package com.somefrills.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.ScreenRenderEvent;
 import com.somefrills.events.SlotClickEvent;
 import com.somefrills.events.TooltipRenderEvent;
@@ -112,7 +113,7 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> extends Screen
 
     @ModifyExpressionValue(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isInCreativeMode()Z"))
     private boolean onMiddleClick(boolean original) {
-        if (MiddleClickFix.instance.isActive()) {
+        if (FrillsConfig.instance.tweaks.middleClickFixEnabled) {
             return true;
         }
         return original;

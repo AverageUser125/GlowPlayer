@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.features.misc.GlowPlayer;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -26,7 +27,7 @@ public class GlowPlayerCommand {
     public static LiteralArgumentBuilder<FabricClientCommandSource> getBuilder() {
         return literal("glowplayer")
                 .executes(ctx -> {
-                    if (!GlowPlayer.instance.isActive()) {
+                    if (!isGlowPlayerEnabled()) {
                         Utils.info("GlowPlayer feature is disabled.");
                         return 1;
                     }
@@ -34,7 +35,7 @@ public class GlowPlayerCommand {
                     return 1;
                 })
                 .then(literal("list").executes(ctx -> {
-                    if (!GlowPlayer.instance.isActive()) {
+                    if (!isGlowPlayerEnabled()) {
                         Utils.info("GlowPlayer feature is disabled.");
                         return 1;
                     }
@@ -45,7 +46,7 @@ public class GlowPlayerCommand {
                         .then(argument("player", StringArgumentType.word())
                                 .suggests(GlowPlayerCommand::suggestOnlinePlayers)
                                 .executes(ctx -> {
-                                    if (!GlowPlayer.instance.isActive()) {
+                                    if (!isGlowPlayerEnabled()) {
                                         Utils.info("GlowPlayer feature is disabled.");
                                         return 1;
                                     }
@@ -54,7 +55,7 @@ public class GlowPlayerCommand {
                                 .then(argument("color", StringArgumentType.word())
                                         .suggests(GlowPlayerCommand::suggestColors)
                                         .executes(ctx -> {
-                                            if (!GlowPlayer.instance.isActive()) {
+                                            if (!isGlowPlayerEnabled()) {
                                                 Utils.info("GlowPlayer feature is disabled.");
                                                 return 1;
                                             }
@@ -76,7 +77,7 @@ public class GlowPlayerCommand {
                                 .then(argument("color", StringArgumentType.word())
                                         .suggests(GlowPlayerCommand::suggestColors)
                                         .executes(ctx -> {
-                                            if (!GlowPlayer.instance.isActive()) {
+                                            if (!isGlowPlayerEnabled()) {
                                                 Utils.info("GlowPlayer feature is disabled.");
                                                 return 1;
                                             }
@@ -96,7 +97,7 @@ public class GlowPlayerCommand {
                         .then(argument("player", StringArgumentType.word())
                                 .suggests(GlowPlayerCommand::suggestOnlinePlayers)
                                 .executes(ctx -> {
-                                    if (!GlowPlayer.instance.isActive()) {
+                                    if (!isGlowPlayerEnabled()) {
                                         Utils.info("GlowPlayer feature is disabled.");
                                         return 1;
                                     }
@@ -104,8 +105,7 @@ public class GlowPlayerCommand {
                                 })
                         )
                         .then(literal("all").executes(ctx -> {
-                            if (!GlowPlayer.instance.isActive()) {
-                                Utils.info("GlowPlayer feature is disabled.");
+                            if (!isGlowPlayerEnabled()) {
                                 return 1;
                             }
                             GlowPlayer.clear();
@@ -115,6 +115,13 @@ public class GlowPlayerCommand {
                 );
     }
 
+    private static boolean isGlowPlayerEnabled() {
+        if (!FrillsConfig.instance.misc.glowPlayer.enabled.get()) {
+            Utils.info("GlowPlayer feature is disabled.");
+            return false;
+        }
+        return true;
+    }
     /* ---------------- Command handlers ---------------- */
 
     private static int addGlow(CommandContext<FabricClientCommandSource> ctx, Formatting color) {

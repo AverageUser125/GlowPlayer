@@ -2,8 +2,7 @@ package com.somefrills.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.somefrills.config.Config;
-import com.somefrills.features.farming.Rewarp;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.hud.ClickGui;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -19,31 +18,6 @@ public class SomeFrillsCommand {
                                 Utils.setScreen(new ClickGui());
                                 return SINGLE_SUCCESS;
                             })
-                            .then(ClientCommandManager.literal("load").executes(context -> {
-                                Config.load();
-                                Utils.info("§aLoaded latest settings from the configuration file.");
-                                return SINGLE_SUCCESS;
-                            }))
-                            .then(ClientCommandManager.literal("save").executes(context -> {
-                                Config.save();
-                                Utils.info("§aSaved your current settings to the configuration file.");
-                                return SINGLE_SUCCESS;
-                            }))
-            ),
-            new ModCommand("warp", "Manage simple saved waypoints.",
-                    ClientCommandManager.literal("warp")
-                            .then(ClientCommandManager.literal("add").executes(context -> {
-                                Rewarp.addWaypoint();
-                                return SINGLE_SUCCESS;
-                            }))
-                            .then(ClientCommandManager.literal("remove").executes(context -> {
-                                Rewarp.removeLastWaypoint();
-                                return SINGLE_SUCCESS;
-                            }))
-                            .then(ClientCommandManager.literal("clear").executes(context -> {
-                                Rewarp.clearWaypoints();
-                                return SINGLE_SUCCESS;
-                            }))
             )
     };
     private static final LiteralArgumentBuilder<FabricClientCommandSource> queueCommandBuilder =

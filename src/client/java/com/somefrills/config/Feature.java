@@ -1,84 +1,44 @@
 package com.somefrills.config;
 
-import com.google.gson.JsonObject;
+import com.somefrills.Main;
+import com.somefrills.config.solvers.ExperimentSolverConfig;
+import io.github.notenoughupdates.moulconfig.observer.Property;
 
-public class Feature {
-    private final boolean defaultEnabled;
-    public String key;
-    private boolean value = false;
-    private String name = "";
-    private String description = "";
+public abstract class Feature {
 
-    // No-arg constructor: no description provided
-    public Feature() {
-        this(false, "");
+    private boolean active = false;
+
+    public Feature(Property<Boolean> enabledProperty) {
+        bind(enabledProperty);
     }
 
-    public Feature(String description) {
-        this(false, description);
+    private void bind(Property<Boolean> enabledProperty) {
+        enabledProperty.addObserver(this::onToggle);
+        onToggle(enabledProperty.get());
     }
 
-    public Feature(boolean defaultEnabled) {
-        this(defaultEnabled, "");
+    private void onToggle(boolean oldValue, boolean newValue) {
+        if(oldValue != active) throw new IllegalStateException("Feature state was changed outside of onToggle! This is not allowed.");
+        onToggle(newValue);
     }
 
-    // Constructors that accept an explicit description
-    // Preferred constructor: defaultEnabled first, then optional description
-    public Feature(boolean defaultEnabled, String description) {
-        this.description = description == null ? "" : description;
-        this.defaultEnabled = defaultEnabled;
-        this.key = "";
-        this.value = this.isActive();
-    }
+    private void onToggle(boolean enabled) {
+        if (active == enabled) return;
+        active = enabled;
 
-    public String key() {
-        return this.key;
-    }
-
-    // Allow the registry to set the machine-readable config key
-    public void overrideKey(String newKey) {
-        this.key = newKey;
-    }
-
-    public String name() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name == null ? "" : name;
-    }
-
-    public String description() {
-        return this.description == null ? "" : this.description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description == null ? "" : description;
-    }
-
-    /**
-     * Refresh the feature's value from the current config. If the config does not contain the
-     * feature key, the feature's default is used.
-     */
-    public void update() {
-        if (Config.get().has(this.key)) {
-            JsonObject data = Config.get().getAsJsonObject(this.key);
-            this.value = data.has("enabled") && data.get("enabled").getAsBoolean();
+        if (enabled) {
+            Main.eventBus.subscribe(this);
+            onEnable();
         } else {
-            this.value = this.defaultEnabled;
+            Main.eventBus.unsubscribe(this);
+            onDisable();
         }
     }
+    protected void onEnable() {}
+    protected void onDisable() {}
 
     public boolean isActive() {
-        this.update();
-        return this.value;
+        return active;
     }
 
-    public void setActive(boolean toggle) {
-        if (!Config.get().has(this.key)) {
-            Config.get().add(this.key, new JsonObject());
-        }
-        this.value = toggle;
-        Config.get().get(this.key).getAsJsonObject().addProperty("enabled", this.value);
-    }
 }

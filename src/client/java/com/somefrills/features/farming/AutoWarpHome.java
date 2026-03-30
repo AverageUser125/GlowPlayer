@@ -1,6 +1,7 @@
 package com.somefrills.features.farming;
 
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.ServerJoinEvent;
 import com.somefrills.events.TabListUpdateEvent;
 import com.somefrills.misc.Utils;
@@ -8,14 +9,16 @@ import meteordevelopment.orbit.EventHandler;
 
 import java.util.List;
 
-public class AutoWarpHome {
-    public static final Feature instance = new Feature();
-
+public class AutoWarpHome extends Feature {
     private static PestStatus lastStatus = PestStatus.UNKNOWN; // -1 = unknown
 
+    public AutoWarpHome() {
+        super(FrillsConfig.instance.farming.autoPestSetHomeEnabled);
+    }
+
     @EventHandler
-    private static void onWorldTick(TabListUpdateEvent event) {
-        if (!instance.isActive()) return;
+    private void onWorldTick(TabListUpdateEvent event) {
+        if (!isActive()) return;
         if (!Utils.isOnGardenPlot()) return;
 
         PestStatus status = checkAliveState(event.lines);
@@ -37,7 +40,7 @@ public class AutoWarpHome {
     }
 
     @EventHandler
-    private static void onJoin(ServerJoinEvent event) {
+    private void onJoin(ServerJoinEvent event) {
         lastStatus = PestStatus.UNKNOWN;
     }
 

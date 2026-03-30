@@ -1,51 +1,52 @@
 package com.somefrills.features.misc;
 
-import com.somefrills.config.Feature;
-import com.somefrills.config.SettingJson;
 import com.google.gson.JsonObject;
+import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
+import io.github.notenoughupdates.moulconfig.observer.Property;
 
-public class Aliases {
-    public static final Feature instance = new Feature(true);
-
-    private static final SettingJson aliases;
-
+public class Aliases extends Feature {
+    
+    private static final JsonObject aliases;
     static {
-        JsonObject defaults = new JsonObject();
-        defaults.addProperty("gd", "warp garden");
-        defaults.addProperty("da", "warp da");
-        defaults.addProperty("cc", "chat coop");
-        defaults.addProperty("gc", "chat guild");
-        defaults.addProperty("isle", "warp isle");
-        defaults.addProperty("end", "warp end");
+        aliases = new JsonObject();
+        aliases.addProperty("gd", "warp garden");
+        aliases.addProperty("da", "warp da");
+        aliases.addProperty("cc", "chat coop");
+        aliases.addProperty("gc", "chat guild");
+        aliases.addProperty("isle", "warp isle");
+        aliases.addProperty("end", "warp end");
         // additional aliases requested
-        defaults.addProperty("crypt", "warp crypt");
-        defaults.addProperty("deep", "warp deep");
-        defaults.addProperty("gold", "warp gold");
-        defaults.addProperty("bayou", "warp bayou");
-        defaults.addProperty("park", "warp park");
-        defaults.addProperty("void", "warp void");
-        defaults.addProperty("mu", "warp museum");
-        defaults.addProperty("rift", "warp rift");
+        aliases.addProperty("crypt", "warp crypt");
+        aliases.addProperty("deep", "warp deep");
+        aliases.addProperty("gold", "warp gold");
+        aliases.addProperty("bayou", "warp bayou");
+        aliases.addProperty("park", "warp park");
+        aliases.addProperty("void", "warp void");
+        aliases.addProperty("mu", "warp museum");
+        aliases.addProperty("rift", "warp rift");
         // "base" was listed twice in the provided list; add it once
-        defaults.addProperty("base", "warp base");
-        defaults.addProperty("cn", "warp cn");
-        defaults.addProperty("mines", "warp mines");
-        defaults.addProperty("forge", "warp forge");
-        defaults.addProperty("trapper", "warp trapper");
-        defaults.addProperty("desert", "warp desert");
+        aliases.addProperty("base", "warp base");
+        aliases.addProperty("cn", "warp cn");
+        aliases.addProperty("mines", "warp mines");
+        aliases.addProperty("forge", "warp forge");
+        aliases.addProperty("trapper", "warp trapper");
+        aliases.addProperty("desert", "warp desert");
         // short chat/commands
-        defaults.addProperty("sc", "sax");
-        defaults.addProperty("v2", "visit visit2");
+        aliases.addProperty("sc", "sax");
+        aliases.addProperty("v2", "visit visit2");
         // handle both with and without accidental trailing space
-        defaults.addProperty("sbs ", "skyblocker config");
-        defaults.addProperty("sbs", "skyblocker config");
-        aliases = new SettingJson(defaults);
+        aliases.addProperty("sbs ", "skyblocker config");
+        aliases.addProperty("sbs", "skyblocker config");
     }
 
+    public Aliases(Property<Boolean> enabledProperty) {
+        super(enabledProperty);
+    }
 
     public static String convertCommand(String message) {
-        if(!instance.isActive()) return message;
-        JsonObject obj = aliases.value();
+        if(FrillsConfig.instance.misc.commandAliases.enabled.get()) return message;
+        JsonObject obj = aliases;
         if (obj != null && obj.has(message)) {
             return obj.get(message).getAsString();
         }

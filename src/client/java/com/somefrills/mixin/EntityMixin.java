@@ -1,6 +1,7 @@
 package com.somefrills.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.features.mining.GhostVision;
 import com.somefrills.features.misc.GlowPlayer;
 import com.somefrills.misc.EntityRendering;
@@ -53,7 +54,8 @@ public class EntityMixin implements EntityRendering {
     @Inject(method = "isInvisible", at = @At("HEAD"), cancellable = true)
     private void makeCreeperVisible(CallbackInfoReturnable<Boolean> cir) {
         // Make invisible creepers fully visible (client-side) if config enabled
-        if (GhostVision.instance.isActive() && GhostVision.makeCreepersVisible.value()) {
+        var cfg = FrillsConfig.instance.mining.ghostVision;
+        if (cfg.enabled.get() && cfg.makeCreepersVisible) {
             if ((Object) this instanceof CreeperEntity creeper) {
                 if (GhostVision.isGhost(creeper)) {
                     cir.setReturnValue(false);
@@ -64,7 +66,8 @@ public class EntityMixin implements EntityRendering {
 
     @Inject(method = "isCustomNameVisible", at = @At("HEAD"), cancellable = true)
     private void makeCreeperNameVisible(CallbackInfoReturnable<Boolean> cir) {
-        if (GhostVision.instance.isActive() && GhostVision.creeperShowHP.value()) {
+        var cfg = FrillsConfig.instance.mining.ghostVision;
+        if (cfg.enabled.get() && cfg.creeperShowHP) {
             if ((Object) this instanceof CreeperEntity) {
                 cir.setReturnValue(true);
             }
@@ -73,7 +76,8 @@ public class EntityMixin implements EntityRendering {
 
     @Inject(method = "hasCustomName", at = @At("HEAD"), cancellable = true)
     private void makeCreeperHaveName(CallbackInfoReturnable<Boolean> cir) {
-        if (GhostVision.instance.isActive() && GhostVision.creeperShowHP.value()) {
+        var cfg = FrillsConfig.instance.mining.ghostVision;
+        if (cfg.enabled.get() && cfg.creeperShowHP) {
             if ((Object) this instanceof CreeperEntity) {
                 cir.setReturnValue(true);
             }
@@ -82,7 +86,8 @@ public class EntityMixin implements EntityRendering {
 
     @Inject(method = "getCustomName", at = @At("HEAD"), cancellable = true)
     private void giveCreeperName(CallbackInfoReturnable<Text> cir) {
-        if (GhostVision.instance.isActive() && GhostVision.creeperShowHP.value()) {
+        var cfg = FrillsConfig.instance.mining.ghostVision;
+        if (cfg.enabled.get() && cfg.creeperShowHP) {
             if ((Object) this instanceof CreeperEntity creeper) {
                 // Only show HP if creeper is not invisible and config enabled
                 float currentHealth = creeper.getHealth();
@@ -106,7 +111,7 @@ public class EntityMixin implements EntityRendering {
 
     @Inject(method = "getTeamColorValue", at = @At("HEAD"), cancellable = true)
     public void onGetTeamColor(CallbackInfoReturnable<Integer> cir) {
-        if (!GlowPlayer.instance.isActive()) return;
+        if (!FrillsConfig.instance.misc.glowPlayer.enabled.get()) return;
         Entity self = (Entity) (Object) this;
         if (self instanceof AbstractClientPlayerEntity player) {
             String pure = GlowPlayer.convertToPureName(player.getName().getString());

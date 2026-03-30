@@ -1,8 +1,7 @@
 package com.somefrills.features.solvers;
 
+import com.somefrills.config.solvers.ChocolateFactoryConfig;
 import com.somefrills.config.Feature;
-import com.somefrills.config.SettingBool;
-import com.somefrills.config.SettingInt;
 import com.somefrills.events.ScreenRenderEvent;
 import com.somefrills.misc.Utils;
 import meteordevelopment.orbit.EventHandler;
@@ -19,20 +18,23 @@ import net.minecraft.text.Text;
  * Fabric 1.21.10 port of the Kotlin ChocolateFactory module.
  * Automatically claims stray rabbits in the Chocolate Factory menu.
  */
-public class ChocolateFactory {
-    public static final Feature instance = new Feature();
+public class ChocolateFactory extends Feature {
+    private final ChocolateFactoryConfig config;
     private static final String CHOCOLATE_FACTORY_TITLE = "Chocolate Factory";
-    public static SettingBool claimStray = new SettingBool(true, "Automatically claim stray items in Chocolate Factory menu");
-    public static SettingInt claimDelay = new SettingInt(100, "Delay between claim attempts in milliseconds");
-    private static long lastClaimTime = 0;
+    private long lastClaimTime = 0;
+
+    public ChocolateFactory(ChocolateFactoryConfig cfg) {
+        super(cfg.enabled);
+        config = cfg;
+    }
 
     @EventHandler
-    public static void onHudTick(ScreenRenderEvent event) {
+    public void onHudTick(ScreenRenderEvent event) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) return;
 
         // Check if auto claim is enabled
-        if (!claimStray.value()) return;
+        if (!config.claimStray) return;
 
         ClientPlayerEntity player = client.player;
         ScreenHandler handler = player.currentScreenHandler;
@@ -58,7 +60,7 @@ public class ChocolateFactory {
             // Check if this is a claimable item (CLICK ME! or Golden Rabbit)
             if (displayName.contains("CLICK ME!")) {
                 // Check click delay
-                if (System.currentTimeMillis() - lastClaimTime < claimDelay.value()) return;
+                if (System.currentTimeMillis() - lastClaimTime < config.claimDelay) return;
                 Utils.clickSlot(slot.getIndex());
                 lastClaimTime = System.currentTimeMillis();
                 return; // Only click one per tick
@@ -67,7 +69,7 @@ public class ChocolateFactory {
             // Check if this is a claimable item (CLICK ME! or Golden Rabbit)
             if (displayName.contains("Golden Rabbit")) {
                 // Check click delay
-                if (System.currentTimeMillis() - lastClaimTime < claimDelay.value() * 100L) return;
+                if (System.currentTimeMillis() - lastClaimTime < config.claimDelay * 100L) return;
                 Utils.clickSlot(slot.getIndex());
                 lastClaimTime = System.currentTimeMillis();
                 return; // Only click one per tick

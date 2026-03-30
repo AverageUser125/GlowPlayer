@@ -2,15 +2,16 @@ package com.somefrills.features.tweaks;
 
 import com.google.common.collect.Sets;
 import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.misc.Utils;
+import io.github.notenoughupdates.moulconfig.observer.Property;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 
 import java.util.HashSet;
 
-public class NoAbilityPlace {
-    public static final Feature instance = new Feature(true);
+public class NoAbilityPlace extends Feature {
     private static final HashSet<String> abilityWhitelist = Sets.newHashSet(
             "ABINGOPHONE",
             "SUPERBOOM_TNT",
@@ -22,8 +23,12 @@ public class NoAbilityPlace {
             "SNOW_HOWITZER"
     );
 
+    public NoAbilityPlace() {
+        super(FrillsConfig.instance.tweaks.noAbilityPlaceEnabled);
+    }
+
     public static boolean hasAbility(ItemPlacementContext context) {
-        if (!instance.isActive()) return false;
+        if (!FrillsConfig.instance.tweaks.noAbilityPlaceEnabled.get()) return false;
         if (context == null) return false;
         ItemStack stack = context.getStack();
         String id = Utils.getSkyblockId(stack);
