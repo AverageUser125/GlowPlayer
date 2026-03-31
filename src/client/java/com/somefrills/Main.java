@@ -12,7 +12,10 @@ import com.somefrills.features.misc.Aliases;
 import com.somefrills.misc.EntityCache;
 import com.somefrills.misc.SkyblockData;
 import com.somefrills.misc.Utils;
+import io.github.notenoughupdates.moulconfig.gui.GuiContext;
+import io.github.notenoughupdates.moulconfig.gui.GuiElementComponent;
 import io.github.notenoughupdates.moulconfig.managed.ManagedConfig;
+import io.github.notenoughupdates.moulconfig.platform.MoulConfigScreenComponent;
 import meteordevelopment.orbit.EventBus;
 import meteordevelopment.orbit.IEventBus;
 import net.fabricmc.api.ClientModInitializer;
@@ -22,7 +25,9 @@ import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +41,16 @@ public class Main implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static MinecraftClient mc;
     public static IEventBus eventBus = new EventBus();
-    public static ManagedConfig<FrillsConfig> config;
+    private static ManagedConfig<FrillsConfig> config;
 
     public static void registerCommands(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandRegistryAccess access) {
         SomeFrillsCommand.init(dispatcher);
+    }
+
+    public static Screen getConfigScreen(Screen previous) {
+        var editor = Main.config.getEditor();
+        GuiContext guiContext = new GuiContext(new GuiElementComponent(editor));
+        return new MoulConfigScreenComponent(Text.empty(), guiContext, previous);
     }
 
     @Override
@@ -71,9 +82,9 @@ public class Main implements ClientModInitializer {
             eventBus.post(new ClientDisconnectEvent());
         });
 
-        config = ManagedConfig.create(new File("config/somefrills/config.json"), FrillsConfig.class);
-
         ClientSendMessageEvents.MODIFY_COMMAND.register(Aliases::convertCommand);
+
+        config = ManagedConfig.create(new File("config/somefrills/config.json"), FrillsConfig.class);
 
         eventBus.registerLambdaFactory("com.somefrills",
                 (lookupInMethod, klass) -> (MethodHandles.Lookup)

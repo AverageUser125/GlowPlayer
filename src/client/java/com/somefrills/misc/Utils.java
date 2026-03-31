@@ -1068,8 +1068,7 @@ public class Utils {
         mc.send(() -> mc.setScreen(screen));
     }
     public static void showGui(){
-        var editor = Main.config.getEditor();
-        IMinecraft.INSTANCE.openWrappedScreen(editor);
+        setScreen(Main.getConfigScreen(null));
     }
 
     public static void runCommand(String string) {

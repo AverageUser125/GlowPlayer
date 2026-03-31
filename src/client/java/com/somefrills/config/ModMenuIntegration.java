@@ -12,12 +12,6 @@ import io.github.notenoughupdates.moulconfig.platform.MoulConfigScreenComponent;
 public class ModMenuIntegration implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return parent -> getScreen();
-    }
-
-    private static Screen getScreen() {
-        var editor = Main.config.getEditor();
-        GuiContext guiContext = new GuiContext(new GuiElementComponent(editor));
-        return new MoulConfigScreenComponent(Text.empty(), guiContext, null);
+        return Main::getConfigScreen;
     }
 }
