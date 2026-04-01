@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
 import com.somefrills.misc.Utils;
-import io.github.notenoughupdates.moulconfig.observer.Property;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;

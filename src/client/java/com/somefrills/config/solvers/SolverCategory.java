@@ -11,43 +11,46 @@ public class SolverCategory {
     @Accordion
     @ConfigOption(name = "Experiment Solver", desc = "Settings for the experiment solver")
     public ExperimentSolverConfig experimentSolver = new ExperimentSolverConfig();
+
     public static class ExperimentSolverConfig {
-            @ConfigOption(name = "Enabled", desc = "Enable the experiment solver")
-            @ConfigEditorBoolean
-            public Property<Boolean> enabled = Property.of(true);
+        @ConfigOption(name = "Enabled", desc = "Enable the experiment solver")
+        @ConfigEditorBoolean
+        public Property<Boolean> enabled = Property.of(true);
 
-            @ConfigOption(name = "Chronomatron", desc = "Automatically solve the Chronomatron")
-            @ConfigEditorBoolean
-            public boolean chronomatron = true;
+        @ConfigOption(name = "Chronomatron", desc = "Automatically solve the Chronomatron")
+        @ConfigEditorBoolean
+        public boolean chronomatron = true;
 
-            @ConfigOption(name = "Ultrasequencer", desc = "Automatically solve the Ultrasequencer")
-            @ConfigEditorBoolean
-            public boolean ultrasequencer = true;
+        @ConfigOption(name = "Ultrasequencer", desc = "Automatically solve the Ultrasequencer")
+        @ConfigEditorBoolean
+        public boolean ultrasequencer = true;
 
-            @ConfigOption(name = "Click Delay", desc = "Click delay")
-            @ConfigEditorSlider(minValue = 0, maxValue = 1000, minStep = 50)
-            public int clickDelay = 400;
+        @ConfigOption(name = "Click Delay", desc = "Click delay")
+        @ConfigEditorSlider(minValue = 0, maxValue = 1000, minStep = 50)
+        public int clickDelay = 400;
 
-            @ConfigOption(name = "Close Chronomatron", desc = "Close menu at threshold")
-            @ConfigEditorBoolean
-            public boolean closeOnChronomatronThreshold = true;
+        @ConfigOption(name = "Close Chronomatron", desc = "Close menu at threshold")
+        @ConfigEditorBoolean
+        public boolean closeOnChronomatronThreshold = true;
 
-            @ConfigOption(name = "Chronomatron Threshold", desc = "N means close after N-1 clicks")
-            @ConfigEditorSlider(minValue = 1, maxValue = 50, minStep = 1)
-            public int chronomatronThreshold = 10;
+        @ConfigOption(name = "Chronomatron Threshold", desc = "N means close after N-1 clicks")
+        @ConfigEditorSlider(minValue = 1, maxValue = 50, minStep = 1)
+        public int chronomatronThreshold = 10;
 
-            @ConfigOption(name = "Close Ultrasequencer", desc = "Close menu at threshold")
-            @ConfigEditorBoolean
-            public boolean closeOnUltrasequencerThreshold = true;
+        @ConfigOption(name = "Close Ultrasequencer", desc = "Close menu at threshold")
+        @ConfigEditorBoolean
+        public boolean closeOnUltrasequencerThreshold = true;
 
-            @ConfigOption(name = "Ultrasequencer Threshold", desc = "N means close after N-1 clicks")
-            @ConfigEditorSlider(minValue = 1, maxValue = 50, minStep = 1)
-            public int ultrasequencerThreshold = 7;}
+        @ConfigOption(name = "Ultrasequencer Threshold", desc = "N means close after N-1 clicks")
+        @ConfigEditorSlider(minValue = 1, maxValue = 50, minStep = 1)
+        public int ultrasequencerThreshold = 7;
+    }
 
 
     @Accordion
     @ConfigOption(name = "Chocolate Factory Helper", desc = "Settings for the chocolate factory helper")
     public ChocolateFactoryConfig chocolateFactorySolver = new ChocolateFactoryConfig();
+
     public static class ChocolateFactoryConfig {
         @ConfigOption(name = "Enabled", desc = "Enable the chocolate factory helper")
         @ConfigEditorBoolean

@@ -13,6 +13,7 @@ public class MiningCategory {
     @Accordion
     @ConfigOption(name = "Ghost Vision", desc = "Settings for ghost vision features in Dwarven Mines")
     public GhostVisionConfig ghostVision = new GhostVisionConfig();
+
     public static class GhostVisionConfig {
         @ConfigOption(name = "Enabled", desc = "Enable ghost vision features in Dwarven Mines")
         @ConfigEditorBoolean
@@ -46,6 +47,7 @@ public class MiningCategory {
     @Accordion
     @ConfigOption(name = "Corpse Highlightor", desc = "Settings for corpse highlighter in Dwarven Mines")
     public CorpseHighlightConfig corpseHighlight = new CorpseHighlightConfig();
+
     public static class CorpseHighlightConfig {
         @ConfigOption(name = "Enabled", desc = "Enable corpse highlighter in Dwarven Mines")
         @ConfigEditorBoolean

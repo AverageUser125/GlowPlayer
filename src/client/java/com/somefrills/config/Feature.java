@@ -1,7 +1,6 @@
 package com.somefrills.config;
 
 import com.somefrills.Main;
-import com.somefrills.config.solvers.SolverCategory.ExperimentSolverConfig;
 import io.github.notenoughupdates.moulconfig.observer.Property;
 
 public abstract class Feature {
@@ -18,7 +17,8 @@ public abstract class Feature {
     }
 
     private void onToggle(boolean oldValue, boolean newValue) {
-        if(oldValue != active) throw new IllegalStateException("Feature state was changed outside of onToggle! This is not allowed.");
+        if (oldValue != active)
+            throw new IllegalStateException("Feature state was changed outside of onToggle! This is not allowed.");
         onToggle(newValue);
     }
 
@@ -34,8 +34,12 @@ public abstract class Feature {
             onDisable();
         }
     }
-    protected void onEnable() {}
-    protected void onDisable() {}
+
+    protected void onEnable() {
+    }
+
+    protected void onDisable() {
+    }
 
     public boolean isActive() {
         return active;

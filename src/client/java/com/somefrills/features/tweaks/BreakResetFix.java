@@ -4,7 +4,6 @@ import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.InventoryUpdateEvent;
 import com.somefrills.mixin.ClientPlayerInteractionManagerAccessor;
-import io.github.notenoughupdates.moulconfig.observer.Property;
 import meteordevelopment.orbit.EventHandler;
 
 import static com.somefrills.Main.mc;

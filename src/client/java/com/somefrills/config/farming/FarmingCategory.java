@@ -23,6 +23,7 @@ public class FarmingCategory {
     @Accordion
     @ConfigOption(name = "Auto Farm", desc = "Automatically farm wheat")
     public AutoFarmConfig autoFarm = new AutoFarmConfig();
+
     public static class AutoFarmConfig {
         @ConfigOption(name = "Enabled", desc = "Automatically farm wheat")
         @ConfigEditorBoolean

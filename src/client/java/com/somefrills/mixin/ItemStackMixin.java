@@ -1,8 +1,6 @@
 package com.somefrills.mixin;
 
 import com.somefrills.config.FrillsConfig;
-import com.somefrills.features.tweaks.ItemCountFix;
-import com.somefrills.features.tweaks.NoPearlCooldown;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;

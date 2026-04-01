@@ -79,7 +79,7 @@ public class Main implements ClientModInitializer {
         builder.setMapper(new ConfigMapper());
         config = new ManagedConfig<>(builder);
         FrillsConfig.instance = config.getInstance();
-        
+
         eventBus.registerLambdaFactory("com.somefrills",
                 (lookupInMethod, klass) -> (MethodHandles.Lookup)
                         lookupInMethod.invoke(null, klass, MethodHandles.lookup()));

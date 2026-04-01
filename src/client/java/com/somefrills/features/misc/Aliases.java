@@ -3,11 +3,11 @@ package com.somefrills.features.misc;
 import com.google.gson.JsonObject;
 import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
-import io.github.notenoughupdates.moulconfig.observer.Property;
 
 public class Aliases extends Feature {
-    
+
     private static final JsonObject aliases;
+
     static {
         aliases = new JsonObject();
         aliases.addProperty("gd", "warp garden");
@@ -45,7 +45,7 @@ public class Aliases extends Feature {
     }
 
     public static String convertCommand(String message) {
-        if(!FrillsConfig.instance.misc.commandAliases.enabled.get()) return message;
+        if (!FrillsConfig.instance.misc.commandAliases.enabled.get()) return message;
         JsonObject obj = aliases;
         if (obj != null && obj.has(message)) {
             return obj.get(message).getAsString();

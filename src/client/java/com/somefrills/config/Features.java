@@ -3,15 +3,20 @@ package com.somefrills.config;
 import com.somefrills.misc.ImmutableClassToInstanceMap;
 
 import java.io.File;
-import java.net.URL;
-import java.util.*;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 public class Features {
     private static volatile ImmutableClassToInstanceMap<Feature> FEATURES =
             ImmutableClassToInstanceMap.of();
 
-    /** Initialize all features in com.somefrills.features and subpackages */
+    /**
+     * Initialize all features in com.somefrills.features and subpackages
+     */
     public static void init() {
         String packageName = "com.somefrills.features";
 
@@ -44,6 +49,7 @@ public class Features {
             throw new RuntimeException("Failed to initialize features", e);
         }
     }
+
     private static <T extends Feature> void addFeature(
             ImmutableClassToInstanceMap.Builder<Feature> builder,
             Class<T> clazz) throws Exception {
@@ -55,12 +61,16 @@ public class Features {
         builder.put(clazz, instance);
     }
 
-    /** Get feature by class */
+    /**
+     * Get feature by class
+     */
     public static <T extends Feature> T get(Class<T> featureClass) {
         return FEATURES.getInstance(featureClass);
     }
 
-    /** Helper to recursively list all classes in a package (filesystem + jar) */
+    /**
+     * Helper to recursively list all classes in a package (filesystem + jar)
+     */
     private static List<Class<?>> getClasses(String packageName) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
         String path = packageName.replace('.', '/');
@@ -81,7 +91,7 @@ public class Features {
         } else if (protocol.equals("jar")) {
             String jarPath = resource.getPath().substring(5, resource.getPath().indexOf("!"));
             try (java.util.jar.JarFile jar = new java.util.jar.JarFile(
-                    java.net.URLDecoder.decode(jarPath, "UTF-8"))) {
+                    java.net.URLDecoder.decode(jarPath, StandardCharsets.UTF_8))) {
 
                 Enumeration<java.util.jar.JarEntry> entries = jar.entries();
 
@@ -103,7 +113,9 @@ public class Features {
         return classes;
     }
 
-    /** Recursively scan directory for .class files */
+    /**
+     * Recursively scan directory for .class files
+     */
     private static void scanDirectory(String packageName, File directory, List<Class<?>> classes)
             throws ClassNotFoundException {
 

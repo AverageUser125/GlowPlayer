@@ -2,7 +2,6 @@ package com.somefrills.config.misc;
 
 import io.github.notenoughupdates.moulconfig.annotations.Accordion;
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean;
-import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorDraggableList;
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption;
 import io.github.notenoughupdates.moulconfig.observer.Property;
 
@@ -10,6 +9,7 @@ public class MiscCategory {
     @Accordion
     @ConfigOption(name = "Auto Update", desc = "Automatically update the mod when a new version is available")
     public AutoUpdateConfig autoUpdate = new AutoUpdateConfig();
+
     public static class AutoUpdateConfig {
         @ConfigOption(name = "Enabled", desc = "Automatically update the mod when a new version is available")
         @ConfigEditorBoolean
@@ -29,6 +29,7 @@ public class MiscCategory {
     @Accordion
     @ConfigOption(name = "Command Aliases", desc = "Add aliases for commonly used commands")
     public CommandAliasesConfig commandAliases = new CommandAliasesConfig();
+
     public static class CommandAliasesConfig {
         @ConfigOption(name = "Enabled", desc = "Add aliases for commonly used commands")
         @ConfigEditorBoolean
@@ -38,6 +39,7 @@ public class MiscCategory {
     @Accordion
     @ConfigOption(name = "Chat Filter", desc = "Filter out unwanted chat messages")
     public ChatFilterConfig chatFilter = new ChatFilterConfig();
+
     public static class ChatFilterConfig {
         @ConfigOption(name = "Enabled", desc = "Filter out unwanted chat messages")
         @ConfigEditorBoolean

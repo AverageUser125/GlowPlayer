@@ -1,8 +1,8 @@
 package com.somefrills.features.solvers;
 
+import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
 import com.somefrills.config.solvers.SolverCategory.ExperimentSolverConfig;
-import com.somefrills.config.Feature;
 import com.somefrills.events.ScreenOpenEvent;
 import com.somefrills.events.SlotUpdateEvent;
 import com.somefrills.events.WorldTickEvent;

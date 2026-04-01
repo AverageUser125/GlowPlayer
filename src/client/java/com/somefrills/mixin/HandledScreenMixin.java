@@ -6,7 +6,6 @@ import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.ScreenRenderEvent;
 import com.somefrills.events.SlotClickEvent;
 import com.somefrills.events.TooltipRenderEvent;
-import com.somefrills.features.tweaks.MiddleClickFix;
 import com.somefrills.misc.SlotOptions;
 import com.somefrills.misc.Utils;
 import net.minecraft.client.gui.DrawContext;

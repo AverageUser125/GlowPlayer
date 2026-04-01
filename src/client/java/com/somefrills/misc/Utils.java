@@ -13,10 +13,6 @@ import com.somefrills.events.WorldRenderEvent;
 import com.somefrills.mixin.BossBarHudAccessor;
 import com.somefrills.mixin.HandledScreenAccessor;
 import com.somefrills.mixin.PlayerListHudAccessor;
-import io.github.notenoughupdates.moulconfig.common.IMinecraft;
-import io.github.notenoughupdates.moulconfig.gui.MoulConfigEditor;
-import io.github.notenoughupdates.moulconfig.platform.MoulConfigPlatform;
-import io.github.notenoughupdates.moulconfig.platform.MoulConfigScreenComponent;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.client.gui.hud.MessageIndicator;
@@ -180,37 +176,54 @@ public class Utils {
             }
         }
     }
+
     public static Formatting parseColor(String input) {
         if (input == null) return null;
 
         input = input.toLowerCase().replace(" ", "_");
 
         switch (input) {
-            case "black": return Formatting.BLACK;
+            case "black":
+                return Formatting.BLACK;
             case "dark_blue":
-            case "navy": return Formatting.DARK_BLUE;
-            case "dark_green": return Formatting.DARK_GREEN;
+            case "navy":
+                return Formatting.DARK_BLUE;
+            case "dark_green":
+                return Formatting.DARK_GREEN;
             case "dark_aqua":
-            case "cyan": return Formatting.DARK_AQUA;
-            case "dark_red": return Formatting.DARK_RED;
+            case "cyan":
+                return Formatting.DARK_AQUA;
+            case "dark_red":
+                return Formatting.DARK_RED;
             case "dark_purple":
-            case "purple": return Formatting.DARK_PURPLE;
+            case "purple":
+                return Formatting.DARK_PURPLE;
             case "gold":
-            case "orange": return Formatting.GOLD;
+            case "orange":
+                return Formatting.GOLD;
             case "gray":
-            case "grey": return Formatting.GRAY;
+            case "grey":
+                return Formatting.GRAY;
             case "dark_gray":
-            case "dark_grey": return Formatting.DARK_GRAY;
-            case "blue": return Formatting.BLUE;
+            case "dark_grey":
+                return Formatting.DARK_GRAY;
+            case "blue":
+                return Formatting.BLUE;
             case "green":
-            case "lime": return Formatting.GREEN;
+            case "lime":
+                return Formatting.GREEN;
             case "aqua":
-            case "light_aqua": return Formatting.AQUA;
-            case "red": return Formatting.RED;
+            case "light_aqua":
+                return Formatting.AQUA;
+            case "red":
+                return Formatting.RED;
             case "light_purple":
-            case "pink": return Formatting.LIGHT_PURPLE;
-            case "yellow": return Formatting.YELLOW;
-            case "white": return Formatting.WHITE;
+            case "pink":
+                return Formatting.LIGHT_PURPLE;
+            case "yellow":
+                return Formatting.YELLOW;
+            case "white":
+                return Formatting.WHITE;
         }
 
         // fallback: try enum directly (only return if it's actually a color)
@@ -1067,8 +1080,9 @@ public class Utils {
     public static void setScreen(Screen screen) {
         mc.send(() -> mc.setScreen(screen));
     }
-    public static void showGui(){
-        Main.config.openConfigGui();;
+
+    public static void showGui() {
+        Main.config.openConfigGui();
     }
 
     public static void runCommand(String string) {

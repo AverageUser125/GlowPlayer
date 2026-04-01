@@ -14,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import org.lwjgl.glfw.GLFW;
 
 import static com.somefrills.Main.mc;
+
 public class AutoFarm extends Feature {
     private final AutoFarmConfig config;
 

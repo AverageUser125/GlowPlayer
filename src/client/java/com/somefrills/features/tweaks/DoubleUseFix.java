@@ -5,7 +5,6 @@ import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.InteractBlockEvent;
 import com.somefrills.events.InteractItemEvent;
 import com.somefrills.misc.Utils;
-import io.github.notenoughupdates.moulconfig.observer.Property;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -35,7 +34,7 @@ public class DoubleUseFix extends Feature {
 
     @EventHandler
     private void onUseItem(InteractItemEvent event) {
-        if ( mc.crosshairTarget != null && mc.crosshairTarget.getType().equals(HitResult.Type.BLOCK) && getDisableType().equals(type.Dagger)) {
+        if (mc.crosshairTarget != null && mc.crosshairTarget.getType().equals(HitResult.Type.BLOCK) && getDisableType().equals(type.Dagger)) {
             event.cancel();
         }
     }

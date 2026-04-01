@@ -9,7 +9,6 @@ import com.somefrills.events.WorldTickEvent;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
 import io.github.notenoughupdates.moulconfig.ChromaColour;
-import io.github.notenoughupdates.moulconfig.observer.Property;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ArmorStandEntity;

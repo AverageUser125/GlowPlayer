@@ -4,7 +4,6 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.RenderStyle;
-import io.github.notenoughupdates.moulconfig.ChromaColour;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.*;
