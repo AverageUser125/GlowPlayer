@@ -2,7 +2,6 @@
 **/build/
 !src/**/build/
 gradle-app.setting
-# explicitly allow Gradle wrapper files
 !gradle/wrapper/gradle-wrapper.jar
 !gradle/wrapper/gradle-wrapper.properties
 !gradlew
@@ -10,26 +9,16 @@ gradle-app.setting
 .gradletasknamecache
 .project
 .classpath
-.idea/compiler.xml
-.idea/encodings.xml
-.idea/vcs.xml
-.idea/libraries/
-.idea/*.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dictionaries/
-.idea/snapshots/
-.idea/contentModel.xml
-.idea/*.xml
-/out/
-/build/
-target/        # Maven build directory
-*.class        # Compiled Java classes
+.idea/
+out/
+build/
+target/
+*.class
 *.jar
 *.war
 *.log
 *.ipr
 *.iws
 *.iml
-.DS_Store      # macOS system files
-Thumbs.db      # Windows system files
+.DS_Store
+Thumbs.db
