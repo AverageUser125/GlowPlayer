@@ -16,9 +16,10 @@ public class ModMenuIntegration implements ModMenuApi {
     @Override
     public UpdateChecker getUpdateChecker() {
         return () -> {
-            var result = AutoUpdate.fetchUpdateAsync().join(); // ⛔ blocks here
+            var result = AutoUpdate.fetchUpdateAsync().join();
             return new ModApiSomeFrillsUpdateInfo(
                     result.updateAvailable(),
+                    result.currentVersion(),
                     result.latestVersion(),
                     "https://github.com/AverageUser125/SomeFrills/releases/" + result.latestVersion(),
                     UpdateChannel.RELEASE
@@ -28,6 +29,7 @@ public class ModMenuIntegration implements ModMenuApi {
 
     private record ModApiSomeFrillsUpdateInfo(
             boolean isUpdateAvailable,
+            String currentVersion,
             String latestVersion,
             String downloadLink,
             UpdateChannel updateChannel
@@ -40,7 +42,7 @@ public class ModMenuIntegration implements ModMenuApi {
 
         @Override
         public @NonNull Text getUpdateMessage() {
-            return Text.of("A new version of Some Frills is available: " + latestVersion);
+            return Text.of("SomeFrills " + latestVersion + " is available! You are on " + currentVersion + ".");
         }
 
         @Override

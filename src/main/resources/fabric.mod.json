@@ -3,7 +3,7 @@
   "id": "somefrills",
   "version": "${version}",
   "name": "SomeFrills",
-  "description": "This Mod makes stuff glow",
+  "description": "This Mod does stuff",
   "authors": [
     "NaorVaninu"
   ],
@@ -31,12 +31,5 @@
   "suggests": {
     "modmenu": "*",
     "cloth-config": "*"
-  },
-  "custom": {
-    "modmenu": {
-      "badges": [
-        "environment:client"
-      ]
-    }
   }
 }

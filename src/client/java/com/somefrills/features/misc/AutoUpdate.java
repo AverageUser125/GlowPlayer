@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.somefrills.Main.LOGGER;
 import static com.somefrills.misc.Utils.*;
-import static net.fabricmc.loader.impl.FabricLoaderImpl.MOD_ID;
 
 public class AutoUpdate extends Feature {
 
@@ -63,7 +62,7 @@ public class AutoUpdate extends Feature {
         fetchFuture = CompletableFuture.supplyAsync(() -> {
             try {
                 String version = FabricLoader.getInstance()
-                        .getModContainer(MOD_ID)
+                        .getModContainer(com.somefrills.Main.MOD_ID)
                         .orElseThrow()
                         .getMetadata()
                         .getVersion()

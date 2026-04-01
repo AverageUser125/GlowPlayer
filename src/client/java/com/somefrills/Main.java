@@ -35,9 +35,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 
-import static net.fabricmc.loader.impl.FabricLoaderImpl.MOD_ID;
-
 public class Main implements ClientModInitializer {
+    // Mod id - keep a local constant instead of relying on loader internals
+    public static final String MOD_ID = "somefrills";
+
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static MinecraftClient mc;
     public static IEventBus eventBus = new EventBus();
