@@ -13,7 +13,7 @@ public class AutoWarpHome extends Feature {
     private static PestStatus lastStatus = PestStatus.UNKNOWN; // -1 = unknown
 
     public AutoWarpHome() {
-        super(FrillsConfig.instance.farming.autoPestSetHomeEnabled);
+        super(FrillsConfig.instance.farming.autoWarpHomeEnabled);
     }
 
     @EventHandler
