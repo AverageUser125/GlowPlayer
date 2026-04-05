@@ -27,7 +27,7 @@ public class GhostVision extends Feature {
 
 
     public static boolean isGhost(CreeperEntity creeper) {
-        return creeper.getEntity().getY() < 100 && creeper.isCharged();
+        return creeper.getY() < 100 && creeper.isCharged();
     }
 
     @EventHandler

@@ -49,67 +49,76 @@ public class EntityMixin implements EntityRendering {
         return original;
     }
 
-    @Inject(method = "isInvisible", at = @At("HEAD"), cancellable = true)
-    private void makeCreeperVisible(CallbackInfoReturnable<Boolean> cir) {
+    @ModifyReturnValue(method = "isInvisible", at = @At("RETURN"))
+    private boolean makeCreeperVisible(boolean original) {
         // Make invisible creepers fully visible (client-side) if config enabled
-        var cfg = FrillsConfig.instance.mining.ghostVision;
-        if (cfg.enabled.get() && cfg.makeCreepersVisible) {
-            if ((Object) this instanceof CreeperEntity creeper) {
-                if (GhostVision.isGhost(creeper) || FrillsConfig.instance.mining.ghostVision.makeAllCreepersVisible) {
-                    cir.setReturnValue(false);
-                }
+        if ((Object) this instanceof CreeperEntity creeper) {
+            var cfg = FrillsConfig.instance.mining.ghostVision;
+
+            // Make all creepers visible if config enabled
+            if (cfg.makeAllCreepersVisible) {
+                return false;
+            }
+
+            // Make ghost creepers visible if config enabled
+            if (cfg.enabled.get() && cfg.makeCreepersVisible && GhostVision.isGhost(creeper)) {
+                return false;
             }
         }
+
+        return original;
     }
 
     @Inject(method = "isCustomNameVisible", at = @At("HEAD"), cancellable = true)
     private void makeCreeperNameVisible(CallbackInfoReturnable<Boolean> cir) {
         var cfg = FrillsConfig.instance.mining.ghostVision;
-        if (cfg.enabled.get() && cfg.creeperShowHP) {
-            if ((Object) this instanceof CreeperEntity) {
+        if (!cfg.enabled.get() && !cfg.creeperShowHP) {
+            return;
+        }
+        if ((Object) this instanceof CreeperEntity) {
                 cir.setReturnValue(true);
-            }
         }
     }
 
     @Inject(method = "hasCustomName", at = @At("HEAD"), cancellable = true)
     private void makeCreeperHaveName(CallbackInfoReturnable<Boolean> cir) {
         var cfg = FrillsConfig.instance.mining.ghostVision;
-        if (cfg.enabled.get() && cfg.creeperShowHP) {
-            if ((Object) this instanceof CreeperEntity) {
-                cir.setReturnValue(true);
-            }
+        if (!cfg.enabled.get() && !cfg.creeperShowHP) {
+            return;
+        }
+        if ((Object) this instanceof CreeperEntity) {
+            cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "getCustomName", at = @At("HEAD"), cancellable = true)
     private void giveCreeperName(CallbackInfoReturnable<Text> cir) {
         var cfg = FrillsConfig.instance.mining.ghostVision;
-        if (cfg.enabled.get() && cfg.creeperShowHP) {
-            if ((Object) this instanceof CreeperEntity creeper) {
-                // Only show HP if creeper is not invisible and config enabled
-                float currentHealth = creeper.getHealth();
-                float maxHealth = creeper.getMaxHealth();
+        if (!cfg.enabled.get() || !cfg.creeperShowHP) {
+            return;
+        }
+        if ((Object) this instanceof CreeperEntity creeper) {
+            // Only show HP if creeper is not invisible and config enabled
+            float currentHealth = creeper.getHealth();
+            float maxHealth = creeper.getMaxHealth();
 
-                String currentHealthText = formatHealth(currentHealth);
-                String maxHealthText = formatHealth(maxHealth);
-                if (currentHealthText.equals("1.0k")) currentHealthText = "1m";
-                if (maxHealthText.equals("1.0k")) maxHealthText = "1m";
+            String currentHealthText = formatHealth(currentHealth);
+            String maxHealthText = formatHealth(maxHealth);
+            if (currentHealthText.equals("1.0k")) currentHealthText = "1m";
+            if (maxHealthText.equals("1.0k")) maxHealthText = "1m";
 
-                Text healthDisplay = Text.literal(currentHealthText)
-                        .styled(style -> style.withColor(Formatting.GREEN))
-                        .append(Text.literal("/").styled(style -> style.withColor(Formatting.WHITE)))
-                        .append(Text.literal(maxHealthText).styled(style -> style.withColor(Formatting.GREEN)))
-                        .append(Text.literal("❤").styled(style -> style.withColor(Formatting.RED)));
+            Text healthDisplay = Text.literal(currentHealthText)
+                    .styled(style -> style.withColor(Formatting.GREEN))
+                    .append(Text.literal("/").styled(style -> style.withColor(Formatting.WHITE)))
+                    .append(Text.literal(maxHealthText).styled(style -> style.withColor(Formatting.GREEN)))
+                    .append(Text.literal("❤").styled(style -> style.withColor(Formatting.RED)));
 
-                cir.setReturnValue(healthDisplay);
-            }
+            cir.setReturnValue(healthDisplay);
         }
     }
 
-
     @Unique
-    private String formatHealth(float health) {
+    private static String formatHealth(float health) {
         if (health >= 1000.0f) {
             float thousands = health / 1000.0f;
             return String.format("%.1fk", thousands);
