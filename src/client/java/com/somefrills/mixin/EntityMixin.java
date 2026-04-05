@@ -57,7 +57,7 @@ public class EntityMixin implements EntityRendering {
         var cfg = FrillsConfig.instance.mining.ghostVision;
         if (cfg.enabled.get() && cfg.makeCreepersVisible) {
             if ((Object) this instanceof CreeperEntity creeper) {
-                if (GhostVision.isGhost(creeper)) {
+                if (GhostVision.isGhost(creeper) || FrillsConfig.instance.mining.ghostVision.makeAllCreepersVisible) {
                     cir.setReturnValue(false);
                 }
             }

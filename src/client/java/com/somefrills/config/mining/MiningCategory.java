@@ -1,6 +1,7 @@
 package com.somefrills.config.mining;
 
 import com.somefrills.misc.RenderStyle;
+import com.sun.jna.platform.win32.COM.util.annotation.ComProperty;
 import io.github.notenoughupdates.moulconfig.ChromaColour;
 import io.github.notenoughupdates.moulconfig.annotations.*;
 import io.github.notenoughupdates.moulconfig.observer.Property;
@@ -42,6 +43,10 @@ public class MiningCategory {
         @ConfigOption(name = "Ghosts show HP", desc = "Show HP of ghost creepers above their head")
         @ConfigEditorBoolean
         public boolean creeperShowHP = false;
+
+        @ConfigOption(name = "Make All Creepers Visible", desc = "Make all creepers visible, even those that aren't ghosts")
+        @ConfigEditorBoolean
+        public boolean makeAllCreepersVisible = false;
     }
 
     @Accordion
