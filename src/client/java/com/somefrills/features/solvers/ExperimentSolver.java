@@ -27,12 +27,11 @@ public class ExperimentSolver extends Feature {
 
     // --- Chronomatron state ---
     private final List<Slot> chronoSequence = new ArrayList<>();
+    // --- Ultrasequencer state ---
+    private final List<Solution> ultraSolution = new ArrayList<>();
     private int nextClickIndex = 0;
     private boolean rememberPhase = true;
     private int currentRoundProgress = 0;
-
-    // --- Ultrasequencer state ---
-    private final List<Solution> ultraSolution = new ArrayList<>();
     private long lastClickTime = 0;
     private int ultraSolutionInitialSize = 0;
 
@@ -41,24 +40,12 @@ public class ExperimentSolver extends Feature {
         config = FrillsConfig.instance.solvers.experimentSolver;
     }
 
-    private void updatePhase(ItemStack stack) {
-        Item item = stack.getItem();
-
-        if (!rememberPhase && item.equals(Items.GLOWSTONE)) {
-            rememberPhase = true;
-            currentRoundProgress = 0;
-        }
-
-        if (rememberPhase && item.equals(Items.CLOCK)) {
-            rememberPhase = false;
-        }
-    }
-
     public static ExperimentType getExperimentType() {
         if (Utils.isOnPrivateIsland() && mc.currentScreen instanceof GenericContainerScreen container) {
             String title = container.getTitle().getString();
             if (title.startsWith("Chronomatron (")) return ExperimentType.Chronomatron;
             if (title.startsWith("Ultrasequencer (")) return ExperimentType.Ultrasequencer;
+            if (title.startsWith("Superpairs (")) return ExperimentType.Superpairs;
         }
         return ExperimentType.None;
     }
@@ -88,6 +75,19 @@ public class ExperimentSolver extends Feature {
         return (11 <= idx && idx <= 19) || (30 <= idx && idx <= 38);
     }
 
+    private void updatePhase(ItemStack stack) {
+        Item item = stack.getItem();
+
+        if (!rememberPhase && item.equals(Items.GLOWSTONE)) {
+            rememberPhase = true;
+            currentRoundProgress = 0;
+        }
+
+        if (rememberPhase && item.equals(Items.CLOCK)) {
+            rememberPhase = false;
+        }
+    }
+
     @EventHandler
     private void onTick(WorldTickEvent event) {
         if (!isActive() || rememberPhase) return;
@@ -97,52 +97,61 @@ public class ExperimentSolver extends Feature {
 
         ExperimentType type = getExperimentType();
 
-        // --- Chronomatron solver ---
-        if (config.chronomatron.enabled && type == ExperimentType.Chronomatron && !chronoSequence.isEmpty()) {
-            if (nextClickIndex < chronoSequence.size()) {
-                Slot slotToClick = chronoSequence.get(nextClickIndex);
-                Utils.clickSlot(slotToClick.id);
-                lastClickTime = currentTime;
+        switch (type) {
+            case Chronomatron:
+                if (!config.chronomatron.enabled) break;
+                if (!chronoSequence.isEmpty() && nextClickIndex < chronoSequence.size()) {
+                    Slot slotToClick = chronoSequence.get(nextClickIndex);
+                    Utils.clickSlot(slotToClick.id);
+                    lastClickTime = currentTime;
 
-                LOGGER.info("[Chronomatron] Clicked slot ID: {} | Next index: {}/{}",
-                        slotToClick.id, nextClickIndex + 1, chronoSequence.size());
+                    LOGGER.info("[Chronomatron] Clicked slot ID: {} | Next index: {}/{}",
+                            slotToClick.id, nextClickIndex + 1, chronoSequence.size());
 
-                nextClickIndex++;
-                // If configured, close the menu when we have reached the configured amount
-                // (user provides N meaning close after N-1 clicks)
-                try {
-                    if (config.chronomatron.shouldClose) {
-                        int threshold = Math.max(1, config.chronomatron.closeThreshold);
-                        if (nextClickIndex >= threshold - 1) {
-                            if (mc.player != null) mc.player.closeHandledScreen();
+                    nextClickIndex++;
+                    // If configured, close the menu when we have reached the configured amount
+                    // (user provides N meaning close after N-1 clicks)
+                    try {
+                        if (config.chronomatron.shouldClose) {
+                            int threshold = Math.max(1, config.chronomatron.closeThreshold);
+                            if (nextClickIndex >= threshold - 1) {
+                                if (mc.player != null) mc.player.closeHandledScreen();
+                            }
                         }
+                    } catch (Throwable ignored) {
                     }
-                } catch (Throwable ignored) {
                 }
-            }
-        }
+                break;
 
-        // --- Ultrasequencer solver ---
-        if (config.ultrasequencer.enabled && type == ExperimentType.Ultrasequencer && !ultraSolution.isEmpty()) {
-            Slot slotToClick = ultraSolution.getFirst().slot;
-            Utils.clickSlot(slotToClick.id);
-            ultraSolution.removeFirst();
-            lastClickTime = currentTime;
-            // initialize initial size if not set
-            if (ultraSolutionInitialSize == 0) ultraSolutionInitialSize = Math.max(ultraSolution.size() + 1, 1);
-            int clicksDone = ultraSolutionInitialSize - ultraSolution.size();
-            // If configured, close the menu once we've clicked enough items
-            try {
-                if (config.ultrasequencer.shouldClose) {
-                    int threshold = Math.max(1, config.ultrasequencer.closeThreshold);
-                    if (clicksDone >= threshold - 1) {
-                        if (mc.player != null) mc.player.closeHandledScreen();
-                        ultraSolutionInitialSize = 0;
+            case Ultrasequencer:
+                if (!config.ultrasequencer.enabled) break;
+                if (!ultraSolution.isEmpty()) {
+                    Slot slotToClick = ultraSolution.getFirst().slot;
+                    Utils.clickSlot(slotToClick.id);
+                    ultraSolution.removeFirst();
+                    lastClickTime = currentTime;
+                    // initialize initial size if not set
+                    if (ultraSolutionInitialSize == 0) ultraSolutionInitialSize = Math.max(ultraSolution.size() + 1, 1);
+                    int clicksDone = ultraSolutionInitialSize - ultraSolution.size();
+                    // If configured, close the menu once we've clicked enough items
+                    try {
+                        if (config.ultrasequencer.shouldClose) {
+                            int threshold = Math.max(1, config.ultrasequencer.closeThreshold);
+                            if (clicksDone >= threshold - 1) {
+                                if (mc.player != null) mc.player.closeHandledScreen();
+                                ultraSolutionInitialSize = 0;
+                            }
+                        }
+                    } catch (Throwable ignored) {
                     }
+                    if (ultraSolution.isEmpty()) ultraSolutionInitialSize = 0;
                 }
-            } catch (Throwable ignored) {
-            }
-            if (ultraSolution.isEmpty()) ultraSolutionInitialSize = 0;
+                break;
+
+            case Superpairs:
+                if (!config.superpairs.enabled) break;
+                // TODO: Implement superpairs solving logic
+                break;
         }
     }
 
@@ -155,50 +164,59 @@ public class ExperimentSolver extends Feature {
 
         updatePhase(event.stack);
 
-        // --- Chronomatron recording ---
-        if (config.chronomatron.enabled && experimentType == ExperimentType.Chronomatron && rememberPhase) {
+        switch (experimentType) {
+            case Chronomatron:
+                if (!config.chronomatron.enabled) break;
+                if (!rememberPhase) break;
 
-            if (isTerracotta(event.stack) && isValidChronoSlot(event.slot.id)) {
+                if (isTerracotta(event.stack) && isValidChronoSlot(event.slot.id)) {
 
-                currentRoundProgress++;
+                    currentRoundProgress++;
 
-                // Only add NEW element (the +1 each round)
-                if (currentRoundProgress > chronoSequence.size()) {
-                    chronoSequence.add(event.slot);
+                    // Only add NEW element (the +1 each round)
+                    if (currentRoundProgress > chronoSequence.size()) {
+                        chronoSequence.add(event.slot);
 
-                    LOGGER.info("[Chronomatron] Added NEW slot ID: {} | Sequence length: {}",
-                            event.slot.id, chronoSequence.size());
-                } else {
-                    LOGGER.info("[Chronomatron] Ignored replay slot ID: {}", event.slot.id);
-                }
-            }
-
-            if (isGlowstone(event.stack)) {
-                if (!chronoSequence.isEmpty()) {
-                    nextClickIndex = 0;
-                    currentRoundProgress = 0;
-
-                    LOGGER.info("[Chronomatron] Round finished. Full sequence length: {}",
-                            chronoSequence.size());
-                }
-            }
-        }
-
-        // --- Ultrasequencer recording ---
-        if (config.ultrasequencer.enabled && experimentType == ExperimentType.Ultrasequencer) {
-            if (isGlowstone(event.stack)) {
-                List<Solution> tempSolution = new ArrayList<>();
-                for (Slot slot : Utils.getContainerSlots(event.handler)) {
-                    if (isDye(slot.getStack())) {
-                        tempSolution.add(new Solution(slot.getStack(), slot));
+                        LOGGER.info("[Chronomatron] Added NEW slot ID: {} | Sequence length: {}",
+                                event.slot.id, chronoSequence.size());
+                    } else {
+                        LOGGER.info("[Chronomatron] Ignored replay slot ID: {}", event.slot.id);
                     }
                 }
-                tempSolution.sort(Comparator.comparingInt(s -> s.stack.getCount()));
-                ultraSolution.clear();
-                ultraSolution.addAll(tempSolution);
-                // initialize/reset ultrasequencer initial size when a new solution appears
-                ultraSolutionInitialSize = ultraSolution.size();
-            }
+
+                if (isGlowstone(event.stack)) {
+                    if (!chronoSequence.isEmpty()) {
+                        nextClickIndex = 0;
+                        currentRoundProgress = 0;
+
+                        LOGGER.info("[Chronomatron] Round finished. Full sequence length: {}",
+                                chronoSequence.size());
+                    }
+                }
+                break;
+
+            case Ultrasequencer:
+                if (!config.ultrasequencer.enabled) break;
+
+                if (isGlowstone(event.stack)) {
+                    List<Solution> tempSolution = new ArrayList<>();
+                    for (Slot slot : Utils.getContainerSlots(event.handler)) {
+                        if (isDye(slot.getStack())) {
+                            tempSolution.add(new Solution(slot.getStack(), slot));
+                        }
+                    }
+                    tempSolution.sort(Comparator.comparingInt(s -> s.stack.getCount()));
+                    ultraSolution.clear();
+                    ultraSolution.addAll(tempSolution);
+                    // initialize/reset ultrasequencer initial size when a new solution appears
+                    ultraSolutionInitialSize = ultraSolution.size();
+                }
+                break;
+
+            case Superpairs:
+                if (!config.superpairs.enabled) break;
+                // TODO: Implement superpairs recording logic
+                break;
         }
     }
 
@@ -212,12 +230,13 @@ public class ExperimentSolver extends Feature {
 
             ultraSolution.clear();
             ultraSolutionInitialSize = 0;
+
             lastClickTime = System.currentTimeMillis();
         }
     }
 
     public enum ExperimentType {
-        Chronomatron, Ultrasequencer, None
+        Chronomatron, Ultrasequencer, Superpairs, None
     }
 
     private static class Solution {

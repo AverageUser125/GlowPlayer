@@ -104,7 +104,8 @@ public class MiddleClickOverride extends Feature {
         return switch (ExperimentSolver.getExperimentType()) {
             case Chronomatron -> cfg.chronomatron.enabled;
             case Ultrasequencer -> cfg.ultrasequencer.enabled;
-            default -> cfg.superpairs.enabled;
+            case Superpairs -> cfg.superpairs.enabled;
+            default -> false;
         };
     }
 
