@@ -98,7 +98,7 @@ public class ExperimentSolver extends Feature {
         ExperimentType type = getExperimentType();
 
         // --- Chronomatron solver ---
-        if (config.chronomatron && type == ExperimentType.Chronomatron && !chronoSequence.isEmpty()) {
+        if (config.chronomatron.enabled && type == ExperimentType.Chronomatron && !chronoSequence.isEmpty()) {
             if (nextClickIndex < chronoSequence.size()) {
                 Slot slotToClick = chronoSequence.get(nextClickIndex);
                 Utils.clickSlot(slotToClick.id);
@@ -111,8 +111,8 @@ public class ExperimentSolver extends Feature {
                 // If configured, close the menu when we have reached the configured amount
                 // (user provides N meaning close after N-1 clicks)
                 try {
-                    if (config.closeOnChronomatronThreshold) {
-                        int threshold = Math.max(1, config.chronomatronThreshold);
+                    if (config.chronomatron.shouldClose) {
+                        int threshold = Math.max(1, config.chronomatron.closeThreshold);
                         if (nextClickIndex >= threshold - 1) {
                             if (mc.player != null) mc.player.closeHandledScreen();
                         }
@@ -123,7 +123,7 @@ public class ExperimentSolver extends Feature {
         }
 
         // --- Ultrasequencer solver ---
-        if (config.ultrasequencer && type == ExperimentType.Ultrasequencer && !ultraSolution.isEmpty()) {
+        if (config.ultrasequencer.enabled && type == ExperimentType.Ultrasequencer && !ultraSolution.isEmpty()) {
             Slot slotToClick = ultraSolution.getFirst().slot;
             Utils.clickSlot(slotToClick.id);
             ultraSolution.removeFirst();
@@ -133,8 +133,8 @@ public class ExperimentSolver extends Feature {
             int clicksDone = ultraSolutionInitialSize - ultraSolution.size();
             // If configured, close the menu once we've clicked enough items
             try {
-                if (config.closeOnUltrasequencerThreshold) {
-                    int threshold = Math.max(1, config.ultrasequencerThreshold);
+                if (config.ultrasequencer.shouldClose) {
+                    int threshold = Math.max(1, config.ultrasequencer.closeThreshold);
                     if (clicksDone >= threshold - 1) {
                         if (mc.player != null) mc.player.closeHandledScreen();
                         ultraSolutionInitialSize = 0;
@@ -156,7 +156,7 @@ public class ExperimentSolver extends Feature {
         updatePhase(event.stack);
 
         // --- Chronomatron recording ---
-        if (config.chronomatron && experimentType == ExperimentType.Chronomatron && rememberPhase) {
+        if (config.chronomatron.enabled && experimentType == ExperimentType.Chronomatron && rememberPhase) {
 
             if (isTerracotta(event.stack) && isValidChronoSlot(event.slot.id)) {
 
@@ -185,7 +185,7 @@ public class ExperimentSolver extends Feature {
         }
 
         // --- Ultrasequencer recording ---
-        if (config.ultrasequencer && experimentType == ExperimentType.Ultrasequencer) {
+        if (config.ultrasequencer.enabled && experimentType == ExperimentType.Ultrasequencer) {
             if (isGlowstone(event.stack)) {
                 List<Solution> tempSolution = new ArrayList<>();
                 for (Slot slot : Utils.getContainerSlots(event.handler)) {

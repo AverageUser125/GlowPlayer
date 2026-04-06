@@ -100,10 +100,11 @@ public class MiddleClickOverride extends Feature {
     }
 
     private static boolean experimentCheck() {
+        var cfg = FrillsConfig.instance.solvers.experimentSolver;
         return switch (ExperimentSolver.getExperimentType()) {
-            case Chronomatron -> FrillsConfig.instance.solvers.experimentSolver.chronomatron;
-            case Ultrasequencer -> FrillsConfig.instance.solvers.experimentSolver.ultrasequencer;
-            default -> true;
+            case Chronomatron -> cfg.chronomatron.enabled;
+            case Ultrasequencer -> cfg.ultrasequencer.enabled;
+            default -> cfg.superpairs.enabled;
         };
     }
 
