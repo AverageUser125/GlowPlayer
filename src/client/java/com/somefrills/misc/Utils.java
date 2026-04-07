@@ -320,7 +320,7 @@ public class Utils {
         infoRaw(Text.literal(format(message, values)));
     }
 
-    public static String getCoordsFormatted(String format) {
+    public static String getCordsFormatted(String format) {
         if (mc.player == null) return "";
         BlockPos pos = mc.player.getBlockPos();
         return format(format, pos.getX(), pos.getY(), pos.getZ());
@@ -440,7 +440,6 @@ public class Utils {
         return entity.getDimensions(EntityPose.STANDING).getBoxAt(entity.getLerpedPos(tickProgress));
     }
 
-    @SuppressWarnings("unchecked")
     public static List<Entity> getEntities() {
         if (mc.world != null) {
             SimpleEntityLookup<Entity> lookup = (SimpleEntityLookup<Entity>) mc.world.entityManager.getLookup();

@@ -17,33 +17,6 @@ import static com.somefrills.Main.eventBus;
 import static com.somefrills.Main.mc;
 
 public class SkyblockData {
-    public static final List<InstanceType> instances = List.of(
-            new InstanceType("f0", "CATACOMBS_ENTRANCE"),
-            new InstanceType("f1", "CATACOMBS_FLOOR_ONE"),
-            new InstanceType("f2", "CATACOMBS_FLOOR_TWO"),
-            new InstanceType("f3", "CATACOMBS_FLOOR_THREE"),
-            new InstanceType("f4", "CATACOMBS_FLOOR_FOUR "),
-            new InstanceType("f5", "CATACOMBS_FLOOR_FIVE"),
-            new InstanceType("f6", "CATACOMBS_FLOOR_SIX"),
-            new InstanceType("f7", "CATACOMBS_FLOOR_SEVEN"),
-            new InstanceType("m1", "MASTER_CATACOMBS_FLOOR_ONE"),
-            new InstanceType("m2", "MASTER_CATACOMBS_FLOOR_TWO"),
-            new InstanceType("m3", "MASTER_CATACOMBS_FLOOR_THREE"),
-            new InstanceType("m4", "MASTER_CATACOMBS_FLOOR_FOUR"),
-            new InstanceType("m5", "MASTER_CATACOMBS_FLOOR_FIVE"),
-            new InstanceType("m6", "MASTER_CATACOMBS_FLOOR_SIX"),
-            new InstanceType("m7", "MASTER_CATACOMBS_FLOOR_SEVEN"),
-            new InstanceType("k1", "KUUDRA_NORMAL"),
-            new InstanceType("k2", "KUUDRA_HOT"),
-            new InstanceType("k3", "KUUDRA_BURNING"),
-            new InstanceType("k4", "KUUDRA_FIERY"),
-            new InstanceType("k5", "KUUDRA_INFERNAL"),
-            new InstanceType("t1", "KUUDRA_NORMAL"),
-            new InstanceType("t2", "KUUDRA_HOT"),
-            new InstanceType("t3", "KUUDRA_BURNING"),
-            new InstanceType("t4", "KUUDRA_FIERY"),
-            new InstanceType("t5", "KUUDRA_INFERNAL")
-    );
     private static final Pattern scoreRegex = Pattern.compile("Team Score: [0-9]* (.*)");
     private static String location = "";
     private static String area = "";
