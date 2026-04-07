@@ -70,8 +70,19 @@ public class EntityHighlightCommand {
                         )
                 )
                 .then(literal("remove")
-                        .then(argument("name", StringArgumentType.word())
-                                .then(argument("type", StringArgumentType.word())
+                        .then(literal("all").executes(ctx -> {
+                            if (!isEntityHighlightEnabled()) {
+                                Utils.info("EntityHighlight feature is disabled.");
+                                return 1;
+                            }
+                            EntityHighlight.clearRules();
+                            Utils.info("Removed all entity highlight rules.");
+                            return 1;
+                        }))
+                        .then(argument("type", StringArgumentType.word())
+                                .suggests(EntityHighlightCommand::suggestRuleTypes)
+                                .then(argument("name", StringArgumentType.word())
+                                        .suggests(EntityHighlightCommand::suggestRuleNames)
                                         .executes(ctx -> {
                                             if (!isEntityHighlightEnabled()) {
                                                 Utils.info("EntityHighlight feature is disabled.");
@@ -170,6 +181,53 @@ public class EntityHighlightCommand {
                 builder.suggest(id);
             }
         });
+
+        return builder.buildFuture();
+    }
+
+    /**
+     * Suggest existing rule types for removal
+     */
+    private static CompletableFuture<Suggestions> suggestRuleTypes(
+            CommandContext<FabricClientCommandSource> ctx,
+            SuggestionsBuilder builder
+    ) {
+        String remaining = builder.getRemaining().toLowerCase();
+
+        for (EntityHighlight.EntityHighlightRule rule : EntityHighlight.getRules()) {
+            String type = (rule.type == null || rule.type.isEmpty()) ? "any" : rule.type;
+            if (type.toLowerCase().startsWith(remaining)) {
+                builder.suggest(type);
+            }
+        }
+
+        return builder.buildFuture();
+    }
+
+    /**
+     * Suggest existing rule names for removal, filtered by the selected type
+     */
+    private static CompletableFuture<Suggestions> suggestRuleNames(
+            CommandContext<FabricClientCommandSource> ctx,
+            SuggestionsBuilder builder
+    ) {
+        String remaining = builder.getRemaining().toLowerCase();
+        String selectedType = StringArgumentType.getString(ctx, "type");
+        String normalizedSelectedType = normalizeNoneAlias(selectedType);
+
+        for (EntityHighlight.EntityHighlightRule rule : EntityHighlight.getRules()) {
+            // Check if this rule matches the selected type
+            String ruleType = (rule.type == null || rule.type.isEmpty()) ? null : rule.type;
+
+            if ((normalizedSelectedType == null && ruleType == null) ||
+                (normalizedSelectedType != null && normalizedSelectedType.equalsIgnoreCase(ruleType))) {
+
+                String name = (rule.name == null || rule.name.isEmpty()) ? "any" : rule.name;
+                if (name.toLowerCase().startsWith(remaining)) {
+                    builder.suggest(name);
+                }
+            }
+        }
 
         return builder.buildFuture();
     }
