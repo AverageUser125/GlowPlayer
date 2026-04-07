@@ -2,6 +2,7 @@ package com.somefrills.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -13,15 +14,21 @@ public class SomeFrillsCommand {
     public static final ModCommand[] commands = {
             new ModCommand("settings", "Opens the settings GUI.",
                     ClientCommandManager.literal("settings")
-                            .executes(context -> {
-                                Utils.showGui();
-                                return SINGLE_SUCCESS;
-                            })
+                            .executes(SomeFrillsCommand::executeSettings)
+            ),
+            new ModCommand("glowplayer", "Manage glowing players.",
+                    GlowPlayerCommand.getBuilder()
+            ),
+            new ModCommand("glowmob", "Manage glowing mobs/entities.",
+                    GlowMobCommand.getBuilder()
+            ),
+            new ModCommand("npclocator", "Track NPC locations.",
+                    NpcLocatorCommand.getBuilder()
+            ),
+            new ModCommand("locatenpc", "Alias for npclocator.",
+                    ClientCommandManager.literal("locatenpc").redirect(NpcLocatorCommand.getBuilder().build())
             )
     };
-    private static final LiteralArgumentBuilder<FabricClientCommandSource> queueCommandBuilder =
-            ClientCommandManager.literal("queue")
-                    .executes(context -> SINGLE_SUCCESS);
 
     /**
      * Checks if a command with the given name already exists at the top level of the dispatcher.
@@ -29,6 +36,14 @@ public class SomeFrillsCommand {
     private static boolean commandExists(CommandDispatcher<FabricClientCommandSource> dispatcher, String commandName) {
         CommandNode<FabricClientCommandSource> root = dispatcher.getRoot();
         return root.getChild(commandName) != null;
+    }
+
+    /**
+     * Executes the settings command.
+     */
+    private static int executeSettings(CommandContext<FabricClientCommandSource> context) {
+        Utils.showGui();
+        return SINGLE_SUCCESS;
     }
 
     public static void init(CommandDispatcher<FabricClientCommandSource> dispatcher) {
@@ -57,53 +72,20 @@ public class SomeFrillsCommand {
         commandMain.then(helpArg);
         commandShort.then(helpArg);
 
+        // Add all commands as subcommands to both main and short aliases
         for (ModCommand command : commands) {
             commandMain.then(command.builder);
             commandShort.then(command.builder);
         }
 
-        // (Optional) register queue command if you plan to use it
-        commandMain.then(queueCommandBuilder);
-        commandShort.then(queueCommandBuilder);
-
-        // Register glowplayer as a subcommand and also as a top-level alias
-        commandMain.then(GlowPlayerCommand.getBuilder());
-        commandShort.then(GlowPlayerCommand.getBuilder());
-
-        // Register glowmob as a subcommand and also as a top-level alias
-        commandMain.then(GlowMobCommand.getBuilder());
-        commandShort.then(GlowMobCommand.getBuilder());
-
-        // Register npclocator as a subcommand and also as a top-level alias
-        commandMain.then(NpcLocatorCommand.getBuilder());
-        commandShort.then(NpcLocatorCommand.getBuilder());
-
         dispatcher.register(commandMain);
         dispatcher.register(commandShort);
 
-        // Top-level registration for /glowplayer
-        if (!commandExists(dispatcher, "glowplayer")) {
-            dispatcher.register(GlowPlayerCommand.getBuilder());
-        }
-
-        // Top-level registration for /entityhighlight
-        if (!commandExists(dispatcher, "entityhighlight")) {
-            dispatcher.register(GlowMobCommand.getBuilder());
-        }
-
-        // Top-level registration for /npclocator
-        if (!commandExists(dispatcher, "npclocator")) {
-            dispatcher.register(NpcLocatorCommand.getBuilder());
-        }
-
-        // Register locatenpc alias as a subcommand and also as a top-level alias
-        var locateNpcAlias = ClientCommandManager.literal("locatenpc").redirect(NpcLocatorCommand.getBuilder().build());
-        commandMain.then(locateNpcAlias);
-        commandShort.then(locateNpcAlias);
-
-        // Alias for /locatenpc
-        if (!commandExists(dispatcher, "locatenpc")) {
-            dispatcher.register(locateNpcAlias);
+        // Register top-level aliases for each command (if not already registered)
+        for (ModCommand command : commands) {
+            if (!commandExists(dispatcher, command.command)) {
+                dispatcher.register(command.builder);
+            }
         }
     }
 
