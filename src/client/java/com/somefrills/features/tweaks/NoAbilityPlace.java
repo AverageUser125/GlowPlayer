@@ -31,10 +31,8 @@ public class NoAbilityPlace extends Feature {
         if (context == null) return false;
         ItemStack stack = context.getStack();
         String id = Utils.getSkyblockId(stack);
-        if (!id.isEmpty()) {
-            if (abilityWhitelist.contains(id) || id.startsWith("ABIPHONE")) {
-                return true;
-            }
+        if (!id.isEmpty() && (abilityWhitelist.contains(id) || id.startsWith("ABIPHONE"))) {
+            return true;
         }
         return stack.getItem() instanceof BlockItem && Utils.hasRightClickAbility(stack);
     }

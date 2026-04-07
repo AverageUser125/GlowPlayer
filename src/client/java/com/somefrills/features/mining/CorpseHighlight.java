@@ -65,17 +65,17 @@ public class CorpseHighlight extends Feature {
             case Vanguard -> "SKELETON_KEY";
             default -> "";
         };
-        if (!id.isEmpty()) {
-            PlayerInventory inv = mc.player.getInventory();
-            for (int i = 0; i <= 35; i++) {
-                ItemStack stack = inv.getStack(i);
-                if (!stack.isEmpty() && Utils.getSkyblockId(stack).equals(id)) {
-                    return true;
-                }
+        if (id.isEmpty()) return true;
+        if(mc.player == null) return false;
+
+        PlayerInventory inv = mc.player.getInventory();
+        for (int i = 0; i <= 35; i++) {
+            ItemStack stack = inv.getStack(i);
+            if (!stack.isEmpty() && Utils.getSkyblockId(stack).equals(id)) {
+                return true;
             }
-            return false;
         }
-        return true;
+        return false;
     }
 
     @EventHandler

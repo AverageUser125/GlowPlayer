@@ -85,14 +85,17 @@ public class MiddleClickOverride extends Feature {
 
     public static boolean shouldOverride(Slot slot, int button, SlotActionType actionType) {
         if (!FrillsConfig.instance.tweaks.middleClickOverrideEnabled.get()) return false;
-        if (mc.currentScreen instanceof GenericContainerScreen container && slot != null && isLeftClick(button, actionType)) {
-            String title = container.getTitle().getString();
-            ItemStack stack = slot.getStack();
-            if (stack.isEmpty() || isBlacklisted(title) || !Utils.isInSkyblock()) {
-                return false;
-            }
-            return Utils.getSkyblockId(stack).isEmpty() || isWhitelisted(title) || isTransaction(stack);
-        }
-        return false;
+        if (!(mc.currentScreen instanceof GenericContainerScreen container)) return false;
+        if (slot == null) return false;
+        if (!isLeftClick(button, actionType)) return false;
+
+        String title = container.getTitle().getString();
+        ItemStack stack = slot.getStack();
+
+        if (stack.isEmpty()) return false;
+        if (isBlacklisted(title)) return false;
+        if (!Utils.isInSkyblock()) return false;
+
+        return Utils.getSkyblockId(stack).isEmpty() || isWhitelisted(title) || isTransaction(stack);
     }
 }
