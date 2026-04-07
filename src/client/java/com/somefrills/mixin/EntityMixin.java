@@ -76,7 +76,7 @@ public class EntityMixin implements EntityRendering {
             return;
         }
         if ((Object) this instanceof CreeperEntity) {
-                cir.setReturnValue(true);
+            cir.setReturnValue(true);
         }
     }
 

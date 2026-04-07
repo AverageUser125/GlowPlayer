@@ -220,7 +220,7 @@ public class GlowMobCommand {
             String ruleType = (rule.type == null || rule.type.isEmpty()) ? null : rule.type;
 
             if ((normalizedSelectedType == null && ruleType == null) ||
-                (normalizedSelectedType != null && normalizedSelectedType.equalsIgnoreCase(ruleType))) {
+                    (normalizedSelectedType != null && normalizedSelectedType.equalsIgnoreCase(ruleType))) {
 
                 String name = (rule.name == null || rule.name.isEmpty()) ? "any" : rule.name;
                 if (name.toLowerCase().startsWith(remaining)) {

@@ -2,7 +2,6 @@ package com.somefrills.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.somefrills.Main;
-import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;

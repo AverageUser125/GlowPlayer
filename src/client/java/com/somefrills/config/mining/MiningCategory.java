@@ -1,7 +1,6 @@
 package com.somefrills.config.mining;
 
 import com.somefrills.misc.RenderStyle;
-import com.sun.jna.platform.win32.COM.util.annotation.ComProperty;
 import io.github.notenoughupdates.moulconfig.ChromaColour;
 import io.github.notenoughupdates.moulconfig.annotations.*;
 import io.github.notenoughupdates.moulconfig.observer.Property;

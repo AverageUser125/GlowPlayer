@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 public class GlowPlayer extends Feature {
     private static final ConcurrentHashMap<String, RenderColor> forcedGlows = new ConcurrentHashMap<>();
     private static final Pattern USERNAME_TOKEN = Pattern.compile("[A-Za-z0-9_]{1,16}");
+
     public GlowPlayer() {
         super(FrillsConfig.instance.misc.glowPlayer.enabled);
     }
@@ -48,7 +49,7 @@ public class GlowPlayer extends Feature {
     public void onEntityUpdate(EntityUpdatedEvent event) {
         if (!isActive()) return;
         var entity = event.entity;
-        if(entity instanceof AbstractClientPlayerEntity player) {
+        if (entity instanceof AbstractClientPlayerEntity player) {
             String pureName = convertToPureName(player.getName().getString());
             RenderColor color = getColor(pureName);
             if (color != null) {

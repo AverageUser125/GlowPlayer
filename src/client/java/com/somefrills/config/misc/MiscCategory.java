@@ -28,6 +28,7 @@ public class MiscCategory {
     @Accordion
     @ConfigOption(name = "Mob Glow", desc = "Highlight entities based on name, type, or both")
     public MobGlowConfig glowMob = new MobGlowConfig();
+
     public static class MobGlowConfig {
         @ConfigOption(name = "Enabled", desc = "Highlight entities based on name, type, or both")
         @ConfigEditorBoolean

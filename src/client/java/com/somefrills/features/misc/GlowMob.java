@@ -11,6 +11,7 @@ import meteordevelopment.orbit.EventPriority;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +39,7 @@ public class GlowMob extends Feature {
 
     @EventHandler(priority = EventPriority.LOW)
     private void onServerJoin(ServerJoinEvent event) {
-        for (Entity entity: Utils.getEntities()) {
+        for (Entity entity : Utils.getEntities()) {
             applyHighlight(entity);
         }
     }
@@ -145,9 +146,7 @@ public class GlowMob extends Feature {
                 String entityTypeStr = entity.getType().toString();
                 entityTypeStr = Utils.stripPrefix(entityTypeStr, "entity.minecraft.");
                 entityTypeStr = entityTypeStr.toLowerCase();
-                if (!entityTypeStr.equals(this.type)) {
-                    return false;
-                }
+                return entityTypeStr.equals(this.type);
             }
 
             return true;

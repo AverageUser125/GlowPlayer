@@ -44,10 +44,10 @@ public class NpcLocator extends Feature {
     }
 
     @EventHandler
-    public void onWorldTick(WorldTickEvent event){
-        if(!config.autoRemoveWaypoint) return;
-        if(mc.player == null) return;
-        if(npcLocations.isEmpty()) return;
+    public void onWorldTick(WorldTickEvent event) {
+        if (!config.autoRemoveWaypoint) return;
+        if (mc.player == null) return;
+        if (npcLocations.isEmpty()) return;
 
         Vec3d playerPos = mc.player.getEyePos();
         npcLocations.entrySet().removeIf(entry -> {
