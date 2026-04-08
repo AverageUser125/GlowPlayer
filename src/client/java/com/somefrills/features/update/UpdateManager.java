@@ -1,73 +1,33 @@
 package com.somefrills.features.update;
 
+import com.somefrills.config.about.GuiOptionEditorUpdateCheck;
+import com.somefrills.misc.Utils;
+import io.github.notenoughupdates.moulconfig.processor.MoulConfigProcessor;
 import moe.nea.libautoupdate.CurrentVersion;
 import moe.nea.libautoupdate.PotentialUpdate;
 import moe.nea.libautoupdate.UpdateContext;
-import moe.nea.libautoupdate.UpdateSource;
 import moe.nea.libautoupdate.UpdateTarget;
 import net.fabricmc.loader.api.FabricLoader;
-
+import com.google.gson.JsonElement;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.somefrills.Main.LOGGER;
+import static com.somefrills.Main.mc;
 
 public class UpdateManager {
 
     private static volatile CompletableFuture<?> activePromise = null;
+    private static volatile UpdateState updateState = UpdateState.NONE;
     private static volatile PotentialUpdate potentialUpdate = null;
+    private static volatile boolean hasCheckedThisSession = false;
 
     public enum UpdateState {
         AVAILABLE,
         QUEUED,
         DOWNLOADED,
         NONE
-    }
-
-    private static volatile UpdateState updateState = UpdateState.NONE;
-
-    private static final UpdateContext context = new UpdateContext(
-            UpdateSource.githubUpdateSource("AverageUser125", "SomeFrills"),
-            UpdateTarget.deleteAndSaveInTheSameFolder(UpdateManager.class),
-            new CurrentVersion() {
-                @Override
-                public String display() {
-                    return FabricLoader.getInstance()
-                            .getModContainer(com.somefrills.Main.MOD_ID)
-                            .map(mod -> mod.getMetadata().getVersion().getFriendlyString())
-                            .orElse("unknown");
-                }
-
-                @Override
-                public boolean isOlderThan(com.google.gson.JsonElement element) {
-                    if (element == null) return true;
-                    try {
-                        String currentVersionString = FabricLoader.getInstance()
-                                .getModContainer(com.somefrills.Main.MOD_ID)
-                                .orElseThrow()
-                                .getMetadata()
-                                .getVersion()
-                                .getFriendlyString();
-
-                        String newestVersionString = element.getAsString();
-
-                        // Normalize both versions by removing "v" prefix if present
-                        currentVersionString = normalizeVersion(currentVersionString);
-                        newestVersionString = normalizeVersion(newestVersionString);
-
-                        return parseSemanticVersion(currentVersionString) < parseSemanticVersion(newestVersionString);
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to compare versions", e);
-                        return false;
-                    }
-                }
-            },
-            "SomeFrills"
-    );
-
-    static {
-        context.cleanup();
     }
 
     public static UpdateState getUpdateState() {
@@ -82,76 +42,110 @@ public class UpdateManager {
     }
 
     public static String getLatestVersion() {
-        if (potentialUpdate != null && potentialUpdate.getUpdate() != null) {
-            String version = potentialUpdate.getUpdate().getVersionNumber().getAsString();
-            return normalizeVersion(version);
+        if (potentialUpdate != null) {
+            return potentialUpdate.getUpdate().getVersionNumber().getAsString();
         }
-        return null;
-    }
-
-    private static String normalizeVersion(String version) {
-        if (version != null && version.startsWith("v")) {
-            return version.substring(1);
-        }
-        return version;
+        return getCurrentVersion();
     }
 
     public static boolean isUpdateAvailable() {
-        return updateState == UpdateState.AVAILABLE || (potentialUpdate != null && potentialUpdate.isUpdateAvailable());
+        return updateState == UpdateState.AVAILABLE;
+    }
+
+    private static final UpdateContext context = new UpdateContext(
+        new CustomGithubReleaseUpdateSource("AverageUser125", "SomeFrills"),
+        UpdateTarget.deleteAndSaveInTheSameFolder(UpdateManager.class),
+        new CurrentVersion() {
+            @Override
+            public String display() {
+                return getCurrentVersion();
+            }
+
+            @Override
+            public boolean isOlderThan(JsonElement element) {
+                if (element == null) return false;
+                String asString = element.getAsString();
+                int currentParsed = parseSemanticVersion(getCurrentVersion());
+                int latestParsed = parseSemanticVersion(asString);
+                return currentParsed < latestParsed;
+            }
+        },
+        com.somefrills.Main.MOD_ID
+    );
+
+    public static void reset() {
+        updateState = UpdateState.NONE;
+        potentialUpdate = null;
+        hasCheckedThisSession = false;
+        cancelActivePromise();
+        LOGGER.debug("Update state reset");
     }
 
     public static void checkUpdate() {
-        if (updateState != UpdateState.NONE) {
-            LOGGER.debug("Update check already in progress");
+        checkUpdate(false);
+    }
+
+    public static void checkUpdate(boolean autoQueue) {
+        if (hasCheckedThisSession) {
+            LOGGER.debug("Already checked for updates this session");
             return;
         }
 
+        if (updateState != UpdateState.NONE) {
+            if (updateState == UpdateState.AVAILABLE) {
+                updateState = UpdateState.NONE;
+                LOGGER.debug("Resetting update state to force download");
+            } else {
+                LOGGER.debug("Trying to perform update check while another update is already in progress");
+                return;
+            }
+        }
+
+        hasCheckedThisSession = true;
         LOGGER.info("Starting update check");
-        updateState = UpdateState.NONE; // Reset to check again
-
-        cancelActivePromise();
-        activePromise = context.checkUpdate("somefrills.jar").thenAcceptAsync(potentialUpd -> {
+        activePromise = context.checkUpdate("full").thenAcceptAsync(update -> {
             LOGGER.debug("Update check completed");
-            potentialUpdate = potentialUpd;
+            if (updateState != UpdateState.NONE) {
+                LOGGER.debug("This appears to be the second update check. Ignoring this one");
+                return;
+            }
 
-            if (potentialUpd != null && potentialUpd.isUpdateAvailable()) {
+            potentialUpdate = update;
+            if (update.isUpdateAvailable()) {
                 updateState = UpdateState.AVAILABLE;
-                LOGGER.info("Update available: {}", potentialUpd.getUpdate().getVersionNumber().getAsString());
+                LOGGER.info("Update available: {}", update.getUpdate().getVersionName());
+
+                if (autoQueue) {
+                    LOGGER.info("Auto-queuing update");
+                    queueUpdate();
+                }
             } else {
                 LOGGER.debug("No update available");
             }
-        });
+        }, mc);
     }
 
     public static void queueUpdate() {
         if (updateState != UpdateState.AVAILABLE) {
-            LOGGER.warn("Trying to queue update when no update is available");
+            LOGGER.debug("Trying to enqueue an update while another one is already downloaded or none is present");
             return;
         }
 
         updateState = UpdateState.QUEUED;
-        cancelActivePromise();
-
         activePromise = CompletableFuture.supplyAsync(() -> {
             LOGGER.info("Update download started");
             try {
                 potentialUpdate.prepareUpdate();
             } catch (IOException e) {
-                LOGGER.error("Failed to prepare update", e);
+                LOGGER.error("Failed to download update", e);
+                updateState = UpdateState.AVAILABLE;
             }
             return null;
-        }).thenAcceptAsync(v -> {
+        }).thenAcceptAsync(__ -> {
             LOGGER.info("Update download completed");
             updateState = UpdateState.DOWNLOADED;
             potentialUpdate.executePreparedUpdate();
-        });
-    }
-
-    public static void reset() {
-        updateState = UpdateState.NONE;
-        potentialUpdate = null;
-        cancelActivePromise();
-        LOGGER.debug("Update state reset");
+        }, mc);
     }
 
     private static void cancelActivePromise() {
@@ -162,6 +156,7 @@ public class UpdateManager {
     }
 
     private static int parseSemanticVersion(String version) {
+        version = Utils.stripPrefix(version, "v");
         String[] numbers = version.split("\\.");
         if (numbers.length >= 3) {
             int major = parseInt(numbers[0]).orElse(0);

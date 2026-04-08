@@ -24,12 +24,12 @@ public class AutoUpdate extends Feature {
         if (hasCheckedThisSession) return;
         hasCheckedThisSession = true;
 
-        if (!FrillsConfig.instance.about.fullAutoUpdates) {
-            LOGGER.debug("Full auto updates is disabled");
+        if (!FrillsConfig.instance.about.checkForUpdates.get()) {
+            LOGGER.debug("Check for updates is disabled");
             return;
         }
 
-        // Start the update check asynchronously
-        UpdateManager.checkUpdate();
+        LOGGER.debug("Performing automatic update check");
+        UpdateManager.checkUpdate(FrillsConfig.instance.about.fullAutoUpdates);
     }
 }
