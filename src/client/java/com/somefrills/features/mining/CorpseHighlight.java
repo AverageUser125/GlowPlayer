@@ -82,16 +82,16 @@ public class CorpseHighlight extends Feature {
     private void onTick(WorldTickEvent event) {
         if (active()) {
             for (Entity ent : Utils.getEntities()) {
-                if (ent instanceof ArmorStandEntity stand && !stand.isInvisible()) {
-                    if (openedCorpses.contains(stand.getId()) || Utils.isGlowing(stand)) {
-                        continue;
-                    }
-                    var colour = getCorpseColor(getCorpseType(stand));
-                    if (colour == null) continue;
-                    RenderColor color = RenderColor.fromChroma(colour);
-                    Utils.setGlowing(stand, true, color);
+                if (!(ent instanceof ArmorStandEntity stand) || stand.isInvisible()) continue;
+                if (openedCorpses.contains(stand.getId()) || Utils.isGlowing(stand)) {
+                    continue;
                 }
+                var colour = getCorpseColor(getCorpseType(stand));
+                if (colour == null) continue;
+                RenderColor color = RenderColor.fromChroma(colour);
+                Utils.setGlowing(stand, true, color);
             }
+
         }
     }
 
