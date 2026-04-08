@@ -23,7 +23,14 @@ repositories {
         url = "https://maven.daqem.com/releases"
     }
     // Repository for NotEnoughUpdates / MoulConfig
-    maven { url = "https://maven.notenoughupdates.org/releases/" }
+    maven {
+        name = "NEU"
+        url = "https://maven.notenoughupdates.org/releases/"
+    }
+
+    maven {
+        name = "NEA"
+        url = "https://repo.nea.moe/releases"}
 }
 
 loom {
@@ -63,6 +70,9 @@ dependencies {
     include "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
 
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+    modImplementation "moe.nea:libautoupdate:1.3.1"
+    include "moe.nea:libautoupdate:1.3.1"
 }
 
 processResources {

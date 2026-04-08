@@ -1,7 +1,7 @@
 package com.somefrills.config;
 
 import com.somefrills.Main;
-import com.somefrills.features.misc.AutoUpdate;
+import com.somefrills.misc.UpdateManager;
 import com.terraformersmc.modmenu.api.*;
 import io.github.notenoughupdates.moulconfig.gui.GuiContext;
 import io.github.notenoughupdates.moulconfig.gui.GuiElementComponent;
@@ -26,12 +26,30 @@ public class ModMenuIntegration implements ModMenuApi {
     @Override
     public UpdateChecker getUpdateChecker() {
         return () -> {
-            var result = AutoUpdate.fetchUpdateAsync().join();
+            UpdateManager.checkUpdate();
+
+            // Wait for update check to complete (up to 5 seconds)
+            for (int i = 0; i < 50; i++) {
+                if (UpdateManager.isUpdateAvailable()) {
+                    break;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+
+            String currentVersion = UpdateManager.getCurrentVersion();
+            String latestVersion = UpdateManager.getLatestVersion();
+            boolean updateAvailable = UpdateManager.isUpdateAvailable();
+
             return new ModApiSomeFrillsUpdateInfo(
-                    result.updateAvailable(),
-                    result.currentVersion(),
-                    result.latestVersion(),
-                    "https://github.com/AverageUser125/SomeFrills/releases/" + result.latestVersion(),
+                    updateAvailable,
+                    currentVersion,
+                    latestVersion != null ? latestVersion : currentVersion,
+                    "https://github.com/AverageUser125/SomeFrills/releases/tag/v" + (latestVersion != null ? latestVersion : currentVersion),
                     UpdateChannel.RELEASE
             );
         };

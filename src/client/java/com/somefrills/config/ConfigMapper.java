@@ -10,6 +10,7 @@ import org.jspecify.annotations.NonNull;
 
 public class ConfigMapper implements DataMapper<FrillsConfig> {
     private final Gson gson = new GsonBuilder()
+            // .excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT) // Not needed since it's the default
             .registerTypeAdapterFactory(new PropertyTypeAdapterFactory())
             .registerTypeAdapter(ChromaColour.class, new LegacyStringChromaColourTypeAdapter(true)
             ).create();
