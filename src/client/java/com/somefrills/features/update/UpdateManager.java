@@ -87,40 +87,43 @@ public class UpdateManager {
 
     public static void checkUpdate(boolean autoQueue) {
         if (hasCheckedThisSession) {
-            LOGGER.debug("Already checked for updates this session");
+            LOGGER.info("Already checked for updates this session");
             return;
         }
 
         if (updateState != UpdateState.NONE) {
             if (updateState == UpdateState.AVAILABLE) {
                 updateState = UpdateState.NONE;
-                LOGGER.debug("Resetting update state to force download");
+                LOGGER.info("Resetting update state to force download");
             } else {
-                LOGGER.debug("Trying to perform update check while another update is already in progress");
+                LOGGER.info("Trying to perform update check while another update is already in progress");
                 return;
             }
         }
 
         hasCheckedThisSession = true;
-        LOGGER.info("Starting update check");
+        LOGGER.info("Starting update check (autoQueue: {})", autoQueue);
         activePromise = context.checkUpdate("full").thenAcceptAsync(update -> {
-            LOGGER.debug("Update check completed");
+            LOGGER.info("Update check completed");
             if (updateState != UpdateState.NONE) {
-                LOGGER.debug("This appears to be the second update check. Ignoring this one");
+                LOGGER.info("This appears to be the second update check. Ignoring this one");
                 return;
             }
 
             potentialUpdate = update;
             if (update.isUpdateAvailable()) {
                 updateState = UpdateState.AVAILABLE;
-                LOGGER.info("Update available: {}", update.getUpdate().getVersionName());
+                String versionName = update.getUpdate().getVersionName();
+                LOGGER.info("Update available: {}", versionName);
+                Utils.infoFormat("Update available: {}", versionName);
 
                 if (autoQueue) {
                     LOGGER.info("Auto-queuing update");
+                    Utils.infoFormat("Auto-queuing update");
                     queueUpdate();
                 }
             } else {
-                LOGGER.debug("No update available");
+                LOGGER.info("No update available");
             }
         }, mc).exceptionally(e -> {
             LOGGER.error("[SomeFrills] Failed to check for updates", e);
@@ -130,22 +133,27 @@ public class UpdateManager {
 
     public static void queueUpdate() {
         if (updateState != UpdateState.AVAILABLE) {
-            LOGGER.debug("Trying to enqueue an update while another one is already downloaded or none is present");
+            LOGGER.info("Trying to enqueue an update while another one is already downloaded or none is present");
             return;
         }
 
         updateState = UpdateState.QUEUED;
+        LOGGER.info("Queuing update download");
+        Utils.infoFormat("Queuing update download");
         activePromise = CompletableFuture.supplyAsync(() -> {
             LOGGER.info("Update download started");
+            Utils.infoFormat("Update download started");
             try {
                 potentialUpdate.prepareUpdate();
             } catch (IOException e) {
                 LOGGER.error("Failed to download update", e);
+                Utils.infoFormat("Failed to download update: {}", e.getMessage());
                 updateState = UpdateState.AVAILABLE;
             }
             return null;
         }).thenAcceptAsync(__ -> {
             LOGGER.info("Update download completed");
+            Utils.infoFormat("Update download completed. Will be installed on next restart.");
             updateState = UpdateState.DOWNLOADED;
             potentialUpdate.executePreparedUpdate();
         }, mc);
@@ -159,7 +167,6 @@ public class UpdateManager {
     }
 
     private static int parseSemanticVersion(String version) {
-        version = Utils.stripPrefix(version, "v");
         String[] numbers = version.split("\\.");
         if (numbers.length >= 3) {
             int major = parseInt(numbers[0]).orElse(0);

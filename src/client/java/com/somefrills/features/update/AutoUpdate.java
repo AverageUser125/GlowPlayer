@@ -29,7 +29,8 @@ public class AutoUpdate extends Feature {
             return;
         }
 
-        LOGGER.debug("Performing automatic update check");
-        UpdateManager.checkUpdate(FrillsConfig.instance.about.fullAutoUpdates);
+        boolean autoQueue = FrillsConfig.instance.about.fullAutoUpdates;
+        LOGGER.debug("Performing automatic update check (autoQueue: {})", autoQueue);
+        UpdateManager.checkUpdate(autoQueue);
     }
 }

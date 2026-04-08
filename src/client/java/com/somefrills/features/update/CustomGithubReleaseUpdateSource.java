@@ -46,9 +46,10 @@ public class CustomGithubReleaseUpdateSource extends GithubReleaseUpdateSource {
     }
 
     private GithubReleaseUpdateData createReleaseData(GithubRelease.Download asset, GithubRelease release) {
+        String tagName = Utils.stripPrefix(release.getTagName(), "v");
         return new GithubReleaseUpdateData(
             release.getName() != null ? release.getName() : release.getTagName(),
-            new JsonPrimitive(release.getTagName()),
+            new JsonPrimitive(tagName),
             null,
                 asset.getBrowserDownloadUrl(),
                 release.getBody(),
@@ -60,8 +61,6 @@ public class CustomGithubReleaseUpdateSource extends GithubReleaseUpdateSource {
     }
 
     private int compareVersions(String v1, String v2) {
-        v1 = Utils.stripPrefix(v1, "v");
-        v2 = Utils.stripPrefix(v2, "v");
         String[] parts1 = v1.split("\\.");
         String[] parts2 = v2.split("\\.");
 
@@ -76,7 +75,6 @@ public class CustomGithubReleaseUpdateSource extends GithubReleaseUpdateSource {
     }
 
     private int parseVersionPart(String part) {
-        part = Utils.stripPrefix(part, "v");
         try {
             return Integer.parseInt(part.replaceAll("[^0-9]", ""));
         } catch (NumberFormatException e) {

@@ -96,11 +96,20 @@ public class GuiOptionEditorUpdateCheck extends GuiOptionEditor {
     @Override
     public boolean mouseInput(int x, int y, int width, int mouseX, int mouseY, MouseEvent event) {
         try {
-            int adjustedWidth = width - 20;
-            int buttonPos = getButtonPosition(adjustedWidth);
+            // Only respond to left-click events
+            if (!(event instanceof MouseEvent.Click click)) {
+                return false;
+            }
 
-            // Check button click - matches SkyHanni logic
-            if (isInside(mouseX, mouseY, x + 10 + buttonPos, y + 10, button)) {
+            // Only handle left mouse button (0)
+            if (click.getMouseButton() != 0) {
+                return false;
+            }
+
+            int buttonPos = getButtonPosition(width - 20);
+
+            // Check button click - using SkyHanni logic
+            if (isInside(buttonPos, 10, button, x, y, mouseX, mouseY)) {
                 UpdateManager.UpdateState state = UpdateManager.getUpdateState();
                 switch (state) {
                     case AVAILABLE -> UpdateManager.queueUpdate();
@@ -116,9 +125,9 @@ public class GuiOptionEditorUpdateCheck extends GuiOptionEditor {
         return false;
     }
 
-    private boolean isInside(int mouseX, int mouseY, int buttonX, int buttonY, GuiElementButton btn) {
-        int inX = mouseX - buttonX;
-        int inY = mouseY - buttonY;
+    private boolean isInside(int buttonX, int buttonY, GuiElementButton btn, int containerX, int containerY, int mouseX, int mouseY) {
+        int inX = mouseX - buttonX - containerX;
+        int inY = mouseY - buttonY - containerY;
         return inX >= 0 && inX <= btn.width && inY >= 0 && inY <= GuiElementButton.HEIGHT;
     }
 
