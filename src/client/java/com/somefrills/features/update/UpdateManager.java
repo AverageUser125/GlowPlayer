@@ -127,6 +127,7 @@ public class UpdateManager {
             }
         }, mc).exceptionally(e -> {
             LOGGER.error("[SomeFrills] Failed to check for updates", e);
+            hasCheckedThisSession = false;
             return null;
         });
     }
@@ -149,6 +150,7 @@ public class UpdateManager {
                 LOGGER.error("Failed to download update", e);
                 Utils.infoFormat("Failed to download update: {}", e.getMessage());
                 updateState = UpdateState.AVAILABLE;
+                hasCheckedThisSession = false;
             }
             return null;
         }).thenAcceptAsync(__ -> {
