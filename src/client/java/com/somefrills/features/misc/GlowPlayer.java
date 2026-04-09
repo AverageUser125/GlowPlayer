@@ -43,7 +43,17 @@ public class GlowPlayer extends Feature {
 
     public static boolean removePlayer(String pureName) {
         if (pureName == null) return false;
-        return forcedGlows.remove(pureName) != null;
+        if (forcedGlows.remove(pureName) == null) {
+            return false;
+        }
+        for (Entity entity : Utils.getEntities()) {
+            if (!(entity instanceof PlayerEntity player)) continue;
+            String entityPureName = convertToPureName(player);
+            if (!pureName.equals(entityPureName)) continue;;
+            Utils.setGlowing(entity, false, RenderColor.white);
+            break;
+        }
+        return true;
     }
 
     public static boolean hasPlayer(String pureName) {
@@ -57,15 +67,13 @@ public class GlowPlayer extends Feature {
     }
 
     public static void clear() {
-        forcedGlows.clear();
         for (Entity entity : Utils.getEntities()) {
-            if (entity instanceof PlayerEntity player) {
-                String pureName = convertToPureName(player);
-                if (pureName != null && forcedGlows.containsKey(pureName)) {
-                    Utils.setGlowing(entity, false, RenderColor.white);
-                }
-            }
+            if (!(entity instanceof PlayerEntity player)) continue;
+            String pureName = convertToPureName(player);
+            if (pureName == null || !forcedGlows.containsKey(pureName)) continue;
+            Utils.setGlowing(entity, false, RenderColor.white);
         }
+        forcedGlows.clear();
     }
 
     public static java.util.Set<String> getForcedNames() {

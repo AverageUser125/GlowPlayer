@@ -10,7 +10,6 @@ import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +42,10 @@ public class GlowMob extends Feature {
     public static boolean addRule(String name, String type, RenderColor color) {
         String ruleKey = generateRuleKey(name, type);
         boolean isNew = rules.put(ruleKey, new GlowMobRule(name, type, color)) == null;
-        updateAllEntities();
+        for (Entity entity : Utils.getEntities()) {
+            if (!(entity instanceof LivingEntity)) continue;
+            applyHighlight(entity);
+        }
         return isNew;
     }
 
@@ -69,25 +71,15 @@ public class GlowMob extends Feature {
      * Clear all rules
      */
     public static void clearRules() {
-        rules.clear();
-        // Disable glow for all entities since there are no more rules
         for (Entity entity : Utils.getEntities()) {
-            if (entity instanceof LivingEntity && !(entity instanceof PlayerEntity)) {
+            if (!(entity instanceof LivingEntity)) continue;
+            for (GlowMobRule rule : rules.values()) {
+                if (!rule.matches(entity)) continue;
                 Utils.setGlowing(entity, false, RenderColor.white);
+                break;
             }
         }
-    }
-
-    /**
-     * Update all existing entities with current rules
-     */
-    private static void updateAllEntities() {
-        for (Entity entity : Utils.getEntities()) {
-            if (!(entity instanceof LivingEntity) || entity instanceof PlayerEntity) {
-                continue;
-            }
-            applyHighlight(entity);
-        }
+        rules.clear();
     }
 
     /**
