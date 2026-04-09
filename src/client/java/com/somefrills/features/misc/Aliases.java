@@ -46,9 +46,18 @@ public class Aliases extends Feature {
 
     public static String convertCommand(String message) {
         if (!FrillsConfig.instance.misc.commandAliases.enabled.get()) return message;
+        if (message == null || message.isEmpty()) return message;
+
         JsonObject obj = aliases;
         if (obj != null && obj.has(message)) {
-            return obj.get(message).getAsString();
+            try {
+                var element = obj.get(message);
+                if (element != null && element.isJsonPrimitive()) {
+                    return element.getAsString();
+                }
+            } catch (Exception e) {
+                return message;
+            }
         }
         return message;
     }

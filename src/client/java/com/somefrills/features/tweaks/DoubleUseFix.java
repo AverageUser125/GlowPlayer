@@ -21,34 +21,35 @@ public class DoubleUseFix extends Feature {
         super(FrillsConfig.instance.tweaks.doubleUseFixEnabled);
     }
 
-    private static type getDisableType() {
+    private static Type getDisableType() {
         ItemStack held = Utils.getHeldItem();
         if (held.getItem().equals(Items.FISHING_ROD)) {
-            return type.Rod;
+            return Type.Rod;
         }
         if (Utils.getRightClickAbility(held).contains("Attunement")) {
-            return type.Dagger;
+            return Type.Dagger;
         }
-        return type.None;
+        return Type.None;
     }
 
     @EventHandler
     private void onUseItem(InteractItemEvent event) {
-        if (mc.crosshairTarget != null && mc.crosshairTarget.getType().equals(HitResult.Type.BLOCK) && getDisableType().equals(type.Dagger)) {
+        if (mc.crosshairTarget != null && mc.crosshairTarget.getType().equals(HitResult.Type.BLOCK) && getDisableType().equals(Type.Dagger)) {
             event.cancel();
         }
     }
 
     @EventHandler
     private void onUseBlock(InteractBlockEvent event) {
-        if (getDisableType().equals(type.Rod)) {
-            mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
-            mc.player.swingHand(Hand.MAIN_HAND);
-            event.cancel();
-        }
+        if (!getDisableType().equals(Type.Rod)) return;
+        if (mc.interactionManager == null || mc.player == null) return;
+
+        mc.interactionManager.interactItem(mc.player, Hand.MAIN_HAND);
+        mc.player.swingHand(Hand.MAIN_HAND);
+        event.cancel();
     }
 
-    private enum type {
+    private enum Type {
         Dagger,
         Rod,
         None

@@ -8,7 +8,7 @@ public class RenderColor {
     public static final RenderColor white = RenderColor.fromHex(0xffffff);
     public static final RenderColor green = RenderColor.fromHex(0x55ff55);
     public static final RenderColor red = RenderColor.fromHex(0xff5555);
-    public static final RenderColor black = RenderColor.fromHex(0xFF000000);
+    public static final RenderColor black = RenderColor.fromHex(0x000000);
 
     public float r;
     public float g;
@@ -73,14 +73,14 @@ public class RenderColor {
     }
 
     public static RenderColor fromFormatting(Formatting formatting) {
-        if(formatting == null) {
+        if (formatting == null) {
             return RenderColor.white;
         }
-        int color = formatting.getColorValue();
-        if (color == -1) {
+        Integer colorValue = formatting.getColorValue();
+        if (colorValue == null || colorValue == -1) {
             return RenderColor.white;
         }
-        return RenderColor.fromHex(color);
+        return RenderColor.fromHex(colorValue);
     }
 
     public RenderColor withRed(float red) {

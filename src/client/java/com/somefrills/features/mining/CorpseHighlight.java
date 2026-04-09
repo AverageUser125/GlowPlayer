@@ -6,6 +6,7 @@ import com.somefrills.config.mining.MiningCategory.CorpseHighlightConfig;
 import com.somefrills.events.InteractEntityEvent;
 import com.somefrills.events.ServerJoinEvent;
 import com.somefrills.events.WorldTickEvent;
+import com.somefrills.misc.ConcurrentHashSet;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
 import io.github.notenoughupdates.moulconfig.ChromaColour;
@@ -15,14 +16,16 @@ import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import static com.somefrills.Main.mc;
 
 // descriptions moved into constructors
 
 public class CorpseHighlight extends Feature {
-    private final HashSet<Integer> openedCorpses = new HashSet<>();
+    private final Set<Integer> openedCorpses = new ConcurrentHashSet<>();
     private final CorpseHighlightConfig config;
 
     public CorpseHighlight() {
@@ -35,17 +38,18 @@ public class CorpseHighlight extends Feature {
     }
 
     private static CorpseType getCorpseType(ArmorStandEntity ent) {
-        ItemStack helmet = Utils.getEntityArmor(ent).getFirst();
-        if (!helmet.isEmpty()) {
-            return switch (Utils.toPlain(helmet.getName())) {
-                case "Lapis Armor Helmet" -> CorpseType.Lapis;
-                case "Mineral Helmet" -> CorpseType.Tungsten;
-                case "Yog Helmet" -> CorpseType.Umber;
-                case "Vanguard Helmet" -> CorpseType.Vanguard;
-                default -> CorpseType.None;
-            };
-        }
-        return CorpseType.None;
+        var armor = Utils.getEntityArmor(ent);
+        if (armor.isEmpty()) return CorpseType.None;
+
+        ItemStack helmet = armor.getFirst();
+        if (helmet.isEmpty()) return CorpseType.None;
+        return switch (Utils.toPlain(helmet.getName())) {
+            case "Lapis Armor Helmet" -> CorpseType.Lapis;
+            case "Mineral Helmet" -> CorpseType.Tungsten;
+            case "Yog Helmet" -> CorpseType.Umber;
+            case "Vanguard Helmet" -> CorpseType.Vanguard;
+            default -> CorpseType.None;
+        };
     }
 
     private ChromaColour getCorpseColor(CorpseType type) {
@@ -69,7 +73,7 @@ public class CorpseHighlight extends Feature {
         if(mc.player == null) return false;
 
         PlayerInventory inv = mc.player.getInventory();
-        for (int i = 0; i <= 35; i++) {
+        for (int i = 0; i < 36; i++) {
             ItemStack stack = inv.getStack(i);
             if (!stack.isEmpty() && Utils.getSkyblockId(stack).equals(id)) {
                 return true;
@@ -83,7 +87,7 @@ public class CorpseHighlight extends Feature {
         if (active()) {
             for (Entity ent : Utils.getEntities()) {
                 if (!(ent instanceof ArmorStandEntity stand) || stand.isInvisible()) continue;
-                if (openedCorpses.contains(stand.getId()) || Utils.isGlowing(stand)) {
+                if (openedCorpses.contains(stand.getId())) {
                     continue;
                 }
                 var colour = getCorpseColor(getCorpseType(stand));

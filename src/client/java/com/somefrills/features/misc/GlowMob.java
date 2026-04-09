@@ -133,22 +133,25 @@ public class GlowMob extends Feature {
         }
 
         public boolean matches(Entity entity) {
-            // Check name match
-            if (this.name != null && !this.name.isEmpty()) {
+            // Check name match - if name is specified, entity must contain it
+            if (this.name != null) {
                 String entityName = Utils.toPlain(entity.getName());
                 if (!entityName.toLowerCase().contains(this.name.toLowerCase())) {
                     return false;
                 }
             }
 
-            // Check type match (exact match if rule has a type)
-            if (this.type != null && !this.type.isEmpty()) {
+            // Check type match - if type is specified, entity must match exactly
+            if (this.type != null) {
                 String entityTypeStr = entity.getType().toString();
                 entityTypeStr = Utils.stripPrefix(entityTypeStr, "entity.minecraft.");
                 entityTypeStr = entityTypeStr.toLowerCase();
-                return entityTypeStr.equals(this.type);
+                if (!entityTypeStr.equals(this.type)) {
+                    return false;
+                }
             }
 
+            // Both name and type matched (or were not specified)
             return true;
         }
     }

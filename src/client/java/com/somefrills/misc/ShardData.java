@@ -244,7 +244,7 @@ public class ShardData {
                         case "bogged" -> "SHARD_SEA_ARCHER";
                         case "loch emperor" -> "SHARD_SEA_EMPEROR";
                         case "end stone protector" -> "SHARD_ENDSTONE_PROTECTOR";
-                        default -> Utils.format("SHARD_{}", Utils.toUpper(shard.replaceAll(" ", "_")));
+                        default -> Utils.format("SHARD_{}", Utils.toUpper(shard.replace(" ", "_")));
                     };
                 }
             }
@@ -278,8 +278,14 @@ public class ShardData {
 
     private static String getSource(ItemStack stack) {
         for (String line : Utils.getLoreLines(stack)) {
-            if (line.startsWith("Source: ") && line.contains(" Shard")) {
-                return Utils.toLower(line.substring(line.indexOf(":") + 2, line.indexOf("Shard") - 1));
+            if (!line.startsWith("Source: ")) continue;
+            if (!line.contains(" Shard")) continue;
+
+            int colonIndex = line.indexOf(":");
+            int shardIndex = line.indexOf("Shard");
+
+            if (colonIndex >= 0 && shardIndex > colonIndex) {
+                return Utils.toLower(line.substring(colonIndex + 2, shardIndex - 1));
             }
         }
         return "";

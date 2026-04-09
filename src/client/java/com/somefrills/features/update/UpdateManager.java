@@ -1,8 +1,6 @@
 package com.somefrills.features.update;
 
-import com.somefrills.config.about.GuiOptionEditorUpdateCheck;
 import com.somefrills.misc.Utils;
-import io.github.notenoughupdates.moulconfig.processor.MoulConfigProcessor;
 import moe.nea.libautoupdate.CurrentVersion;
 import moe.nea.libautoupdate.PotentialUpdate;
 import moe.nea.libautoupdate.UpdateContext;
@@ -17,7 +15,6 @@ import static com.somefrills.Main.LOGGER;
 import static com.somefrills.Main.mc;
 
 public class UpdateManager {
-
     private static volatile CompletableFuture<?> activePromise = null;
     private static volatile UpdateState updateState = UpdateState.NONE;
     private static volatile PotentialUpdate potentialUpdate = null;
@@ -63,11 +60,16 @@ public class UpdateManager {
 
             @Override
             public boolean isOlderThan(JsonElement element) {
-                if (element == null) return false;
-                String asString = element.getAsString();
-                int currentParsed = parseSemanticVersion(getCurrentVersion());
-                int latestParsed = parseSemanticVersion(asString);
-                return currentParsed < latestParsed;
+                if (element == null || !element.isJsonPrimitive()) return false;
+                try {
+                    String asString = element.getAsString();
+                    int currentParsed = parseSemanticVersion(getCurrentVersion());
+                    int latestParsed = parseSemanticVersion(asString);
+                    return currentParsed < latestParsed;
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to compare versions", e);
+                    return false;
+                }
             }
         },
         com.somefrills.Main.MOD_ID
@@ -91,14 +93,14 @@ public class UpdateManager {
             return;
         }
 
-        if (updateState != UpdateState.NONE) {
-            if (updateState == UpdateState.AVAILABLE) {
-                updateState = UpdateState.NONE;
-                LOGGER.info("Resetting update state to force download");
-            } else {
-                LOGGER.info("Trying to perform update check while another update is already in progress");
-                return;
-            }
+        if (updateState != UpdateState.NONE && updateState != UpdateState.AVAILABLE) {
+            LOGGER.info("Trying to perform update check while another update is already in progress");
+            return;
+        }
+
+        if (updateState == UpdateState.AVAILABLE) {
+            updateState = UpdateState.NONE;
+            LOGGER.info("Resetting update state to force download");
         }
 
         hasCheckedThisSession = true;
@@ -138,6 +140,11 @@ public class UpdateManager {
             return;
         }
 
+        if (potentialUpdate == null) {
+            LOGGER.error("Cannot queue update: potentialUpdate is null");
+            return;
+        }
+
         updateState = UpdateState.QUEUED;
         LOGGER.info("Queuing update download");
         Utils.infoFormat("Queuing update download");
@@ -151,9 +158,17 @@ public class UpdateManager {
                 Utils.infoFormat("Failed to download update: {}", e.getMessage());
                 updateState = UpdateState.AVAILABLE;
                 hasCheckedThisSession = false;
+            } catch (NullPointerException e) {
+                LOGGER.error("Update was cleared while downloading", e);
+                updateState = UpdateState.AVAILABLE;
+                hasCheckedThisSession = false;
             }
             return null;
         }).thenAcceptAsync(__ -> {
+            if (potentialUpdate == null) {
+                LOGGER.error("Update was cleared before installation");
+                return;
+            }
             LOGGER.info("Update download completed");
             Utils.infoFormat("Update download completed. Will be installed on next restart.");
             updateState = UpdateState.DOWNLOADED;
@@ -169,14 +184,15 @@ public class UpdateManager {
     }
 
     private static int parseSemanticVersion(String version) {
+        if (version == null || version.isEmpty()) return 0;
+
         String[] numbers = version.split("\\.");
-        if (numbers.length >= 3) {
-            int major = parseInt(numbers[0]).orElse(0);
-            int minor = parseInt(numbers[1]).orElse(0);
-            int patch = parseInt(numbers[2]).orElse(0);
-            return major * 1000 + minor * 100 + patch;
-        }
-        return 0;
+        if (numbers.length < 3) return 0;
+
+        int major = parseInt(numbers[0]).orElse(0);
+        int minor = parseInt(numbers[1]).orElse(0);
+        int patch = parseInt(numbers[2]).orElse(0);
+        return major * 1000 + minor * 100 + patch;
     }
 
     private static Optional<Integer> parseInt(String str) {

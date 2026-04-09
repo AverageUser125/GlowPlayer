@@ -134,7 +134,7 @@ public class Utils {
     }
 
     public static boolean isNearlyEqual(float a, float b) {
-        return isNearlyEqual(a, b, 1e-5);
+        return isNearlyEqual(a, b, 1e-5f);
     }
 
     public static void playSound(SoundEvent event, float volume, float pitch) {
@@ -239,7 +239,7 @@ public class Utils {
         if (mc.player == null) return;
         PlayerInventory inv = mc.player.getInventory();
         String query = refill_query.replace("_", " ");
-        for (int i = 0; i <= 35; i++) {
+        for (int i = 0; i < 36; i++) {
             ItemStack stack = inv.getStack(i);
             if (stack.isEmpty()) continue;
             String id = Utils.getSkyblockId(stack).replace("_", " ");

@@ -144,10 +144,12 @@ public class NpcLocator extends Feature {
                 boolean isNpc = false;
                 if (node.has("Tags") && node.get("Tags").isJsonArray()) {
                     var tagsArray = node.getAsJsonArray("Tags");
-                    for (JsonElement tag : tagsArray) {
-                        if (tag.getAsString().equals("npc")) {
-                            isNpc = true;
-                            break;
+                    if (tagsArray != null) {
+                        for (JsonElement tag : tagsArray) {
+                            if (tag.isJsonPrimitive() && tag.getAsString().equals("npc")) {
+                                isNpc = true;
+                                break;
+                            }
                         }
                     }
                 }
