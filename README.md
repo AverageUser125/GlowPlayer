@@ -84,7 +84,7 @@ It's in the name. Simple and effective Hypixel Skyblock mod for modern versions 
 - Additional dependencies needed to launch the mod:
     - [Fabric API](https://modrinth.com/mod/fabric-api)
     - [Mod Menu](https://modrinth.com/mod/modmenu) (Optional, settings can be accessed with `/somefrills`, or `/sf`)
-- To finish off, open the mod's settings screen, and configure it to your liking. **Every feature is off by default**.
+- To finish off, open the mod's settings screen, and configure it to your liking.
 
 ## Incompatibilities
 
