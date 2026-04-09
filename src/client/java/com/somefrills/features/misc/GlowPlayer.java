@@ -58,6 +58,14 @@ public class GlowPlayer extends Feature {
 
     public static void clear() {
         forcedGlows.clear();
+        for (Entity entity : Utils.getEntities()) {
+            if (entity instanceof PlayerEntity player) {
+                String pureName = convertToPureName(player);
+                if (pureName != null && forcedGlows.containsKey(pureName)) {
+                    Utils.setGlowing(entity, false, RenderColor.white);
+                }
+            }
+        }
     }
 
     public static java.util.Set<String> getForcedNames() {

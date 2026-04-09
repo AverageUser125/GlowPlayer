@@ -70,7 +70,12 @@ public class GlowMob extends Feature {
      */
     public static void clearRules() {
         rules.clear();
-        updateAllEntities();
+        // Disable glow for all entities since there are no more rules
+        for (Entity entity : Utils.getEntities()) {
+            if (entity instanceof LivingEntity && !(entity instanceof PlayerEntity)) {
+                Utils.setGlowing(entity, false, RenderColor.white);
+            }
+        }
     }
 
     /**
