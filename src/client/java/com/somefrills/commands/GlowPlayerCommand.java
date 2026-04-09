@@ -106,92 +106,86 @@ public class GlowPlayerCommand {
     /* ---------------- Command handlers ---------------- */
 
     private static int addGlow(CommandContext<FabricClientCommandSource> ctx, Formatting color) {
-        String rawName = StringArgumentType.getString(ctx, "player");
-        String pureName = GlowPlayer.convertToPureName(rawName);
+        String name = StringArgumentType.getString(ctx, "player");
 
-        if (pureName == null) {
+        if (name == null) {
             Utils.info("Invalid player name.");
             return 1;
         }
 
         RenderColor renderColor = RenderColor.fromFormatting(color);
-        boolean added = GlowPlayer.addPlayer(pureName, renderColor);
+        boolean added = GlowPlayer.addPlayer(name, renderColor);
         Utils.info(
                 added
-                        ? pureName + " will now glow (" + color.getName() + ")."
-                        : pureName + " is already glowing."
+                        ? name + " will now glow (" + color.getName() + ")."
+                        : name + " is already glowing."
         );
-        applyGlowToOnlinePlayer(pureName);
+        applyGlowToOnlinePlayer(name);
         return 1;
     }
 
     private static int addGlowWithRenderColor(CommandContext<FabricClientCommandSource> ctx, RenderColor color) {
-        String rawName = StringArgumentType.getString(ctx, "player");
-        String pureName = GlowPlayer.convertToPureName(rawName);
+        String name = StringArgumentType.getString(ctx, "player");
 
-        if (pureName == null) {
+        if (name == null) {
             Utils.info("Invalid player name.");
             return 1;
         }
 
-        boolean added = GlowPlayer.addPlayer(pureName, color);
+        boolean added = GlowPlayer.addPlayer(name, color);
         String colorStr = String.format("#%06X", color.hex);
         Utils.info(
                 added
-                        ? pureName + " will now glow (" + colorStr + ")."
-                        : pureName + " is already glowing."
+                        ? name + " will now glow (" + colorStr + ")."
+                        : name + " is already glowing."
         );
-        applyGlowToOnlinePlayer(pureName);
+        applyGlowToOnlinePlayer(name);
         return 1;
     }
 
     private static int setColor(CommandContext<FabricClientCommandSource> ctx, Formatting color) {
-        String rawName = StringArgumentType.getString(ctx, "player");
-        String pureName = GlowPlayer.convertToPureName(rawName);
+        String name = StringArgumentType.getString(ctx, "player");
 
-        if (pureName == null) {
+        if (name == null) {
             Utils.info("Invalid player name.");
             return 1;
         }
 
         // Set color even if the player wasn't previously added
         RenderColor renderColor = RenderColor.fromFormatting(color);
-        GlowPlayer.addPlayer(pureName, renderColor);
-        Utils.info(pureName + " glow color set to " + color.getName() + ".");
-        applyGlowToOnlinePlayer(pureName);
+        GlowPlayer.addPlayer(name, renderColor);
+        Utils.info(name + " glow color set to " + color.getName() + ".");
+        applyGlowToOnlinePlayer(name);
         return 1;
     }
 
     private static int setColorWithRenderColor(CommandContext<FabricClientCommandSource> ctx, RenderColor color) {
-        String rawName = StringArgumentType.getString(ctx, "player");
-        String pureName = GlowPlayer.convertToPureName(rawName);
+        String name = StringArgumentType.getString(ctx, "player");
 
-        if (pureName == null) {
+        if (name == null) {
             Utils.info("Invalid player name.");
             return 1;
         }
 
-        GlowPlayer.addPlayer(pureName, color);
+        GlowPlayer.addPlayer(name, color);
         String colorStr = String.format("#%06X", color.hex);
-        Utils.info(pureName + " glow color set to " + colorStr + ".");
-        applyGlowToOnlinePlayer(pureName);
+        Utils.info(name + " glow color set to " + colorStr + ".");
+        applyGlowToOnlinePlayer(name);
         return 1;
     }
 
     private static int removeGlow(CommandContext<FabricClientCommandSource> ctx) {
-        String rawName = StringArgumentType.getString(ctx, "player");
-        String pureName = GlowPlayer.convertToPureName(rawName);
-
-        if (pureName == null) {
+        String name = StringArgumentType.getString(ctx, "player");
+        if (name == null) {
             Utils.info("Invalid player name.");
             return 1;
         }
 
-        boolean removed = GlowPlayer.removePlayer(pureName);
+        boolean removed = GlowPlayer.removePlayer(name);
         Utils.info(
                 removed
-                        ? pureName + " will no longer glow."
-                        : pureName + " was not glowing."
+                        ? name + " will no longer glow."
+                        : name + " was not glowing."
         );
         // Ensure any scoreboard/team state is cleaned up
         // GlowPlayer.removePlayer already restores teams on remove
@@ -227,7 +221,7 @@ public class GlowPlayerCommand {
         String remaining = builder.getRemaining().toLowerCase();
 
         for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
-            if (Utils.isRealPlayer(player)) {
+            if (Utils.isPlayer(player)) {
                 String name = player.getName().getString();
                 if (name.toLowerCase().startsWith(remaining)) {
                     builder.suggest(name);
@@ -245,9 +239,9 @@ public class GlowPlayerCommand {
 
         // Find and apply glow to all matching players
         for (AbstractClientPlayerEntity player : mc.world.getPlayers()) {
-            if (!Utils.isRealPlayer(player)) continue;
+            if (!Utils.isPlayer(player)) continue;
 
-            String playerPureName = GlowPlayer.convertToPureName(player.getName().getString());
+            String playerPureName = GlowPlayer.convertToPureName(player);
             if (playerPureName == null || !playerPureName.equals(pureName)) continue;
 
             RenderColor glowColor = GlowPlayer.getColor(pureName);

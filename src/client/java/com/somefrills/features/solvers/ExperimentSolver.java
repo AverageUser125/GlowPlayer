@@ -216,18 +216,32 @@ public class ExperimentSolver extends Feature {
             case Ultrasequencer:
                 if (!config.ultrasequencer.enabled) break;
 
-                if (isGlowstone(event.stack)) {
-                    List<Solution> tempSolution = new ArrayList<>();
-                    for (Slot slot : Utils.getContainerSlots(event.handler)) {
-                        if (isDye(slot.getStack())) {
-                            tempSolution.add(new Solution(slot.getStack(), slot));
+                // During reveal phase: collect all dyes as they appear
+                if (rememberPhase && isDye(event.stack)) {
+                    // Find if this slot is already in our solution and update it
+                    boolean found = false;
+                    for (Solution sol : ultraSolution) {
+                        if (sol.slot.id == event.slot.id) {
+                            sol.stack = event.stack.copy();
+                            found = true;
+                            break;
                         }
                     }
-                    tempSolution.sort(Comparator.comparingInt(s -> s.stack.getCount()));
-                    ultraSolution.clear();
-                    ultraSolution.addAll(tempSolution);
-                    // initialize/reset ultrasequencer initial size when a new solution appears
+                    if (!found) {
+                        ultraSolution.add(new Solution(event.stack.copy(), event.slot));
+                    }
+                    LOGGER.info("[Ultrasequencer] Found dye in slot {}: count={}", event.slot.id, event.stack.getCount());
+                }
+
+                // When clock appears: finalize the solution by sorting
+                if (!rememberPhase) {
+                    // Sort by count (ascending order - click smallest stack first)
+                    ultraSolution.sort(Comparator.comparingInt(s -> s.stack.getCount()));
                     ultraSolutionInitialSize = ultraSolution.size();
+                    LOGGER.info("[Ultrasequencer] Solution finalized with {} items in order", ultraSolution.size());
+                    for (int i = 0; i < ultraSolution.size(); i++) {
+                        LOGGER.info("[Ultrasequencer] Item {}: slot {} count {}", i, ultraSolution.get(i).slot.id, ultraSolution.get(i).stack.getCount());
+                    }
                 }
                 break;
 

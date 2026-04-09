@@ -10,6 +10,7 @@ import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Formatting;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,34 +19,14 @@ import java.util.regex.Pattern;
 
 public class GlowPlayer extends Feature {
     private static final ConcurrentHashMap<String, RenderColor> forcedGlows = new ConcurrentHashMap<>();
-    private static final Pattern USERNAME_TOKEN = Pattern.compile("[A-Za-z0-9_]{1,16}");
 
     public GlowPlayer() {
         super(FrillsConfig.instance.misc.glowPlayer.enabled);
     }
 
-    /**
-     * Normalize an arbitrary string to a likely pure username. Strips formatting codes and attempts
-     * to extract a token that matches typical username characters (alphanumeric + underscore).
-     * If none is found, returns the stripped full string.
-     */
-    public static String convertToPureName(String raw) {
-        if (raw == null) return null;
-        String stripped = Formatting.strip(raw).trim();
-        if (stripped.isEmpty()) return null;
-
-        // If the whole stripped string looks like a username, return it
-        Matcher whole = USERNAME_TOKEN.matcher(stripped);
-        if (whole.matches()) return stripped;
-
-        // Otherwise, try to find a token within the string that looks like a username
-        for (String token : stripped.split("\\s+")) {
-            Matcher m = USERNAME_TOKEN.matcher(token);
-            if (m.matches()) return token;
-        }
-
-        // Fallback: return the stripped string (best effort)
-        return stripped;
+    public static String convertToPureName(PlayerEntity player) {
+        if (player == null) return null;
+        return Formatting.strip(player.getGameProfile().name());
     }
 
     @EventHandler
@@ -63,8 +44,8 @@ public class GlowPlayer extends Feature {
     }
 
     private static void applyHighlight(Entity entity) {
-        if (!(entity instanceof AbstractClientPlayerEntity player)) return;
-        String pureName = convertToPureName(player.getName().getString());
+        if (!(entity instanceof PlayerEntity player)) return;
+        String pureName = convertToPureName(player);
         RenderColor color = getColor(pureName);
         if (color != null) {
             Utils.setGlowing(entity, true, color);

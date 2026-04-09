@@ -234,24 +234,6 @@ public class Utils {
         }
     }
 
-    /**
-     * Checks if the provided client player entity is a real player and not an NPC.
-     * This mirrors checks used by GlowPlayerCommand's suggestions and matching.
-     */
-    public static boolean isRealPlayer(AbstractClientPlayerEntity player) {
-        if (player == null) return false;
-
-        java.util.UUID uuid = player.getUuid();
-        if (uuid == null || uuid.version() != 4) return false;
-
-        String name = player.getName().getString();
-        if (name.isEmpty()) return false;
-
-        if (name.charAt(0) == '§' || name.charAt(0) == '!') return false;
-        if (DISPLAY_NPC_COMPRESSED_NAME_PATTERN.matcher(name).matches()) return false;
-        return !EXTRA_DISPLAY_NPC_BY_NAME.contains(name);
-    }
-
     public static void refillItem(String refill_query, int amount) {
         int total = 0;
         if (mc.player == null) return;
@@ -400,17 +382,21 @@ public class Utils {
      */
     public static boolean isPlayer(PlayerEntity entity) {
         ClientPlayNetworkHandler handler = mc.getNetworkHandler();
-        if (handler != null) {
-            PlayerListEntry listEntry = handler.getPlayerListEntry(entity.getUuid());
-            if (listEntry != null) {
-                String displayName = listEntry.getProfile().name();
-                if (displayName != null) {
-                    String name = Formatting.strip(displayName);
-                    return !name.isEmpty() && !name.contains(" ");
-                }
-            }
-        }
-        return entity == mc.player;
+        if (handler == null) return entity == mc.player;
+
+        var uuid = entity.getUuid();
+        if (uuid == null || uuid.version() != 4) return false;
+
+        PlayerListEntry listEntry = handler.getPlayerListEntry(uuid);
+        if (listEntry == null) return entity == mc.player;
+
+        String displayName = listEntry.getProfile().name();
+        if (displayName == null) return false;
+
+        String name = Formatting.strip(displayName);
+        if (name.isEmpty() || name.contains(" ")) return false;
+
+        return true;
     }
 
     /**

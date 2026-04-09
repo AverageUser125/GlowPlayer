@@ -1,8 +1,10 @@
 package com.somefrills.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.somefrills.Main;
 import com.somefrills.events.*;
+import com.somefrills.misc.Utils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
@@ -29,6 +31,13 @@ public abstract class MinecraftClientMixin {
     @Shadow
     public abstract void setScreen(@Nullable Screen screen);
 
+    @ModifyReturnValue(method = "hasOutline", at = @At("RETURN"))
+    private boolean hasOutline(boolean original, Entity entity) {
+        if (Utils.isGlowing(entity)) {
+            return true;
+        }
+        return original;
+    }
 
     @Inject(method = "setScreen", at = @At("TAIL"))
     private void onOpenScreen(Screen screen, CallbackInfo ci) {
