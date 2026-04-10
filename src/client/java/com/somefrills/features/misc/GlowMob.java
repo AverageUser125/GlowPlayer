@@ -229,7 +229,7 @@ public class GlowMob extends Feature {
     private static String normalizeRuleName(String name) {
         if (name == null) return null;
 
-        String n = name.trim();
+        String n = name.trim().toLowerCase();
         if (n.isEmpty()) return null;
 
         if (n.startsWith("#")) {
