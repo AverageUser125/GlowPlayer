@@ -1,47 +1,50 @@
 package com.somefrills.features.solvers;
-
 import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
-import com.somefrills.config.solvers.SolverCategory.ExperimentSolverConfig;
-import com.somefrills.events.ScreenOpenEvent;
-import com.somefrills.events.SlotUpdateEvent;
-import com.somefrills.events.WorldTickEvent;
-import com.somefrills.misc.RenderColor;
-import com.somefrills.misc.SlotOptions;
 import com.somefrills.misc.Utils;
-import meteordevelopment.orbit.EventHandler;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
+import com.somefrills.config.solvers.SolverCategory.ExperimentSolverConfig;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.somefrills.Main.LOGGER;
 import static com.somefrills.Main.mc;
 
+/**
+ * Fabric 1.21.10 port of the Kotlin AutoExperiments module.
+ * Mirrors the exact behavior: tracks state transitions and only clicks when new items appear.
+ * Uses AllConfig for dynamic settings.
+ */
 public class ExperimentSolver extends Feature {
     private final ExperimentSolverConfig config;
 
-    // --- Chronomatron state ---
-    private final List<Slot> chronoSequence = new ArrayList<>();
-    private int nextClickIndex = 0;
-    private int currentRoundProgress = 0;
-    // --- Ultrasequencer state ---
-    private final List<Solution> ultraSolution = new ArrayList<>();
-    private int ultraSolutionInitialSize = 0;
-    // --- Superpairs state ---
-    private final Map<Slot, ItemStack> superRewards = new HashMap<>();
-    private Slot superSlot = null;
-    // --- Shared state ---
-    private boolean rememberPhase = true;
+    private final Map<Integer, Integer> ultrasequencerOrder = new HashMap<>();
+    private final List<Integer> chronomatronOrder = new ArrayList<>();
     private long lastClickTime = 0;
+    private boolean hasAdded = false;
+    private int lastAdded = 0;
+    private int clicks = 0;
 
     public ExperimentSolver() {
         super(FrillsConfig.instance.solvers.experimentSolver.enabled);
         config = FrillsConfig.instance.solvers.experimentSolver;
+    }
+
+    @Override
+    protected void onEnable() {
+        ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
     }
 
     public static ExperimentType getExperimentType() {
@@ -54,13 +57,152 @@ public class ExperimentSolver extends Feature {
         return ExperimentType.None;
     }
 
-    private static boolean matchSuperStacks(ItemStack first, ItemStack second) {
-        return first.getItem().equals(second.getItem())
-                && first.getName().getString().equals(second.getName().getString())
-                && first.getCount() == second.getCount()
-                && Objects.equals(Utils.getTextureUrl(first), Utils.getTextureUrl(second));
+    private void onTick(MinecraftClient client) {
+        if (client == null || client.player == null) return;
+        ClientPlayerEntity player = client.player;
+        ScreenHandler handler = player.currentScreenHandler;
+        if (handler == null) return;
+
+        var type = getExperimentType();
+        if(type == ExperimentType.None ) {
+            reset();
+            return;
+        }
+        // Determine which experiment type
+        if (config.chronomatron.enabled && type == ExperimentType.Chronomatron) {
+            solveChronomatron(handler);
+        } else if (config.ultrasequencer.enabled && type == ExperimentType.Ultrasequencer) {
+            solveUltraSequencer(handler);
+        }
     }
 
+    private void solveChronomatron(ScreenHandler handler) {
+        List<Slot> invSlots = handler.slots;
+        int maxChronomatron = config.chronomatron.closeThreshold;
+
+        // Check if slot 49 is glowstone AND last added slot is not enchanted (click registered)
+        Slot slot49 = invSlots.get(49);
+        Slot lastAddedSlot = invSlots.get(lastAdded);
+        boolean slot49IsGlowstone = slot49.getStack() != null && isGlowstone(slot49);
+        boolean lastAddedNotEnchanted = lastAddedSlot.getStack() != null && !isEnchanted(lastAddedSlot.getStack());
+
+        if (slot49IsGlowstone && lastAddedNotEnchanted) {
+            if ( config.chronomatron.shouldClose && chronomatronOrder.size() > maxChronomatron) {
+                ClientPlayerEntity player = MinecraftClient.getInstance().player;
+                if (player != null) {
+                    player.closeHandledScreen();
+                }
+            }
+            hasAdded = false;
+        }
+
+        // Detect new item entering: slot 49 is clock
+        if (!hasAdded && slot49.getStack() != null && isClock(slot49)) {
+            for (int i = 11; i < 57; i++) { // Scan the colored glass/terracotta area (slots 11-56)
+                if(!isValidChronoSlot(i)) continue;
+                Slot s = invSlots.get(i);
+                ItemStack stack = s.getStack();
+                if(stack == null || stack.isEmpty()) continue;
+                if(!isEnchanted(stack)) continue;;
+                if(!isTerracotta(stack)) continue;
+                chronomatronOrder.add(i);
+            }
+
+            if (!chronomatronOrder.isEmpty()) {
+                lastAdded = chronomatronOrder.getLast();
+                hasAdded = true;
+                clicks = 0;
+            }
+        }
+
+        // Perform clicking: slot 49 is clock AND we have items to click
+        if (hasAdded && slot49.getStack() != null && isClock(slot49)
+                && chronomatronOrder.size() > clicks && System.currentTimeMillis() - lastClickTime > config.clickDelay) {
+            int slotToClick = chronomatronOrder.get(clicks);
+            sendClickPacket(handler, slotToClick);
+            lastClickTime = System.currentTimeMillis();
+            clicks++;
+        }
+    }
+
+    private void solveUltraSequencer(ScreenHandler handler) {
+        List<Slot> invSlots = handler.slots;
+        int maxUltraSequencer = config.ultrasequencer.closeThreshold;
+
+        // Reset when slot 49 becomes clock (new round)
+        Slot slot49 = invSlots.get(49);
+        if (slot49.getStack() != null && isClock(slot49)) {
+            hasAdded = false;
+        }
+
+        // Detect and rebuild map when slot 49 becomes glowstone
+        if (!hasAdded && slot49.getStack() != null && isGlowstone(slot49)) {
+            ultrasequencerOrder.clear();
+
+            for (int i = 0; i < invSlots.size(); i++) {
+                Slot s = invSlots.get(i);
+                if (s.getStack() != null && !s.getStack().isEmpty()) {
+                    int stackSize = s.getStack().getCount();
+                    if (isDye(s)) {
+                        int idx = stackSize - 1;
+                        ultrasequencerOrder.put(idx, i);
+                    }
+                }
+            }
+
+            hasAdded = true;
+            clicks = 0;
+
+            if (ultrasequencerOrder.size() > maxUltraSequencer && config.ultrasequencer.shouldClose) {
+                ClientPlayerEntity player = MinecraftClient.getInstance().player;
+                if (player != null) {
+                    player.closeHandledScreen();
+                }
+            }
+        }
+
+        // Perform clicking: slot 49 is clock AND we have dyes to click
+        if (slot49.getStack() != null && isClock(slot49)
+                && ultrasequencerOrder.containsKey(clicks) && System.currentTimeMillis() - lastClickTime > config.clickDelay) {
+            Integer slotToClick = ultrasequencerOrder.get(clicks);
+            if (slotToClick != null) {
+                sendClickPacket(handler, slotToClick);
+            }
+            lastClickTime = System.currentTimeMillis();
+            clicks++;
+        }
+    }
+
+    private void sendClickPacket(ScreenHandler handler, int slotIdx) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.interactionManager == null || client.player == null) {
+            return;
+        }
+
+        client.interactionManager.clickSlot(
+                handler.syncId,
+                slotIdx,
+                0,
+                SlotActionType.PICKUP,
+                client.player
+        );
+    }
+
+    private static boolean isValidChronoSlot(int idx) {
+        return (11 <= idx && idx <= 19) || (30 <= idx && idx <= 38);
+    }
+    private static boolean isGlowstone(ItemStack stack) {
+        return stack.getItem().equals(Items.GLOWSTONE);
+    }
+    private static boolean isClock(ItemStack stack) {
+        return stack.getItem().equals(Items.CLOCK);
+    }
+    private static boolean isGlowstone(Slot s) {
+        return isGlowstone(s.getStack());
+    }
+    private static boolean isClock(Slot s) {
+        return isClock(s.getStack());
+    }
     private static boolean isDye(ItemStack stack) {
         Item item = stack.getItem();
         return item instanceof DyeItem
@@ -69,238 +211,30 @@ public class ExperimentSolver extends Feature {
                 || item.equals(Items.LAPIS_LAZULI)
                 || item.equals(Items.COCOA_BEANS);
     }
-
-    private static boolean isPowerup(ItemStack stack) {
-        for (String line : Utils.getLoreLines(stack)) {
-            if (Utils.toLower(line).contains("powerup")) {
-                return true;
-            }
-        }
-        return false;
+    private static boolean isDye(Slot s) {
+        return isDye(s.getStack());
     }
-
     private static boolean isTerracotta(ItemStack stack) {
         return stack.getItem().toString().endsWith("terracotta");
     }
-
-    private static boolean isGlowstone(ItemStack stack) {
-        return stack.getItem().equals(Items.GLOWSTONE);
+    private static boolean isTerracotta(Slot s) {
+        return isTerracotta(s.getStack());
     }
 
-    // Your filter
-    // 33 & 42
-    // 12 & 21
-    // Should only allow the 12 and 33
-    private static boolean isValidChronoSlot(int idx) {
-        return (11 <= idx && idx <= 19) || (30 <= idx && idx <= 38);
+    private boolean isEnchanted(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        return stack.hasEnchantments() || stack.hasGlint();
     }
 
-    private void updatePhase(ItemStack stack) {
-        Item item = stack.getItem();
-
-        if (!rememberPhase && item.equals(Items.GLOWSTONE)) {
-            rememberPhase = true;
-            currentRoundProgress = 0;
-        }
-
-        if (rememberPhase && item.equals(Items.CLOCK)) {
-            rememberPhase = false;
-        }
-    }
-
-    @EventHandler
-    private void onTick(WorldTickEvent event) {
-        if (!isActive() || rememberPhase) return;
-
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastClickTime < config.clickDelay) return;
-
-        ExperimentType type = getExperimentType();
-
-        switch (type) {
-            case Chronomatron:
-                if (!config.chronomatron.enabled) break;
-                if (!chronoSequence.isEmpty() && nextClickIndex < chronoSequence.size()) {
-                    Slot slotToClick = chronoSequence.get(nextClickIndex);
-                    Utils.clickSlot(slotToClick.id);
-                    lastClickTime = currentTime;
-
-                    LOGGER.info("[Chronomatron] Clicked slot ID: {} | Next index: {}/{}",
-                            slotToClick.id, nextClickIndex + 1, chronoSequence.size());
-
-                    nextClickIndex++;
-                    // If configured, close the menu when we have reached the configured amount
-                    // (user provides N meaning close after N-1 clicks)
-                    try {
-                        if (config.chronomatron.shouldClose) {
-                            int threshold = Math.max(1, config.chronomatron.closeThreshold);
-                            if (nextClickIndex >= threshold - 1) {
-                                if (mc.player != null) mc.player.closeHandledScreen();
-                            }
-                        }
-                    } catch (Throwable ignored) {
-                    }
-                }
-                break;
-
-            case Ultrasequencer:
-                if (!config.ultrasequencer.enabled) break;
-                if (!ultraSolution.isEmpty()) {
-                    Slot slotToClick = ultraSolution.getFirst().slot;
-                    Utils.clickSlot(slotToClick.id);
-                    ultraSolution.removeFirst();
-                    lastClickTime = currentTime;
-                    // initialize initial size if not set
-                    if (ultraSolutionInitialSize == 0) ultraSolutionInitialSize = Math.max(ultraSolution.size() + 1, 1);
-                    int clicksDone = ultraSolutionInitialSize - ultraSolution.size();
-                    // If configured, close the menu once we've clicked enough items
-                    try {
-                        if (config.ultrasequencer.shouldClose) {
-                            int threshold = Math.max(1, config.ultrasequencer.closeThreshold);
-                            if (clicksDone >= threshold - 1) {
-                                if (mc.player != null) mc.player.closeHandledScreen();
-                                ultraSolutionInitialSize = 0;
-                            }
-                        }
-                    } catch (Throwable ignored) {
-                    }
-                    if (ultraSolution.isEmpty()) ultraSolutionInitialSize = 0;
-                }
-                break;
-
-            case Superpairs:
-                break;
-        }
-    }
-
-    @EventHandler
-    private void onSlotUpdate(SlotUpdateEvent event) {
-        if (!isActive() || event.isInventory || event.slot == null) return;
-
-        ExperimentType experimentType = getExperimentType();
-        if (experimentType == ExperimentType.None) return;
-
-        updatePhase(event.stack);
-
-        switch (experimentType) {
-            case Chronomatron:
-                if (!config.chronomatron.enabled) break;
-
-                // Remember phase: collect terracotta items
-                if (rememberPhase && isTerracotta(event.stack) && isValidChronoSlot(event.slot.id)) {
-                    currentRoundProgress++;
-
-                    // Only add NEW element (the +1 each round)
-                    if (currentRoundProgress > chronoSequence.size()) {
-                        chronoSequence.add(event.slot);
-
-                        LOGGER.info("[Chronomatron] Added NEW slot ID: {} | Sequence length: {}",
-                                event.slot.id, chronoSequence.size());
-                    } else {
-                        LOGGER.info("[Chronomatron] Ignored replay slot ID: {}", event.slot.id);
-                    }
-                }
-
-                // Round finished: clock appears and we have a sequence
-                if (!rememberPhase && isGlowstone(event.stack)) {
-                    if (!chronoSequence.isEmpty()) {
-                        nextClickIndex = 0;
-                        currentRoundProgress = 0;
-
-                        LOGGER.info("[Chronomatron] Round finished. Full sequence length: {}",
-                                chronoSequence.size());
-                    }
-                }
-                break;
-
-            case Ultrasequencer:
-                if (!config.ultrasequencer.enabled) break;
-
-                // When glowstone appears: scan all slots and collect dyes
-                if (isGlowstone(event.stack)) {
-                    List<Solution> tempSolution = new ArrayList<>();
-                    for (Slot slot : Utils.getContainerSlots(event.handler)) {
-                        if (isDye(slot.getStack())) {
-                            tempSolution.add(new Solution(slot.getStack(), slot));
-                        }
-                    }
-                    tempSolution.sort(Comparator.comparingInt(s -> s.stack.getCount()));
-                    ultraSolution.clear();
-                    ultraSolution.addAll(tempSolution);
-                    // initialize/reset ultrasequencer initial size when a new solution appears
-                    ultraSolutionInitialSize = ultraSolution.size();
-                }
-                break;
-
-            case Superpairs:
-                if (!config.superpairs.enabled) break;
-                if (Utils.isStainedGlass(event.stack) || Utils.isStainedGlassPane(event.stack) || event.stack.getItem().equals(Items.AIR)) {
-                    break;
-                }
-
-                // Spoof this slot to keep it visible
-                SlotOptions.setSpoofed(event.slot, event.stack);
-
-                // Check if current slot matches the last clicked slot (superSlot) - a matched pair!
-                if (superSlot != null && superSlot != event.slot) {
-                    if (matchSuperStacks(event.stack, superSlot.getStack())) {
-                        var color = RenderColor.fromChroma(config.superpairs.matchedColor);
-                        SlotOptions.setBackground(event.slot, color);
-                        SlotOptions.setBackground(superSlot, color);
-                    }
-                }
-
-                // Check if current slot matches any previously revealed card - a possible pair!
-                for (Map.Entry<Slot, ItemStack> entry : superRewards.entrySet()) {
-                    if (!event.slot.equals(entry.getKey()) && matchSuperStacks(event.stack, entry.getValue())) {
-                        var color = RenderColor.fromChroma(config.superpairs.matchingColor);
-                        SlotOptions.setBackground(event.slot, color);
-                        SlotOptions.setBackground(entry.getKey(), color);
-                    }
-                }
-
-                // Check if it's a powerup
-                if (isPowerup(event.stack)) {
-                    SlotOptions.setBackground(event.slot, RenderColor.fromChroma(config.superpairs.powerupColor));
-                }
-
-                // Track this card and set as current slot for next comparison
-                superRewards.put(event.slot, event.stack);
-                superSlot = event.slot;
-                break;
-        }
-    }
-
-    @EventHandler
-    private void onScreen(ScreenOpenEvent event) {
-        if (isActive()) {
-            rememberPhase = true;
-            chronoSequence.clear();
-            nextClickIndex = 0;
-            currentRoundProgress = 0;
-
-            ultraSolution.clear();
-            ultraSolutionInitialSize = 0;
-
-            superSlot = null;
-            superRewards.clear();
-
-            lastClickTime = System.currentTimeMillis();
-        }
+    private void reset() {
+        ultrasequencerOrder.clear();
+        chronomatronOrder.clear();
+        hasAdded = false;
+        lastAdded = 0;
+        clicks = 0;
     }
 
     public enum ExperimentType {
         Chronomatron, Ultrasequencer, Superpairs, None
     }
-
-    private static class Solution {
-        public ItemStack stack;
-        public Slot slot;
-
-        public Solution(ItemStack stack, Slot slot) {
-            this.stack = stack;
-            this.slot = slot;
-        }
-    }
-
 }
