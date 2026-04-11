@@ -4,7 +4,6 @@
   "package": "com.somefrills.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ArmorStandEntityMixin",
     "BlockItemMixin",
     "BossBarHudAccessor",
     "ClientConnectionMixin",
@@ -24,9 +23,6 @@
     "PlayerListHudAccessor",
     "WorldMixin",
     "WorldRendererMixin"
-  ],
-  "client": [
-    "LivingEntityRendererMixin"
   ]
 }
 

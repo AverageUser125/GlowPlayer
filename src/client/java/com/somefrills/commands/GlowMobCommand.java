@@ -202,9 +202,9 @@ public class GlowMobCommand {
             sb.append("  (none)\n");
         } else {
             for (GlowMob.GlowMobRule rule : rules) {
-                String name = (rule.name == null || rule.name.isEmpty()) ? "any" : rule.name;
-                String type = (rule.type == null || rule.type.isEmpty()) ? "any" : rule.type;
-                String color = String.format("#%06X", rule.color.hex);
+                String name = (rule.name() == null || rule.name().isEmpty()) ? "any" : rule.name();
+                String type = (rule.type() == null || rule.type().isEmpty()) ? "any" : rule.type();
+                String color = String.format("#%06X", rule.color().hex);
 
                 sb.append("  • ")
                         .append("name=").append(name)
@@ -263,7 +263,7 @@ public class GlowMobCommand {
         String remaining = builder.getRemaining().toLowerCase();
 
         for (GlowMob.GlowMobRule rule : GlowMob.getRules()) {
-            String type = (rule.type == null || rule.type.isEmpty()) ? "any" : rule.type;
+            String type = (rule.type() == null || rule.type().isEmpty()) ? "any" : rule.type();
             if (type.toLowerCase().startsWith(remaining)) {
                 builder.suggest(type);
             }
@@ -285,12 +285,12 @@ public class GlowMobCommand {
 
         for (GlowMob.GlowMobRule rule : GlowMob.getRules()) {
             // Check if this rule matches the selected type
-            String ruleType = (rule.type == null || rule.type.isEmpty()) ? null : rule.type;
+            String ruleType = (rule.type() == null || rule.type().isEmpty()) ? null : rule.type();
 
             if ((normalizedSelectedType == null && ruleType == null) ||
                     (normalizedSelectedType != null && normalizedSelectedType.equalsIgnoreCase(ruleType))) {
 
-                String name = (rule.name == null || rule.name.isEmpty()) ? "any" : rule.name;
+                String name = (rule.name() == null || rule.name().isEmpty()) ? "any" : rule.name();
                 if (name.toLowerCase().startsWith(remaining)) {
                     builder.suggest(name);
                 }
