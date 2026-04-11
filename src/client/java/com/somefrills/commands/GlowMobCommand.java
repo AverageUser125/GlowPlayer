@@ -191,12 +191,13 @@ public class GlowMobCommand {
             for (GlowMob.GlowMobRule rule : rules) {
                 String name = (rule.name == null || rule.name.isEmpty()) ? "any" : rule.name;
                 String type = (rule.type == null || rule.type.isEmpty()) ? "any" : rule.type;
-                String color = String.format("#%06X", rule.color.hex);
+                RenderColor ruleColor = GlowMob.getRuleColor(rule);
+                String colorStr = String.format("#%06X", ruleColor.hex);
 
                 sb.append("  • ")
                         .append("name=").append(name)
                         .append(", type=").append(type)
-                        .append(", color=").append(color)
+                        .append(", color=").append(colorStr)
                         .append("\n");
             }
         }

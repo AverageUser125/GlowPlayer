@@ -15,6 +15,7 @@ import net.minecraft.entity.LivingEntity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GlowMob extends Feature {
 
-    private static final ConcurrentHashMap<String, GlowMobRule> rules = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<GlowMobRule, RenderColor> ruleColors = new ConcurrentHashMap<>();
     // MobType-to-color mapping for highlighting
     private static final ConcurrentHashMap<MobType, RenderColor> mobTypeColors = new ConcurrentHashMap<>();
 
@@ -36,11 +37,13 @@ public class GlowMob extends Feature {
         if (!(entity instanceof LivingEntity)) return;
 
         // 1. Direct rules (highest priority)
-        for (GlowMobRule rule : rules.values()) {
-            if (!rule.matches(entity)) continue;
-
-            Utils.setGlowing(entity, true, rule.color);
-            return;
+        for (Map.Entry<GlowMobRule, RenderColor> entry : ruleColors.entrySet()) {
+            GlowMobRule rule = entry.getKey();
+            RenderColor color = entry.getValue();
+            if (rule.matches(entity)) {
+                Utils.setGlowing(entity, true, color);
+                return;
+            }
         }
 
         // 2. Check team prefix for mob type symbols
@@ -59,8 +62,8 @@ public class GlowMob extends Feature {
     }
 
     public static boolean addRule(String name, String type, RenderColor color) {
-        String key = generateRuleKey(name, type);
-        boolean isNew = rules.put(key, new GlowMobRule(name, type, color)) == null;
+        GlowMobRule rule = new GlowMobRule(name, type);
+        boolean isNew = ruleColors.put(rule, color) == null;
 
         for (Entity entity : Utils.getEntities()) {
             applyHighlight(entity);
@@ -70,12 +73,12 @@ public class GlowMob extends Feature {
     }
 
     public static boolean removeRule(String name, String type) {
-        String key = generateRuleKey(name, type);
-        GlowMobRule removed = rules.remove(key);
+        GlowMobRule rule = new GlowMobRule(name, type);
+        RenderColor removed = ruleColors.remove(rule);
         if (removed == null) return false;
 
         for (Entity entity : Utils.getEntities()) {
-            if (removed.matches(entity)) {
+            if (rule.matches(entity)) {
                 Utils.setGlowing(entity, false, RenderColor.white);
             }
         }
@@ -87,18 +90,22 @@ public class GlowMob extends Feature {
         for (Entity entity : Utils.getEntities()) {
             if (!(entity instanceof LivingEntity)) continue;
 
-            for (GlowMobRule rule : rules.values()) {
+            for (GlowMobRule rule : ruleColors.keySet()) {
                 if (rule.matches(entity)) {
                     Utils.setGlowing(entity, false, RenderColor.white);
                     break;
                 }
             }
         }
-        rules.clear();
+        ruleColors.clear();
     }
 
     public static Collection<GlowMobRule> getRules() {
-        return List.copyOf(rules.values());
+        return List.copyOf(ruleColors.keySet());
+    }
+
+    public static RenderColor getRuleColor(GlowMobRule rule) {
+        return ruleColors.get(rule);
     }
 
     public static boolean addSymbol(String symbol, RenderColor color) {
@@ -172,11 +179,6 @@ public class GlowMob extends Feature {
         return new ConcurrentHashMap<>(mobTypeColors);
     }
 
-    private static String generateRuleKey(String name, String type) {
-        String n = normalizeRuleName(name);
-        String t = (type == null || type.isEmpty()) ? "ANY" : type.toLowerCase();
-        return (n == null ? "ANY" : n) + ":" + t;
-    }
 
     private static String normalizeRuleName(String name) {
         if (name == null) return null;
@@ -201,9 +203,8 @@ public class GlowMob extends Feature {
     public static class GlowMobRule {
         public String name;
         public String type;
-        public RenderColor color;
 
-        public GlowMobRule(String name, String type, RenderColor color) {
+        public GlowMobRule(String name, String type) {
             this.name = normalizeRuleName(name);
 
             if (type != null && !type.isEmpty()) {
@@ -211,8 +212,6 @@ public class GlowMob extends Feature {
             } else {
                 this.type = null;
             }
-
-            this.color = color;
         }
 
         public boolean matches(Entity entity) {
@@ -235,6 +234,19 @@ public class GlowMob extends Feature {
             }
 
             return true;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            GlowMobRule that = (GlowMobRule) o;
+            return Objects.equals(name, that.name) && Objects.equals(type, that.type);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, type);
         }
     }
 }
