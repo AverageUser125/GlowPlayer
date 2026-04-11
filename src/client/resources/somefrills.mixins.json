@@ -23,6 +23,9 @@
     "PlayerListHudAccessor",
     "WorldMixin",
     "WorldRendererMixin"
+  ],
+  "client": [
+    "ArmorStandEntityRendererMixin"
   ]
 }
 
