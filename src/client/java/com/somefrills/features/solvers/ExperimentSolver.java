@@ -1,6 +1,8 @@
 package com.somefrills.features.solvers;
+
 import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
+import com.somefrills.config.solvers.SolverCategory.ExperimentSolverConfig;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +15,6 @@ import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import com.somefrills.config.solvers.SolverCategory.ExperimentSolverConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,11 +43,6 @@ public class ExperimentSolver extends Feature {
         config = FrillsConfig.instance.solvers.experimentSolver;
     }
 
-    @Override
-    protected void onEnable() {
-        ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
-    }
-
     public static ExperimentType getExperimentType() {
         if (Utils.isOnPrivateIsland() && mc.currentScreen instanceof GenericContainerScreen container) {
             String title = container.getTitle().getString();
@@ -57,6 +53,52 @@ public class ExperimentSolver extends Feature {
         return ExperimentType.None;
     }
 
+    private static boolean isValidChronoSlot(int idx) {
+        return (11 <= idx && idx <= 19) || (30 <= idx && idx <= 38);
+    }
+
+    private static boolean isGlowstone(ItemStack stack) {
+        return stack.getItem().equals(Items.GLOWSTONE);
+    }
+
+    private static boolean isClock(ItemStack stack) {
+        return stack.getItem().equals(Items.CLOCK);
+    }
+
+    private static boolean isGlowstone(Slot s) {
+        return isGlowstone(s.getStack());
+    }
+
+    private static boolean isClock(Slot s) {
+        return isClock(s.getStack());
+    }
+
+    private static boolean isDye(ItemStack stack) {
+        Item item = stack.getItem();
+        return item instanceof DyeItem
+                || item.equals(Items.INK_SAC)
+                || item.equals(Items.BONE_MEAL)
+                || item.equals(Items.LAPIS_LAZULI)
+                || item.equals(Items.COCOA_BEANS);
+    }
+
+    private static boolean isDye(Slot s) {
+        return isDye(s.getStack());
+    }
+
+    private static boolean isTerracotta(ItemStack stack) {
+        return stack.getItem().toString().endsWith("terracotta");
+    }
+
+    private static boolean isTerracotta(Slot s) {
+        return isTerracotta(s.getStack());
+    }
+
+    @Override
+    protected void onEnable() {
+        ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
+    }
+
     private void onTick(MinecraftClient client) {
         if (client == null || client.player == null) return;
         ClientPlayerEntity player = client.player;
@@ -64,7 +106,7 @@ public class ExperimentSolver extends Feature {
         if (handler == null) return;
 
         var type = getExperimentType();
-        if(type == ExperimentType.None ) {
+        if (type == ExperimentType.None) {
             reset();
             return;
         }
@@ -87,7 +129,7 @@ public class ExperimentSolver extends Feature {
         boolean lastAddedNotEnchanted = lastAddedSlot.getStack() != null && !isEnchanted(lastAddedSlot.getStack());
 
         if (slot49IsGlowstone && lastAddedNotEnchanted) {
-            if ( config.chronomatron.shouldClose && chronomatronOrder.size() > maxChronomatron) {
+            if (config.chronomatron.shouldClose && chronomatronOrder.size() > maxChronomatron) {
                 ClientPlayerEntity player = MinecraftClient.getInstance().player;
                 if (player != null) {
                     player.closeHandledScreen();
@@ -99,12 +141,12 @@ public class ExperimentSolver extends Feature {
         // Detect new item entering: slot 49 is clock
         if (!hasAdded && slot49.getStack() != null && isClock(slot49)) {
             for (int i = 11; i < 57; i++) { // Scan the colored glass/terracotta area (slots 11-56)
-                if(!isValidChronoSlot(i)) continue;
+                if (!isValidChronoSlot(i)) continue;
                 Slot s = invSlots.get(i);
                 ItemStack stack = s.getStack();
-                if(stack == null || stack.isEmpty()) continue;
-                if(!isEnchanted(stack)) continue;;
-                if(!isTerracotta(stack)) continue;
+                if (stack == null || stack.isEmpty()) continue;
+                if (!isEnchanted(stack)) continue;
+                if (!isTerracotta(stack)) continue;
                 chronomatronOrder.add(i);
             }
 
@@ -186,39 +228,6 @@ public class ExperimentSolver extends Feature {
                 SlotActionType.PICKUP,
                 client.player
         );
-    }
-
-    private static boolean isValidChronoSlot(int idx) {
-        return (11 <= idx && idx <= 19) || (30 <= idx && idx <= 38);
-    }
-    private static boolean isGlowstone(ItemStack stack) {
-        return stack.getItem().equals(Items.GLOWSTONE);
-    }
-    private static boolean isClock(ItemStack stack) {
-        return stack.getItem().equals(Items.CLOCK);
-    }
-    private static boolean isGlowstone(Slot s) {
-        return isGlowstone(s.getStack());
-    }
-    private static boolean isClock(Slot s) {
-        return isClock(s.getStack());
-    }
-    private static boolean isDye(ItemStack stack) {
-        Item item = stack.getItem();
-        return item instanceof DyeItem
-                || item.equals(Items.INK_SAC)
-                || item.equals(Items.BONE_MEAL)
-                || item.equals(Items.LAPIS_LAZULI)
-                || item.equals(Items.COCOA_BEANS);
-    }
-    private static boolean isDye(Slot s) {
-        return isDye(s.getStack());
-    }
-    private static boolean isTerracotta(ItemStack stack) {
-        return stack.getItem().toString().endsWith("terracotta");
-    }
-    private static boolean isTerracotta(Slot s) {
-        return isTerracotta(s.getStack());
     }
 
     private boolean isEnchanted(ItemStack stack) {

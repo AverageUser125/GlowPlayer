@@ -37,6 +37,13 @@ public class ScreenRenderEvent {
         this.focusedSlot = focusedSlot;
     }
 
+    public static void drawBorder(DrawContext context, int x, int y, int width, int height, int argb) {
+        context.fill(x, y, x + width, y + 1, argb);
+        context.fill(x, y + height - 1, x + width, y + height, argb);
+        context.fill(x, y + 1, x + 1, y + height - 1, argb);
+        context.fill(x + width - 1, y + 1, x + width, y + height - 1, argb);
+    }
+
     private Optional<Slot> getSlot(int slotId) {
         if (slotId < 0 || slotId >= this.handler.slots.size()) {
             return Optional.empty();
@@ -63,13 +70,6 @@ public class ScreenRenderEvent {
                 width,
                 color
         ));
-    }
-
-    public static void drawBorder(DrawContext context, int x, int y, int width, int height, int argb) {
-        context.fill(x, y, x + width, y + 1, argb);
-        context.fill(x, y + height - 1, x + width, y + height, argb);
-        context.fill(x, y + 1, x + 1, y + height - 1, argb);
-        context.fill(x + width - 1, y + 1, x + width, y + height - 1, argb);
     }
 
     public void drawBorder(int slotId, RenderColor color) {

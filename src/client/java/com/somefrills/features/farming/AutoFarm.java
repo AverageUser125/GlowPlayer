@@ -32,6 +32,7 @@ public class AutoFarm extends Feature {
     private static boolean isActive = false;
     private static Direction lastExit = Direction.NONE;
     private final AutoFarmConfig config;
+
     public AutoFarm() {
         super(FrillsConfig.instance.farming.autoFarm.enabled);
         config = FrillsConfig.instance.farming.autoFarm;
