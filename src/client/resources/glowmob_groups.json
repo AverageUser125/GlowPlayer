@@ -28,6 +28,10 @@
       { "type": "zombified_piglin" },
       { "type": "phantom" },
       { "type": "zoglin" }
+    ],
+
+    "aquatic": [
+      { "type": "dolphin" , "name": "joy"}
     ]
   }
 }

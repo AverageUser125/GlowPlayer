@@ -297,8 +297,8 @@ public class GlowMob extends Feature {
 
         private boolean matchesEntity(Entity entity) {
             if (this.name != null) {
-                String entityName = Utils.toPlain(entity.getName());
-                if (!entityName.toLowerCase().contains(this.name.toLowerCase())) {
+                String entityName = Utils.toPlain(entity.getDisplayName()).toLowerCase();
+                if (!entityName.contains(this.name)) {
                     return false;
                 }
             }
