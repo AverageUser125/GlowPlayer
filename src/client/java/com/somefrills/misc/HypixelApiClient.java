@@ -19,6 +19,8 @@ public class HypixelApiClient {
     private static final String API_BASE_URL = "https://api.hypixel.net";
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final Gson GSON = new Gson();
+    private static volatile boolean fatalError = false;
+    private static volatile String fatalErrorMessage = "";
 
 
     /**
@@ -30,6 +32,12 @@ public class HypixelApiClient {
      */
     public static CompletableFuture<JsonObject> fetchPlayerProfile(UUID uuid, String profileId) {
         return CompletableFuture.supplyAsync(() -> {
+            // Check if fatal error already occurred
+            if (fatalError) {
+                Main.LOGGER.info("[HypixelApiClient] Skipping request for UUID {} - Fatal error: {}", uuid, fatalErrorMessage);
+                return new JsonObject();
+            }
+
             String apiKey = KeyManager.getKey("hypixel");
             if (apiKey == null || apiKey.isEmpty()) {
                 Main.LOGGER.warn("[HypixelApiClient] Hypixel API key not set for UUID: {}", uuid);
@@ -49,6 +57,16 @@ public class HypixelApiClient {
                 HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() != 200) {
+                    // Check for fatal errors
+                    if (response.statusCode() == 404 || response.body().contains("deprecated")) {
+                        fatalError = true;
+                        fatalErrorMessage = "API endpoint deprecated (404)";
+                        Main.LOGGER.error("[HypixelApiClient] FATAL ERROR: {}", fatalErrorMessage);
+                        Main.LOGGER.error("[HypixelApiClient] Stopping all requests. Please update the mod or use a different API.");
+                        Utils.infoFormat("§c[SomeFrills] FATAL ERROR: API endpoint deprecated. The Hypixel API endpoint is no longer available.");
+                        return new JsonObject();
+                    }
+
                     Main.LOGGER.warn("[HypixelApiClient] HTTP {} response for UUID: {} - {}", response.statusCode(), uuid, response.body());
                     return new JsonObject();
                 }
@@ -84,6 +102,29 @@ public class HypixelApiClient {
                 return new JsonObject();
             }
         }, Util.getIoWorkerExecutor());
+    }
+
+    /**
+     * Check if a fatal error has occurred
+     */
+    public static boolean hasFatalError() {
+        return fatalError;
+    }
+
+    /**
+     * Get the fatal error message
+     */
+    public static String getFatalErrorMessage() {
+        return fatalErrorMessage;
+    }
+
+    /**
+     * Reset fatal error state (for testing or manual reset)
+     */
+    public static void resetFatalError() {
+        fatalError = false;
+        fatalErrorMessage = "";
+        Main.LOGGER.info("[HypixelApiClient] Fatal error state reset");
     }
 
     @SuppressWarnings("unchecked")
