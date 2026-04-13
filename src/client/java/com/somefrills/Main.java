@@ -93,6 +93,8 @@ public class Main implements ClientModInitializer {
         eventBus.subscribe(Main.class);
         Features.init();
 
+        eventBus.post(new GameStartEvent());
+
         LOGGER.info("It's time to get real, SomeFrills mod initialized in {}ms.", Util.getMeasuringTimeMs() - start);
     }
 }

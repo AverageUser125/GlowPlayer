@@ -44,7 +44,6 @@ public class UpdateManager {
     private static volatile CompletableFuture<?> activePromise = null;
     private static volatile UpdateState updateState = UpdateState.NONE;
     private static volatile PotentialUpdate potentialUpdate = null;
-    private static volatile boolean hasCheckedThisSession = false;
 
     public static UpdateState getUpdateState() {
         return updateState;
@@ -71,7 +70,6 @@ public class UpdateManager {
     public static void reset() {
         updateState = UpdateState.NONE;
         potentialUpdate = null;
-        hasCheckedThisSession = false;
         cancelActivePromise();
         LOGGER.debug("Update state reset");
     }
@@ -81,11 +79,6 @@ public class UpdateManager {
     }
 
     public static void checkUpdate(boolean autoQueue) {
-        if (hasCheckedThisSession) {
-            LOGGER.info("Already checked for updates this session");
-            return;
-        }
-
         if (updateState != UpdateState.NONE && updateState != UpdateState.AVAILABLE) {
             LOGGER.info("Trying to perform update check while another update is already in progress");
             return;
@@ -96,7 +89,6 @@ public class UpdateManager {
             LOGGER.info("Resetting update state to force download");
         }
 
-        hasCheckedThisSession = true;
         LOGGER.info("Starting update check (autoQueue: {})", autoQueue);
         activePromise = context.checkUpdate("full").thenAcceptAsync(update -> {
             LOGGER.info("Update check completed");
@@ -122,7 +114,6 @@ public class UpdateManager {
             }
         }, mc).exceptionally(e -> {
             LOGGER.error("[SomeFrills] Failed to check for updates", e);
-            hasCheckedThisSession = false;
             return null;
         });
     }
@@ -150,11 +141,9 @@ public class UpdateManager {
                 LOGGER.error("Failed to download update", e);
                 Utils.infoFormat("Failed to download update: {}", e.getMessage());
                 updateState = UpdateState.AVAILABLE;
-                hasCheckedThisSession = false;
             } catch (NullPointerException e) {
                 LOGGER.error("Update was cleared while downloading", e);
                 updateState = UpdateState.AVAILABLE;
-                hasCheckedThisSession = false;
             }
             return null;
         }).thenAcceptAsync(__ -> {

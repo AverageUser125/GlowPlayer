@@ -2,13 +2,12 @@ package com.somefrills.features.update;
 
 import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
-import com.somefrills.events.ServerJoinEvent;
+import com.somefrills.events.GameStartEvent;
 import meteordevelopment.orbit.EventHandler;
 
 import static com.somefrills.Main.LOGGER;
 
 public class AutoUpdate extends Feature {
-
     private static boolean hasCheckedThisSession = false;
 
     public AutoUpdate() {
@@ -30,7 +29,7 @@ public class AutoUpdate extends Feature {
     }
 
     @EventHandler
-    public void onServerJoin(ServerJoinEvent event) {
+    public void onGameStart(GameStartEvent event) {
         checkUpdate();
     }
 }
