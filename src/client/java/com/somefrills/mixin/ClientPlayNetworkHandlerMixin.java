@@ -1,25 +1,40 @@
 package com.somefrills.mixin;
 
+import com.google.common.collect.Maps;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.authlib.GameProfile;
+import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.*;
 import com.somefrills.misc.SkyblockData;
 import com.somefrills.misc.Utils;
+import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.somefrills.Main.eventBus;
 import static com.somefrills.Main.mc;
@@ -109,4 +124,30 @@ public class ClientPlayNetworkHandlerMixin {
             ci.cancel();
         }
     }
+
+    @Inject(method = "onScreenHandlerSlotUpdate", at = @At("TAIL"))
+    private void onHandleContainerUpdate(ScreenHandlerSlotUpdateS2CPacket packet, CallbackInfo ci) {
+        if (mc.player == null) return;
+        if (packet.getSlot() != 0) return;
+        eventBus.post(new OnHeldSlotEvent(packet.getStack()));
+    }
+
+    @Inject(method = "onInventory", at = @At("TAIL"))
+    private void onHandleInventory(InventoryS2CPacket packet, CallbackInfo ci) {
+        if (mc.player == null) return;
+        eventBus.post(new OnHeldSlotEvent(mc.player.getMainHandStack()));
+    }
+
+    @Inject(method = "onSetPlayerInventory", at = @At("TAIL"))
+    private void onHandleSetPlayerInventory(SetPlayerInventoryS2CPacket packet, CallbackInfo ci) {
+        if (mc.player == null) return;
+        eventBus.post(new OnHeldSlotEvent(mc.player.getMainHandStack()));
+    }
+
+    @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/DebugHud;shouldShowPacketSizeAndPingCharts()Z"))
+    private boolean shouldSendPing(boolean original) {
+        if(FrillsConfig.instance == null) return original;
+        return FrillsConfig.instance.mining.pingOffsetMiner.enabled.get();
+    }
+
 }
