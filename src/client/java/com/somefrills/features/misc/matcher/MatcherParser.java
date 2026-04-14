@@ -1,7 +1,5 @@
 package com.somefrills.features.misc.matcher;
 
-import org.jspecify.annotations.NonNull;
-
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,39 +178,19 @@ public class MatcherParser {
         // Read the value (until whitespace, ')', or end)
         skipWhitespace();
         start = pos;
-
-        // Check if value is quoted
-        String value;
-        if (pos < input.length() && input.charAt(pos) == '"') {
-            pos++; // skip opening quote
-            start = pos;
-            while (pos < input.length() && input.charAt(pos) != '"') {
-                pos++;
+        while (pos < input.length()) {
+            char c = input.charAt(pos);
+            if (c == ')' || Character.isWhitespace(c)) {
+                break;
             }
-            if (pos >= input.length()) {
-                throw new MatcherParseException("Unterminated quoted string at position " + start);
-            }
-            value = input.substring(start, pos);
-            pos++; // skip closing quote
-        } else {
-            // Unquoted value: read until whitespace, ')', or end
-            while (pos < input.length()) {
-                char c = input.charAt(pos);
-                if (c == ')' || Character.isWhitespace(c)) {
-                    break;
-                }
-                pos++;
-            }
-            value = input.substring(start, pos);
+            pos++;
         }
 
-        return getMatcher(value, key, negated);
-    }
-
-    private @NonNull Matcher getMatcher(String value, String key, boolean negated) throws MatcherParseException {
-        if (value.isEmpty()) {
+        if (pos == start) {
             throw new MatcherParseException("Expected value after '" + key + (negated ? "!=" : "=") + "'");
         }
+
+        String value = input.substring(start, pos);
 
         // Create the base matcher
         Matcher baseMatcher;
@@ -222,10 +200,11 @@ public class MatcherParser {
             baseMatcher = switch (key) {
                 case TYPE -> new TypeMatcher(value);
                 case NAME -> new NameMatcher(value);
-                case AREA -> new AreaMatcher(value);
                 default -> throw new MatcherParseException("Unknown matcher type: " + key);
             };
         }
+
+        // Wrap with NotMatcher if negated
         return negated ? new NotMatcher(baseMatcher) : baseMatcher;
     }
 

@@ -12,7 +12,6 @@ public class MatcherTypes {
     // Matcher type names
     public static final String TYPE = "TYPE";
     public static final String NAME = "NAME";
-    public static final String AREA = "AREA";
     public static final String NAKED = "NAKED";
 
     // Canonical equipment slot names
@@ -37,14 +36,10 @@ public class MatcherTypes {
     /**
      * Get all basic matcher type names (non-equipment).
      *
-     * @return array of basic matcher names (TYPE, NAME, AREA)
+     * @return array of basic matcher names (TYPE, NAME, NAKED)
      */
     public static String[] getBasicMatchers() {
-        return new String[]{TYPE, NAME, AREA};
-    }
-
-    public static String[] getCompleteMatchers() {
-        return new String[]{NAKED};
+        return new String[]{TYPE, NAME, NAKED};
     }
 
     /**
@@ -81,7 +76,7 @@ public class MatcherTypes {
     }
 
     /**
-     * Check if a string is a basic matcher type (TYPE, NAME, AREA, or NAKED).
+     * Check if a string is a basic matcher type (TYPE, NAME, or NAKED).
      *
      * @param word the word to check
      * @return true if word is a basic matcher, false otherwise
@@ -89,7 +84,7 @@ public class MatcherTypes {
     public static boolean isBasicMatcher(String word) {
         if (word == null) return false;
         String upper = word.toUpperCase();
-        return upper.equals(TYPE) || upper.equals(NAME) || upper.equals(AREA) || upper.equals(NAKED);
+        return upper.equals(TYPE) || upper.equals(NAME) || upper.equals(NAKED);
     }
 
     /**

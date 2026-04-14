@@ -6,7 +6,6 @@ import com.somefrills.config.mining.MiningCategory.CorpseHighlightConfig;
 import com.somefrills.events.InteractEntityEvent;
 import com.somefrills.events.ServerJoinEvent;
 import com.somefrills.events.WorldTickEvent;
-import com.somefrills.misc.Area;
 import com.somefrills.misc.ConcurrentHashSet;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
@@ -68,7 +67,7 @@ public class CorpseHighlight extends Feature {
     }
 
     private boolean active() {
-        return isActive() && Utils.isInArea(Area.MINESHAFT);
+        return isActive() && Utils.isInArea("Mineshaft");
     }
 
     private ChromaColour getCorpseColor(CorpseType type) {

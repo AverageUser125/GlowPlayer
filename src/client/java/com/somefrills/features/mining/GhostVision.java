@@ -6,7 +6,6 @@ import com.somefrills.config.mining.MiningCategory.GhostVisionConfig;
 import com.somefrills.events.AreaChangeEvent;
 import com.somefrills.events.EntityUpdatedEvent;
 import com.somefrills.events.WorldRenderEvent;
-import com.somefrills.misc.Area;
 import com.somefrills.misc.EntityCache;
 import com.somefrills.misc.RenderColor;
 import com.somefrills.misc.Utils;
@@ -33,21 +32,19 @@ public class GhostVision extends Feature {
 
     @EventHandler
     private void onEntity(EntityUpdatedEvent event) {
-        if (!isActive()) return;
-        if (!inDwarvenMines) return;
-        if (!(event.entity instanceof CreeperEntity creeper)) return;
-        if (!isGhost(creeper)) return;
-
-        if (config.removeCharge) {
-            creeper.getDataTracker().set(CreeperEntity.CHARGED, false);
+        if (isActive() && event.entity instanceof CreeperEntity creeper && Utils.isInArea("Dwarven Mines")) {
+            if (isGhost(creeper)) {
+                if (config.removeCharge) {
+                    creeper.getDataTracker().set(CreeperEntity.CHARGED, false);
+                }
+                cache.add(event.entity);
+            }
         }
-
-        cache.add(event.entity);
     }
 
     @EventHandler
     private void onScoreboardUpdate(AreaChangeEvent event) {
-        inDwarvenMines = event.area.equals(Area.DWARVEN_MINES);
+        inDwarvenMines = event.area.equals("Dwarven Mines");
     }
 
     @EventHandler
