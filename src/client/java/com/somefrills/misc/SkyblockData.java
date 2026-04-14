@@ -179,6 +179,29 @@ public class SkyblockData {
         updateScoreboard();
     }
 
+    public static String[] getAreas() {
+        return new String[]{
+                "Private Island",
+                "Catacombs",
+                "Kuudra",
+                "Dungeon Hub",
+                "Crimson Isle",
+                "Dragons Nest",
+                "Deep Caverns",
+                "The End",
+                "Garden",
+                "Gold Mine",
+                "Graveyard",
+                "Spider's Den",
+                "Mushroom Gorge",
+                "Dwarven Mines",
+                "Crystal Hollows",
+                "The Mist",
+                "Mineshaft",
+                "Lost Precursor City"
+        };
+    }
+
     public static class InstanceType {
         public String name;
         public String type;

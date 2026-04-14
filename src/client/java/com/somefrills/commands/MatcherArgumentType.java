@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.somefrills.features.misc.matcher.Matcher;
 import com.somefrills.features.misc.matcher.MatcherParser;
 import com.somefrills.features.misc.matcher.MatcherTypes;
+import com.somefrills.misc.SkyblockData;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.registry.Registries;
@@ -114,6 +115,20 @@ public class MatcherArgumentType implements ArgumentType<Matcher> {
                 return builder.buildFuture();
             }
 
+            // Check if previous word is a complete matcher (e.g., "TYPE=zombie")
+            // If so, we must have AND/OR before starting a new matcher
+            boolean previousIsCompleteMatcher = previousWord != null &&
+                                               previousWord.contains("=") &&
+                                               !previousWord.endsWith("=") &&
+                                               !previousWord.endsWith("!=");
+
+            if (previousIsCompleteMatcher) {
+                // After a complete matcher, only suggest AND/OR
+                builder.suggest(prefix + lastWord + " " + AND);
+                builder.suggest(prefix + lastWord + " " + OR);
+                return builder.buildFuture();
+            }
+
             // Try to match against known matchers
             String matchedMatcher = null;
             for (String matcher : allMatchers) {
@@ -189,6 +204,19 @@ public class MatcherArgumentType implements ArgumentType<Matcher> {
 
         // If typing "NAME=" or "NAME!=", let user type freely
         if (lastWord.startsWith(NAME + "=") || lastWord.startsWith(NAME + "!=")) {
+            return builder.buildFuture();
+        }
+
+        // If typing "AREA=" or "AREA!=", suggest common areas
+        if (lastWord.startsWith(AREA + "=") || lastWord.startsWith(AREA + "!=")) {
+            String areaPrefix = prefix + (lastWord.startsWith(AREA + "!=") ? AREA + "!=" : AREA + "=");
+            String valueStart = lastWord.substring(lastWord.indexOf('=') + 1).toLowerCase();
+
+            for (String area : SkyblockData.getAreas()) {
+                if (area.toLowerCase().startsWith(valueStart)) {
+                    builder.suggest(areaPrefix + area);
+                }
+            }
             return builder.buildFuture();
         }
 
@@ -286,7 +314,7 @@ public class MatcherArgumentType implements ArgumentType<Matcher> {
 
     @Override
     public Collection<String> getExamples() {
-        return List.of(TYPE + "=zombie", NAME + "=Boss", HELMET + "=diamond_helmet", TYPE + "!=zombie", NAKED, TYPE + "=zombie " + AND + " " + NAKED);
+        return List.of(TYPE + "=zombie", NAME + "=Boss", AREA + "=Private Island", HELMET + "=diamond_helmet", TYPE + "!=zombie", NAKED, TYPE + "=zombie " + AND + " " + NAKED);
     }
 }
 
