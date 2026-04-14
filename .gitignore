@@ -22,3 +22,4 @@ target/
 *.iml
 .DS_Store
 Thumbs.db
+/src/client/java/com/somefrills/PingOffsetMiner
