@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.somefrills.features.misc.matcher.Matcher;
 import com.somefrills.features.misc.matcher.MatcherParser;
 import com.somefrills.features.misc.matcher.MatcherTypes;
+import com.somefrills.misc.Area;
 import com.somefrills.misc.SkyblockData;
 import com.somefrills.misc.Utils;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -212,9 +213,9 @@ public class MatcherArgumentType implements ArgumentType<Matcher> {
             String areaPrefix = prefix + (lastWord.startsWith(AREA + "!=") ? AREA + "!=" : AREA + "=");
             String valueStart = lastWord.substring(lastWord.indexOf('=') + 1).toLowerCase();
 
-            for (String area : SkyblockData.getAreas()) {
-                if (area.toLowerCase().startsWith(valueStart)) {
-                    builder.suggest(areaPrefix + area);
+            for (String areaName : Area.getAllDisplayNames()) {
+                if (areaName.toLowerCase().startsWith(valueStart)) {
+                    builder.suggest(areaPrefix + areaName);
                 }
             }
             return builder.buildFuture();

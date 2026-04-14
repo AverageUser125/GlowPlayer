@@ -2,6 +2,7 @@ package com.somefrills.features.misc.matcher;
 
 import com.somefrills.features.misc.matcher.MatcherLexer.LexerException;
 import com.somefrills.features.misc.matcher.MatcherLexer.Token;
+import org.jspecify.annotations.NonNull;
 
 import java.io.Serial;
 import java.util.ArrayList;
@@ -155,6 +156,13 @@ public class MatcherParser {
         }
 
         // Create the base matcher
+        Matcher baseMatcher = getBaseMatcher(key, value);
+
+        // Wrap with NotMatcher if negated
+        return negated ? new NotMatcher(baseMatcher) : baseMatcher;
+    }
+
+    private static @NonNull Matcher getBaseMatcher(String key, String value) throws MatcherParseException {
         Matcher baseMatcher;
         if (MatcherTypes.isEquipmentSlot(key)) {
             baseMatcher = new EquipmentMatcher(key, value);
@@ -162,13 +170,17 @@ public class MatcherParser {
             baseMatcher = switch (key) {
                 case TYPE -> new TypeMatcher(value);
                 case NAME -> new NameMatcher(value);
-                case AREA -> new AreaMatcher(value);
+                case AREA -> {
+                    try {
+                        yield new AreaMatcher(value);
+                    } catch (IllegalArgumentException e) {
+                        throw new MatcherParseException(e.getMessage());
+                    }
+                }
                 default -> throw new MatcherParseException("Unknown matcher type: " + key);
             };
         }
-
-        // Wrap with NotMatcher if negated
-        return negated ? new NotMatcher(baseMatcher) : baseMatcher;
+        return baseMatcher;
     }
 
     /**
