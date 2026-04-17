@@ -39,6 +39,71 @@ public class MatchInfo {
         this.gear = EnumSet.copyOf(info.gear);
     }
 
+    public MatchInfo(@NonNull String type, @NonNull String name, @Nullable Area area, @NonNull Set<GearFlag> gear) {
+        this.type = type;
+        this.name = name;
+        this.area = area;
+        this.gear = gear;
+    }
+
+    public MatchInfo() {
+        this.type = "";
+        this.name = "";
+        this.area = null;
+        this.gear = EnumSet.noneOf(GearFlag.class);
+    }
+
+    public static MatchInfo fromString(String str) throws MatcherParseException {
+        if (str == null || str.trim().isEmpty()) {
+            throw new MatcherParseException("Empty matcher expression");
+        }
+
+        MatchInfo info = new MatchInfo();
+        String[] pairs = str.split(",");
+
+        for (String pair : pairs) {
+            pair = pair.trim();
+            if (pair.isEmpty()) continue;
+
+            int eqIndex = pair.indexOf('=');
+            if (eqIndex == -1) continue;
+
+            String key = pair.substring(0, eqIndex).trim().toUpperCase();
+            String value = pair.substring(eqIndex + 1).trim();
+
+            // Handle quoted strings
+            if (value.startsWith("\"") && value.endsWith("\"")) {
+                value = value.substring(1, value.length() - 1);
+            }
+
+            if (value.isEmpty()) {
+                continue;
+            }
+
+            switch (key) {
+                case "TYPE" -> info.type = value;
+                case "NAME" -> info.name = value;
+                case "AREA" -> {
+                    info.area = Area.fromString(value);
+                }
+                case "GEAR" -> {
+                    info.gear = EnumSet.noneOf(GearFlag.class);
+                    String[] gearValues = value.split("\\+");
+                    for (String gearValue : gearValues) {
+                        try {
+                            info.gear.add(GearFlag.valueOf(gearValue.trim().toUpperCase()));
+                        } catch (IllegalArgumentException e) {
+                            throw new MatcherParseException("Unknown gear: " + gearValue);
+                        }
+                    }
+                }
+                default -> throw new MatcherParseException("Unknown key: " + key);
+            }
+        }
+
+        return info;
+    }
+
     public boolean isEmpty() {
         return type.trim().isEmpty() && name.trim().isEmpty() && area == null && gear.isEmpty();
     }
@@ -74,111 +139,21 @@ public class MatchInfo {
         this.gear.clear();
     }
 
-    public static class MatchInfoTypeAdapter extends TypeAdapter<MatchInfo> {
-        @Override
-        public void write(JsonWriter out, MatchInfo value) throws IOException {
-            out.value(value.serialize());
-        }
-
-        @Override
-        public MatchInfo read(JsonReader in) throws IOException {
-            String str = in.nextString();
-            try {
-                return fromString(str);
-            } catch (MatcherParseException e) {
-                throw new JsonParseException("Failed to parse MatchInfo: " + e.getMessage(), e);
-            }
-        }
-    }
-
-    public enum GearFlag {
-        NAKED,
-        CHEST,
-        LEGS,
-        FEET,
-        HEAD
-    }
-
     public Predicate<LivingEntity> compile() {
         Predicate<LivingEntity> predicate = e -> true;
-        if(area != null) {
+        if (area != null) {
             predicate = predicate.and(new AreaPredicate(area));
         }
-        if(!type.trim().isEmpty()) {
+        if (!type.trim().isEmpty()) {
             predicate = predicate.and(new TypePredicate(type));
         }
-        if(!name.trim().isEmpty()) {
+        if (!name.trim().isEmpty()) {
             predicate = predicate.and(new NamePredicate(name));
         }
-        if(!gear.isEmpty()) {
+        if (!gear.isEmpty()) {
             predicate = predicate.and(new GearPredicate(gear));
         }
         return predicate;
-    }
-
-    public static MatchInfo fromString(String str) throws MatcherParseException {
-        if (str == null || str.trim().isEmpty()) {
-            throw new MatcherParseException("Empty matcher expression");
-        }
-
-        MatchInfo info = new MatchInfo();
-        String[] pairs = str.split(",");
-
-        for (String pair : pairs) {
-            pair = pair.trim();
-            if (pair.isEmpty()) continue;
-
-            int eqIndex = pair.indexOf('=');
-            if (eqIndex == -1) continue;
-
-            String key = pair.substring(0, eqIndex).trim().toUpperCase();
-            String value = pair.substring(eqIndex + 1).trim();
-
-            // Handle quoted strings
-            if (value.startsWith("\"") && value.endsWith("\"")) {
-                value = value.substring(1, value.length() - 1);
-            }
-
-            if(value.isEmpty()) {
-                continue;
-            }
-
-            switch (key) {
-                case "TYPE" -> info.type = value;
-                case "NAME" -> info.name = value;
-                case "AREA" -> {
-                    info.area = Area.fromString(value);
-                }
-                case "GEAR" -> {
-                    info.gear = EnumSet.noneOf(GearFlag.class);
-                    String[] gearValues = value.split("\\+");
-                    for (String gearValue : gearValues) {
-                        try {
-                            info.gear.add(GearFlag.valueOf(gearValue.trim().toUpperCase()));
-                        } catch (IllegalArgumentException e) {
-                            throw new MatcherParseException("Unknown gear: " + gearValue);
-                        }
-                    }
-                }
-                default -> throw new MatcherParseException("Unknown key: " + key);
-            }
-        }
-
-        return info;
-    }
-
-    public MatchInfo(@NonNull String type, @NonNull String name, @Nullable Area area, @NonNull Set<GearFlag> gear) {
-        this.type = type;
-        this.name = name;
-        this.area = area;
-        this.gear = gear;
-    }
-
-    public MatchInfo() {
-        this.type = "";
-        this.name = "";
-        this.area = null;
-        this.gear = EnumSet.noneOf(GearFlag.class);
     }
 
     public String serialize() {
@@ -208,6 +183,30 @@ public class MatchInfo {
         return String.join(",", parts);
     }
 
+    public enum GearFlag {
+        NAKED,
+        CHEST,
+        LEGS,
+        FEET,
+        HEAD
+    }
+
+    public static class MatchInfoTypeAdapter extends TypeAdapter<MatchInfo> {
+        @Override
+        public void write(JsonWriter out, MatchInfo value) throws IOException {
+            out.value(value.serialize());
+        }
+
+        @Override
+        public MatchInfo read(JsonReader in) throws IOException {
+            String str = in.nextString();
+            try {
+                return fromString(str);
+            } catch (MatcherParseException e) {
+                throw new JsonParseException("Failed to parse MatchInfo: " + e.getMessage(), e);
+            }
+        }
+    }
 
     public static class AreaPredicate implements Predicate<LivingEntity> {
         private final Area area;
@@ -223,8 +222,8 @@ public class MatchInfo {
     }
 
     public static class TypePredicate implements Predicate<LivingEntity> {
-        private final String entityType;
         private static final int PREFIX_LENGTH = "entity.minecraft.".length();
+        private final String entityType;
 
         public TypePredicate(String entityType) {
             this.entityType = Utils.stripPrefix(entityType, "minecraft:").toLowerCase();
@@ -233,13 +232,13 @@ public class MatchInfo {
         @Override
         public boolean test(LivingEntity entity) {
             String entityTypeStr = entity.getType().toString();
-            if(entityTypeStr.length() - PREFIX_LENGTH != this.entityType.length()) {
+            if (entityTypeStr.length() - PREFIX_LENGTH != this.entityType.length()) {
                 return false;
             }
-            for(int i = 0; i < this.entityType.length(); i++) {
+            for (int i = 0; i < this.entityType.length(); i++) {
                 char c1 = entityTypeStr.charAt(i + PREFIX_LENGTH);
                 char c2 = this.entityType.charAt(i);
-                if(c1 != c2) {
+                if (c1 != c2) {
                     return false;
                 }
             }
@@ -252,6 +251,21 @@ public class MatchInfo {
 
         public NamePredicate(String name) {
             this.name = name.toLowerCase();
+        }
+
+        private static List<LivingEntity> getNearbyEntities(LivingEntity entity) {
+            var world = entity.getEntityWorld();
+            if (world == null) {
+                return Collections.emptyList();
+            }
+
+            var box = entity.getBoundingBox()
+                    .expand(HORIZONTAL_RADIUS * 2, VERTICAL_RANGE, HORIZONTAL_RADIUS * 2);
+
+            return world.getEntitiesByClass(ArmorStandEntity.class, box, e -> true)
+                    .stream()
+                    .map(e -> (LivingEntity) e)
+                    .toList();
         }
 
         @Override
@@ -288,21 +302,6 @@ public class MatchInfo {
 
             return false;
         }
-
-        private static List<LivingEntity> getNearbyEntities(LivingEntity entity) {
-            var world = entity.getEntityWorld();
-            if (world == null) {
-                return Collections.emptyList();
-            }
-
-            var box = entity.getBoundingBox()
-                    .expand(HORIZONTAL_RADIUS * 2, VERTICAL_RANGE, HORIZONTAL_RADIUS * 2);
-
-            return world.getEntitiesByClass(ArmorStandEntity.class, box, e -> true)
-                    .stream()
-                    .map(e -> (LivingEntity) e)
-                    .toList();
-        }
     }
 
     public static class GearPredicate implements Predicate<LivingEntity> {
@@ -335,6 +334,7 @@ public class MatchInfo {
     public static class MatcherParseException extends Exception {
         @Serial
         private static final long serialVersionUID = 1L;
+
         public MatcherParseException(String message) {
             super(message);
         }

@@ -1,10 +1,10 @@
 package com.somefrills.mixin;
 
 import com.somefrills.config.Features;
-import com.somefrills.features.misc.SaveCursorPosition;
 import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.InputEvent;
 import com.somefrills.features.farming.SpaceFarmer;
+import com.somefrills.features.misc.SaveCursorPosition;
 import kotlin.Pair;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.input.MouseInput;

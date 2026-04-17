@@ -20,7 +20,7 @@ public class AreaSelectionMenu extends ChestUI {
 
     @Override
     protected void build() {
-        for(Area area : Area.values()) {
+        for (Area area : Area.values()) {
             addItem(createChoiceItem(area.getItem(), area.getDisplayName(), area.getColorHex()));
         }
         addItem(createChoiceItem(Items.STRUCTURE_VOID, "None", 0xFF0000));

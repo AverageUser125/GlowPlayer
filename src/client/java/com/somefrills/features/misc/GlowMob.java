@@ -27,6 +27,12 @@ public class GlowMob extends Feature {
         rules = FrillsConfig.instance.misc.glowMob.rules;
     }
 
+    private static List<Entity> getUpdatedEntities() {
+        return Utils.getEntities().stream()
+                .filter(Utils::isMob)
+                .toList();
+    }
+
     /**
      * Determines if entity should glow and what color. Single pass through all rules.
      * Returns null if no match found.
@@ -82,7 +88,7 @@ public class GlowMob extends Feature {
             return;
         }
         rules.set(idx, newVersion);
-         // Refresh entity list and update glowing on entities that matched the old or new version of this rule
+        // Refresh entity list and update glowing on entities that matched the old or new version of this rule
         updateEntities();
         for (Entity entity : getEntities()) {
             boolean matchesOld = original.matches((LivingEntity) entity);
@@ -131,12 +137,6 @@ public class GlowMob extends Feature {
         return entityList;
     }
 
-    private static List<Entity> getUpdatedEntities() {
-        return Utils.getEntities().stream()
-                .filter(Utils::isMob)
-                .toList();
-    }
-
     private void updateEntities() {
         entityList = getUpdatedEntities();
     }
@@ -153,7 +153,7 @@ public class GlowMob extends Feature {
         if (rule == null) return;
 
         updateEntities();
-        if(rule.enabled()) {
+        if (rule.enabled()) {
             for (Entity entity : getEntities()) {
                 if (entity instanceof LivingEntity livingEntity && rule.matches(livingEntity)) {
                     Utils.setGlowing(entity, false, RenderColor.white);

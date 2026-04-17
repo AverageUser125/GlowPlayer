@@ -16,6 +16,10 @@ public class MatcherArgumentType implements ArgumentType<MatchInfo> {
         return new MatcherArgumentType();
     }
 
+    public static MatchInfo getMatcher(CommandContext<FabricClientCommandSource> context, String name) {
+        return context.getArgument(name, MatchInfo.class);
+    }
+
     @Override
     public MatchInfo parse(StringReader reader) throws CommandSyntaxException {
         StringBuilder token = new StringBuilder();
@@ -52,9 +56,5 @@ public class MatcherArgumentType implements ArgumentType<MatchInfo> {
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         return builder.buildFuture();
-    }
-
-    public static MatchInfo getMatcher(CommandContext<FabricClientCommandSource> context, String name) {
-        return context.getArgument(name, MatchInfo.class);
     }
 }

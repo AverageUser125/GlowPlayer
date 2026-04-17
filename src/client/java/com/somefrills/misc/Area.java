@@ -54,20 +54,6 @@ public enum Area {
     }
 
     /**
-     * Get the display name of this area (as shown in the tab list)
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
-     * Get the color hex value for this area
-     */
-    public int getColorHex() {
-        return color;
-    }
-
-    /**
      * Convert a string (from tab list or user input) to an Area enum.
      * Case-insensitive matching.
      *
@@ -98,6 +84,20 @@ public enum Area {
             names[i] = Area.values()[i].displayName;
         }
         return names;
+    }
+
+    /**
+     * Get the display name of this area (as shown in the tab list)
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    /**
+     * Get the color hex value for this area
+     */
+    public int getColorHex() {
+        return color;
     }
 
     public Item getItem() {

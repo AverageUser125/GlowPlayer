@@ -6,9 +6,8 @@ import com.somefrills.misc.Utils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Style;
-import net.minecraft.util.DyeColor;
 
-public class ColorSelectionMenu extends ChestUI{
+public class ColorSelectionMenu extends ChestUI {
     private final RenderColor color;
 
     public ColorSelectionMenu(ChestUI previousScreen, RenderColor initialColor) {

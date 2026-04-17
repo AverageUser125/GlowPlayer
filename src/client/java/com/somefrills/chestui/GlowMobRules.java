@@ -28,6 +28,11 @@ public class GlowMobRules extends ChestUI {
         rebuild();
     }
 
+    private static String capitalize(String str) {
+        if (str == null || str.isEmpty()) return str;
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
     @Override
     protected void build() {
         nextSlot = 0;
@@ -113,11 +118,6 @@ public class GlowMobRules extends ChestUI {
 
     private Style colorStyle(int colorHex) {
         return Style.EMPTY.withColor(TextColor.fromRgb(colorHex));
-    }
-
-    private static String capitalize(String str) {
-        if (str == null || str.isEmpty()) return str;
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     @Override

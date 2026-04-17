@@ -1,9 +1,5 @@
 package com.somefrills.chestui;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-
 import com.somefrills.misc.Utils;
 import net.minecraft.block.SignBlock;
 import net.minecraft.block.entity.SignBlockEntity;
@@ -19,11 +15,15 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.UUID;
+import java.util.function.Consumer;
+
 /**
  * A thin wrapper over the vanilla SignEditScreen that:
  * - sets the first line to the provided title
  * - starts editing on the 2nd line
- * - calls a callback with the final 4 lines when the screen is closed*/
+ * - calls a callback with the final 4 lines when the screen is closed
+ */
 public class SignGui extends SignEditScreen {
     private final Consumer<String[]> onClose;
     private final boolean front;
@@ -83,7 +83,7 @@ public class SignGui extends SignEditScreen {
     public static class FakeSign extends SignBlockEntity {
         public FakeSign(Text[] lines) {
             super(BlockPos.ORIGIN, Registries.BLOCK.get(Identifier.tryParse("minecraft:oak_sign")).getDefaultState());
-            if(lines.length < 4) {
+            if (lines.length < 4) {
                 // pad with empty lines if less than 4
                 Text[] padded = new Text[4];
                 System.arraycopy(lines, 0, padded, 0, lines.length);

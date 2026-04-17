@@ -90,9 +90,9 @@ public class GlowMobEditMenu extends ChestUI {
         List<String> parts = new ArrayList<>();
 
         if (gear.contains(MatchInfo.GearFlag.CHEST)) parts.add("Chestplate");
-        if (gear.contains(MatchInfo.GearFlag.LEGS))  parts.add("Leggings");
-        if (gear.contains(MatchInfo.GearFlag.FEET))  parts.add("Boots");
-        if (gear.contains(MatchInfo.GearFlag.HEAD))  parts.add("Helmet");
+        if (gear.contains(MatchInfo.GearFlag.LEGS)) parts.add("Leggings");
+        if (gear.contains(MatchInfo.GearFlag.FEET)) parts.add("Boots");
+        if (gear.contains(MatchInfo.GearFlag.HEAD)) parts.add("Helmet");
 
         text = String.join(", ", parts);
 

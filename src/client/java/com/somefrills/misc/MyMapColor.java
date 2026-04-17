@@ -2,7 +2,6 @@ package com.somefrills.misc;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
-import net.minecraft.util.DyeColor;
 
 public enum MyMapColor {
     WHITE(16777215, Items.WHITE_DYE),

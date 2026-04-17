@@ -107,7 +107,7 @@ public class EntityTypesMenu extends ChestUI {
         String entityTypeId = nbt.getString("EntityType").orElse(null);
         if (entityTypeId == null) return;
 
-        if(entityTypeId.equals("none")) {
+        if (entityTypeId.equals("none")) {
             info.type = "";
         } else {
             info.type = entityTypeId;

@@ -21,17 +21,14 @@ import static com.somefrills.Main.mc;
 
 public abstract class ChestUI extends GenericContainerScreen {
     protected static final int INV_SIZE = 9 * 6;
-
+    private static final long CLICK_COOLDOWN_MS = 50L;
+    protected final List<ItemStack> allItems = new ArrayList<>();
+    protected final ChestUI previousScreen;
     protected int nextSlot = 0;
     protected int currentPage = 0;
     protected int totalPages = 1;
-
     // Click cooldown to avoid handling rapid repeated clicks (milliseconds)
     protected long lastClickTimestamp = 0L;
-    private static final long CLICK_COOLDOWN_MS = 50L;
-
-    protected final List<ItemStack> allItems = new ArrayList<>();
-    protected final ChestUI previousScreen;
 
     public ChestUI(String title) {
         this(title, null);
@@ -40,10 +37,6 @@ public abstract class ChestUI extends GenericContainerScreen {
     public ChestUI(String title, ChestUI previousScreen) {
         super(getHandler(INV_SIZE), Objects.requireNonNull(mc.player).getInventory(), Text.of(title));
         this.previousScreen = previousScreen;
-    }
-
-    protected Inventory getInventory() {
-        return handler.getInventory();
     }
 
     public static GenericContainerScreenHandler getHandler(int invSize) {
@@ -56,6 +49,10 @@ public abstract class ChestUI extends GenericContainerScreen {
         Inventory inventory = new UIInventory(invSize);
 
         return GenericContainerScreenHandler.createGeneric9x6(syncId, playerInventory, inventory);
+    }
+
+    protected Inventory getInventory() {
+        return handler.getInventory();
     }
 
     public final void rebuild() {

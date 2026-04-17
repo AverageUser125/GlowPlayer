@@ -76,13 +76,13 @@ public class ArmorSelectionMenu extends ChestUI {
         addItem("Chestplate", GearFlag.CHEST, Items.LEATHER_CHESTPLATE,
                 !naked && is(GearFlag.CHEST));
 
-        addItem( "Leggings", GearFlag.LEGS, Items.LEATHER_LEGGINGS,
+        addItem("Leggings", GearFlag.LEGS, Items.LEATHER_LEGGINGS,
                 !naked && is(GearFlag.LEGS));
 
-        addItem( "Boots", GearFlag.FEET, Items.LEATHER_BOOTS,
+        addItem("Boots", GearFlag.FEET, Items.LEATHER_BOOTS,
                 !naked && is(GearFlag.FEET));
 
-        addItem( "Helmet", GearFlag.HEAD, Items.LEATHER_HELMET,
+        addItem("Helmet", GearFlag.HEAD, Items.LEATHER_HELMET,
                 !naked && is(GearFlag.HEAD));
 
         addItem("Naked", GearFlag.NAKED, Items.BARRIER, naked);
@@ -107,7 +107,7 @@ public class ArmorSelectionMenu extends ChestUI {
         item.set(DataComponentTypes.DYED_COLOR, colorComponent);
         item.remove(DataComponentTypes.ATTRIBUTE_MODIFIERS);
 
-        if(flag != null) {
+        if (flag != null) {
             NbtCompound data = new NbtCompound();
             data.putString("Flag", flag.name());
             Utils.setCustomData(item, data);

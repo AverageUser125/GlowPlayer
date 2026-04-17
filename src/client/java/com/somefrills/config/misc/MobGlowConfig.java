@@ -90,7 +90,7 @@ public class MobGlowConfig {
         }
 
         public @NonNull Predicate<LivingEntity> predicate() {
-            if(this.predicate == null) {
+            if (this.predicate == null) {
                 this.predicate = info.compile();
             }
             return predicate;
@@ -104,7 +104,7 @@ public class MobGlowConfig {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null) return false;
-            if(!(o instanceof GlowMobRule that)) return false;
+            if (!(o instanceof GlowMobRule that)) return false;
 
             if (enabled != that.enabled) return false;
             if (!Objects.equals(info, that.info)) return false;

@@ -8,13 +8,15 @@ import com.somefrills.events.ScreenCloseEvent;
 import com.somefrills.events.ScreenOpenEvent;
 import kotlin.Pair;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
 
 import static com.somefrills.Main.mc;
 
 public final class SaveCursorPosition extends Feature {
-    private SaveCursorPositionConfig config;
+    private final SaveCursorPositionConfig config;
+    private Pair<Double, Double> savedPositionedP1;
+    private SavedPosition savedPosition;
 
     private SaveCursorPosition() {
         super(FrillsConfig.instance.misc.saveCursorPosition.enabled);
@@ -22,27 +24,10 @@ public final class SaveCursorPosition extends Feature {
     }
 
     public boolean active() {
-        if(config != null && config.onlyChestUI) {
+        if (config != null && config.onlyChestUI) {
             return mc.currentScreen instanceof ChestUI;
         }
         return true;
-    }
-
-    private Pair<Double, Double> savedPositionedP1;
-    private SavedPosition savedPosition;
-
-    public static final class SavedPosition {
-        public final Pair<Double, Double> middle;
-        public final Pair<Double, Double> cursor;
-        public final long savedAt;
-
-        public SavedPosition(Pair<Double, Double> middle,
-                             Pair<Double, Double> cursor,
-                             long savedAt) {
-            this.middle = middle;
-            this.cursor = cursor;
-            this.savedAt = savedAt;
-        }
     }
 
     public void saveCursorOriginal(double x, double y) {
@@ -99,5 +84,19 @@ public final class SaveCursorPosition extends Feature {
         }
 
         return null;
+    }
+
+    public static final class SavedPosition {
+        public final Pair<Double, Double> middle;
+        public final Pair<Double, Double> cursor;
+        public final long savedAt;
+
+        public SavedPosition(Pair<Double, Double> middle,
+                             Pair<Double, Double> cursor,
+                             long savedAt) {
+            this.middle = middle;
+            this.cursor = cursor;
+            this.savedAt = savedAt;
+        }
     }
 }
