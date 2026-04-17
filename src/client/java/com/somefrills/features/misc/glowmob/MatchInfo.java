@@ -342,6 +342,10 @@ public class MatchInfo {
         }
 
         private boolean isNaked(LivingEntity entity) {
+            if(entity.isDead() || entity.age <= 2) {
+                return false;
+            }
+
             return entity.getEquippedStack(net.minecraft.entity.EquipmentSlot.CHEST).isEmpty()
                     && entity.getEquippedStack(net.minecraft.entity.EquipmentSlot.LEGS).isEmpty()
                     && entity.getEquippedStack(net.minecraft.entity.EquipmentSlot.FEET).isEmpty()
