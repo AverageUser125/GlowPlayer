@@ -1,6 +1,6 @@
 package com.somefrills.mixin;
 
-import com.somefrills.chestui.SaveCursorPosition;
+import com.somefrills.config.misc.SaveCursorPosition;
 import com.somefrills.config.FrillsConfig;
 import com.somefrills.events.InputEvent;
 import com.somefrills.features.farming.SpaceFarmer;

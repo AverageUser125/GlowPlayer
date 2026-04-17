@@ -53,4 +53,21 @@ public class MiscCategory {
         public Property<Boolean> enabled = Property.of(true);
     }
 
+    @Expose
+    @Accordion
+    @ConfigOption(name = "Save Cursor Position", desc = "Save and restore cursor position in chests")
+    public SaveCursorPositionConfig saveCursorPosition = new SaveCursorPositionConfig();
+    public static class SaveCursorPositionConfig {
+        @Expose
+        @ConfigOption(name = "Enabled", desc = "Save and restore cursor position in chests")
+        @ConfigEditorBoolean
+        public Property<Boolean> enabled = Property.of(true);
+
+        @Expose
+        @ConfigOption(name = "Only ChestUI", desc = "Only save cursor position when in ChestUI")
+        @ConfigEditorBoolean
+        public boolean onlyChestUI = true;
+
+    }
+
 }

@@ -1,17 +1,30 @@
-package com.somefrills.chestui;
+package com.somefrills.config.misc;
 
+import com.somefrills.chestui.ChestUI;
+import com.somefrills.config.Feature;
+import com.somefrills.config.FrillsConfig;
+import com.somefrills.events.ScreenCloseEvent;
+import com.somefrills.events.ScreenOpenEvent;
 import kotlin.Pair;
+import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.MinecraftClient;
 
 import static com.somefrills.Main.mc;
 
-public final class SaveCursorPosition {
+public final class SaveCursorPosition extends Feature {
+    private static MiscCategory.SaveCursorPositionConfig config;
 
-    private SaveCursorPosition() {}
+    private SaveCursorPosition() {
+        super(FrillsConfig.instance.misc.saveCursorPosition.enabled);
+        config = FrillsConfig.instance.misc.saveCursorPosition;
+    }
 
     public static boolean active() {
-        return mc.currentScreen instanceof ChestUI;
+        if(config != null && config.onlyChestUI) {
+            return mc.currentScreen instanceof ChestUI;
+        }
+        return true;
     }
 
     private static Pair<Double, Double> savedPositionedP1;
@@ -46,6 +59,16 @@ public final class SaveCursorPosition {
                 savedPositionedP1,
                 System.currentTimeMillis()
         );
+    }
+
+    @EventHandler
+    public static void onScreen(ScreenOpenEvent event) {
+        loadCursor(mc.mouse.getX(), mc.mouse.getY());
+    }
+
+    @EventHandler
+    public static void onScreen(ScreenCloseEvent event) {
+        savedPosition = null;
     }
 
     public static Pair<Double, Double> loadCursor(double middleX, double middleY) {
