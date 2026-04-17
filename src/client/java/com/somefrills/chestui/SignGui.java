@@ -1,5 +1,6 @@
 package com.somefrills.chestui;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -14,6 +15,7 @@ import net.minecraft.client.util.SelectionManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -36,13 +38,9 @@ public class SignGui extends SignEditScreen {
      * Open a sign editor with first row pre-filled and cursor starting on row 2.
      * The provided callback receives a String[4] containing the final lines.
      */
-    public static void open(String firstRowTitle, Consumer<String[]> onClose) {
-        // create a FakeSign that already provides the first-line text without touching a world
-        SignBlockEntity sign = new FakeSign(Text.of(firstRowTitle));
-
-        // front=true, filtered=false (matches vanilla usage); adjust if you need filtering
+    public static void open(Text[] rows, Consumer<String[]> onClose) {
+        SignBlockEntity sign = new FakeSign(rows);
         SignGui gui = new SignGui(sign, true, false, onClose);
-        // show screen
         Utils.setScreen(gui);
     }
 
@@ -83,9 +81,20 @@ public class SignGui extends SignEditScreen {
     }
 
     public static class FakeSign extends SignBlockEntity {
-        public FakeSign(Text firstLine) {
+        public FakeSign(Text[] lines) {
             super(BlockPos.ORIGIN, Registries.BLOCK.get(Identifier.tryParse("minecraft:oak_sign")).getDefaultState());
-            setText(new SignText().withMessage(0, firstLine), true);
+            if(lines.length < 4) {
+                // pad with empty lines if less than 4
+                Text[] padded = new Text[4];
+                System.arraycopy(lines, 0, padded, 0, lines.length);
+                for (int i = lines.length; i < 4; i++) {
+                    padded[i] = Text.empty();
+                }
+                lines = padded;
+            }
+
+            SignText text = new SignText(lines, lines, DyeColor.WHITE, false);
+            setText(text, true);
         }
 
         @Override

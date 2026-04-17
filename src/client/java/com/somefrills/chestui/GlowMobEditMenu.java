@@ -154,7 +154,7 @@ public class GlowMobEditMenu extends ChestUI {
             case "Area" -> Utils.setScreen(new AreaSelectionMenu(this, info));
             case "Gear" -> Utils.setScreen(new ArmorSelectionMenu(this, info));
             case "Color" -> Utils.setScreen(new ColorSelectionMenu(this, rule.color()));
-            case "Name" -> SignGui.open("Set Name Filter", lines -> {
+            case "Name" -> SignGui.open(new Text[]{Text.of("Set Name Filter"), Text.of(info.name)}, lines -> {
                 // concat all lines except first one, IGNORE THE FIRST LINE
                 // note: lines is a String[]
                 StringBuilder nameBuilder = new StringBuilder();
