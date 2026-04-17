@@ -37,13 +37,12 @@ public class GhostVision extends Feature {
         if (!inDwarvenMines) return;
         if (!(event.entity instanceof CreeperEntity creeper)) return;
         if (!isGhost(creeper)) return;
-
         if (config.removeCharge) {
             creeper.getDataTracker().set(CreeperEntity.CHARGED, false);
         }
-
         cache.add(event.entity);
     }
+
 
     @EventHandler
     private void onScoreboardUpdate(AreaChangeEvent event) {

@@ -11,7 +11,6 @@ import net.minecraft.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.somefrills.Main.eventBus;
@@ -86,11 +85,8 @@ public class SkyblockData {
 
             if (name.startsWith("Area: ") || name.startsWith("Dungeon: ")) {
                 String areaStr = name.split(":", 2)[1].trim();
-                Optional<Area> areaOpt = Area.fromString(areaStr);
-                if(areaOpt.isPresent()) {
-                    area = areaOpt.get();
-                    eventBus.post(new AreaChangeEvent(area));
-                }
+                area = Area.fromString(areaStr);
+                eventBus.post(new AreaChangeEvent(area));
             }
             lines.add(name);
         }
@@ -182,29 +178,6 @@ public class SkyblockData {
     private static void onWorldTick(WorldTickEvent event) {
         updateTabList();
         updateScoreboard();
-    }
-
-    public static String[] getAreas() {
-        return new String[]{
-                "Private Island",
-                "Catacombs",
-                "Kuudra",
-                "Dungeon Hub",
-                "Crimson Isle",
-                "Dragons Nest",
-                "Deep Caverns",
-                "The End",
-                "Garden",
-                "Gold Mine",
-                "Graveyard",
-                "Spider's Den",
-                "Mushroom Gorge",
-                "Dwarven Mines",
-                "Crystal Hollows",
-                "The Mist",
-                "Mineshaft",
-                "Lost Precursor City"
-        };
     }
 
     public static class InstanceType {

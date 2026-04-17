@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.somefrills.config.Feature;
 import com.somefrills.config.FrillsConfig;
-import com.somefrills.config.misc.MiscCategory.NpcLocatorConfig;
+import com.somefrills.config.misc.NpcLocatorConfig;
 import com.somefrills.events.WorldRenderEvent;
 import com.somefrills.events.WorldTickEvent;
 import com.somefrills.misc.Area;
@@ -29,7 +29,7 @@ import static com.somefrills.Main.mc;
 public class NpcLocator extends Feature {
     private static final ConcurrentHashMap<String, NpcLocation> npcLocations = new ConcurrentHashMap<>();
     private static RenderColor color = new RenderColor(255, 100, 100, 255);
-    private static Area cachedIsland = Area.UNKNOWN;
+    private static Area cachedIsland = null;
     private static Map<String, Vec3d> cachedNpcs = new HashMap<>();
     private final NpcLocatorConfig config;
 
