@@ -17,8 +17,8 @@ public class PingMeasurerMixin {
      * @author Naor
      * @reason Just cause
      */
-    @Overwrite
-    public void onPingResult(PingResultS2CPacket packet) {
+    @Inject(method = "onPingResult", at = @At("TAIL"))
+    public void onPingResult(PingResultS2CPacket packet, CallbackInfo ci) {
         long delta = System.currentTimeMillis() - packet.startTime();;
         Main.eventBus.post(new PingEvent(delta));
     }
