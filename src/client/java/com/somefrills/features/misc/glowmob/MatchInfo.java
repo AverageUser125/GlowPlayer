@@ -163,7 +163,11 @@ public class MatchInfo {
             predicate = predicate.and(new NamePredicate(name));
         }
         if (!gear.isEmpty()) {
-            predicate = predicate.and(new GearPredicate(gear));
+            if (gear.contains(GearFlag.NAKED)) {
+                predicate = predicate.and(new NakedPredicate());
+            } else {
+                predicate = predicate.and(new GearPredicate(gear));
+            }
         }
         if (maxHp > 0) {
             predicate = predicate.and(new MaxHpPredicate(maxHp));
@@ -332,17 +336,19 @@ public class MatchInfo {
 
         @Override
         public boolean test(LivingEntity entity) {
-            if (requiredGear.contains(GearFlag.NAKED)) {
-                return isNaked(entity);
-            }
-
             return requiredGear.contains(GearFlag.CHEST) && !entity.getEquippedStack(EquipmentSlot.CHEST).isEmpty()
                     || requiredGear.contains(GearFlag.LEGS) && !entity.getEquippedStack(EquipmentSlot.LEGS).isEmpty()
                     || requiredGear.contains(GearFlag.FEET) && !entity.getEquippedStack(EquipmentSlot.FEET).isEmpty()
                     || requiredGear.contains(GearFlag.HEAD) && !entity.getEquippedStack(EquipmentSlot.HEAD).isEmpty();
         }
+    }
 
-        private boolean isNaked(LivingEntity entity) {
+    public static class NakedPredicate implements Predicate<LivingEntity> {
+        public NakedPredicate() {
+        }
+
+        @Override
+        public boolean test(LivingEntity entity) {
             // FIXME: hurtTime is not good, as it means the mob may flicker, but it should still work
             // Without this checks, mobs that are dying or recently spawned will be considered naked, which is not ideal
             if (entity.isDead() || entity.age <= 2 || entity.deathTime > 0 || entity.hurtTime > 0) {
